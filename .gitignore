@@ -1,0 +1,18 @@
+node_modules/
+out/
+release/
+dist/
+*.log
+.env
+.env.*
+
+# Binary whisper.cpp untuk dikte suara (±190 MB) — diletakkan manual sebelum
+# `npm run dist`. Petunjuknya di resources/whisper/README.md, yang TETAP ikut git.
+resources/whisper/*
+!resources/whisper/README.md
+
+# Hackathon copy: generated/large files kept out of git
+promo/*.mp4
+promo/keluaran/
+scripts/.*-bundle.cjs
+*.tsbuildinfo

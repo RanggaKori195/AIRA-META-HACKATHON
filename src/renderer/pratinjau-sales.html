@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<title>Pratinjau tata letak — Tanya Data Sales</title>
+<!--
+  Halaman PRATINJAU untuk memeriksa tata letak tanpa menjalankan seluruh
+  aplikasi. Memuat styles.css yang SAMA dengan yang dipakai aplikasi (lewat
+  `?direct` supaya Vite mengembalikan CSS mentah, bukan modul JS), jadi yang
+  dilihat di sini benar-benar aturan gaya yang berlaku.
+
+  Dibuka di http://localhost:5173/pratinjau-sales.html saat `npm run dev` jalan.
+  Bukan bagian dari aplikasi: tidak dirujuk dari mana pun, dan tidak ikut ke
+  installer karena electron-builder hanya membawa hasil build (`out/**`).
+-->
+<link rel="stylesheet" href="/src/styles.css?direct" />
+</head>
+<body>
+<div class="app">
+  <div class="sales-home">
+    <div class="sales-panel">
+      <div class="sales-head">
+        <span class="sales-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>
+        </span>
+        <div>
+          <h1>Tanya Data Sales</h1>
+          <p class="subtitle">Tanya apa saja soal penjualan — angkanya diambil langsung dari database, bukan perkiraan.</p>
+        </div>
+      </div>
+
+      <div class="task-box">
+        <textarea placeholder="Contoh: berapa sales bulan ini dibanding bulan lalu?"></textarea>
+        <div class="row">
+          <span class="model-tag">Sumber: SalesRepository</span>
+          <button class="btn-send">Tanya</button>
+        </div>
+      </div>
+
+      <div class="contoh-kepala">
+        <span class="contoh-label">Contoh pertanyaan</span>
+        <span class="contoh-petunjuk">klik salah satu untuk langsung bertanya</span>
+      </div>
+
+      <div class="contoh-daftar" id="daftar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KELOMPOK = [
+  { judul: 'Ringkasan & perbandingan', contoh: ['Berapa sales hari ini?', 'Sales bulan ini dibanding bulan lalu', 'Tren penjualan harian bulan ini', 'YTD tahun ini dibanding tahun lalu'] },
+  { judul: 'Pemeriksaan', contoh: ['Pemeriksaan apa yang paling laris bulan ini?', 'Pemeriksaan apa yang paling sepi bulan ini?', 'Item apa yang trennya menurun?', 'Kategori layanan apa yang paling besar bulan ini?'] },
+  { judul: 'Pelanggan', contoh: ['10 pelanggan terbesar 30 hari terakhir', 'Pelanggan mana yang berhenti order?', 'Pelanggan mana yang ordernya turun drastis?', 'Pelanggan baru 90 hari terakhir siapa saja?'] },
+  { judul: 'Wilayah', contoh: ['Provinsi mana yang terbesar bulan ini?', 'Berapa sales di Jawa Barat bulan ini?', 'Sales per jenis pelanggan bulan ini'] },
+  { judul: 'Proyeksi & ramalan', contoh: ['Proyeksi tutup bulan ini berapa?', 'Prediksi penjualan 3 bulan ke depan', 'Pemeriksaan apa yang sedang naik?'] },
+  { judul: 'ERP (ERP)', contoh: ['Sales order ERP bulan ini', 'Order yang belum masuk ERP bulan ini'] },
+  { judul: 'Laporan', contoh: ['Buatkan laporan penjualan bulan ini', 'Buatkan laporan penjualan bulan ini versi Excel'] }
+]
+document.getElementById('daftar').innerHTML = KELOMPOK.map((k) =>
+  `<section class="contoh-grup"><h2 class="contoh-judul">${k.judul}</h2><div class="sales-examples">` +
+  k.contoh.map((q) => `<button class="example-chip">${q}</button>`).join('') +
+  `</div></section>`
+).join('')
+</script>
+</body>
+</html>

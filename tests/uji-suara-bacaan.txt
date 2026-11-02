@@ -1,0 +1,81 @@
+# LEMBAR UJI TRANSKRIPSI SUARA — AIRA
+#
+# Cara pakai:
+#   1. Buka Notepad (atau editor apa pun), simpan kosong sebagai:
+#      tests/uji-suara-hasil.txt
+#   2. Baca TIAP baris bernomor di bawah dengan suara wajar, satu per satu,
+#      lalu dikte ke Notepad memakai aplikasi suara. SATU BARIS PER KALIMAT,
+#      urut, tanpa nomor.
+#   3. Jangan dikoreksi manual — yang diukur justru kesalahannya.
+#   4. Jalankan: node scripts/uji-suara.mjs nilai
+#
+# Total 68 kalimat. Baris diawali "#" tidak ikut dinilai.
+
+001. Berapa ERP bulan ini dibanding bulan lalu
+002. Tolong jelaskan the lab untuk periode berjalan
+003. Apakah data the lab sudah masuk semuanya
+004. Berapa Master Data bulan ini dibanding bulan lalu
+005. Tolong jelaskan Order ID untuk periode berjalan
+006. Apakah data RNS sudah masuk semuanya
+007. Berapa TAT bulan ini dibanding bulan lalu
+008. Tolong jelaskan nett sales untuk periode berjalan
+009. Apakah data backlog sudah masuk semuanya
+010. Berapa bridging bulan ini dibanding bulan lalu
+011. Berapa penjualan Open PCR TB bulan ini
+012. Tampilkan tren KALCT enam bulan terakhir
+013. Pemeriksaan HPV DNA Genotyping + LBC Thinprep naik atau turun dibanding tahun lalu
+014. Berapa penjualan NutriGEN-ME Life bulan ini
+015. Tampilkan tren KAL-Onco Breast 4 enam bulan terakhir
+016. Berapa penjualan NIPT Trisure Basic bulan ini
+017. Tampilkan tren Penambahan Slide HE enam bulan terakhir
+018. Pemeriksaan EGFR Mutation naik atau turun dibanding tahun lalu
+019. Berapa penjualan Paket Clinical Trial PML 1 bulan ini
+020. Tampilkan tren SPOTMAS 10in1 Special enam bulan terakhir
+021. Pemeriksaan Identif. Koloni Murni naik atau turun dibanding tahun lalu
+022. Tampilkan tren Liquid Based Cytology enam bulan terakhir
+023. Pemeriksaan ALK EML4 KALDx naik atau turun dibanding tahun lalu
+024. Berapa penjualan Kultur Identif Res. Sputum bulan ini
+025. Tampilkan tren Kultur Identif Res. Darah Dewasa enam bulan terakhir
+026. Pemeriksaan HPV DNA Partial Genotyping naik atau turun dibanding tahun lalu
+027. Berapa penjualan KAL-Onco Breast 3 bulan ini
+028. Tampilkan tren HBsAg Kuantitatif enam bulan terakhir
+029. Pemeriksaan HPV DNA Genotyping naik atau turun dibanding tahun lalu
+030. Berapa penjualan LDL Cholesterol bulan ini
+031. Tampilkan tren Paket MCU Basic enam bulan terakhir
+032. Pemeriksaan HbA1c naik atau turun dibanding tahun lalu
+033. Berapa penjualan Paket Newborn Screening bulan ini
+034. Berapa order dari PPK APBN Direktorat Penyakit Menular bulan ini
+035. Apakah PT. Gene Solutions Indonesia masih aktif order
+036. Tampilkan rincian pemeriksaan untuk Tzu Chi Hospital PIK
+037. Berapa order dari PT Pharma Metric Labs bulan ini
+038. Apakah RS Abdi Waluyo masih aktif order
+039. Tampilkan rincian pemeriksaan untuk PT.Pharma Metrics Lab
+040. Berapa order dari RS Umum Pekerja bulan ini
+041. Apakah PT the company Farma Tbk masih aktif order
+042. Tampilkan rincian pemeriksaan untuk Mayapada Hospital Kuningan
+043. Berapa order dari RS Hermina Depok bulan ini
+044. Apakah RS Sentra Medika Cibinong masih aktif order
+045. Tampilkan rincian pemeriksaan untuk RS Mitra Keluarga Bintaro
+046. Berapa order dari Ciputra Hospital CitraRaya bulan ini
+047. Apakah RS Amanda Cikarang Selatan masih aktif order
+048. Tampilkan rincian pemeriksaan untuk RS Brawijaya Duren Tiga
+049. Berapa order dari PT Hexpharm Jaya Laboratories bulan ini
+050. Apakah RS Brawijaya Antasari masih aktif order
+051. Tampilkan rincian pemeriksaan untuk RS Brawijaya Sawangan
+052. Berapa order dari RS Islam Jakarta Pondok Kopi bulan ini
+053. Apakah BPJS Cab. Jakarta Timur masih aktif order
+054. Berapa sales di ACEH bulan ini
+055. Pelanggan terbesar di BALI siapa saja
+056. Berapa sales di BANTEN bulan ini
+057. Pelanggan terbesar di BENGKULU siapa saja
+058. Berapa sales di DAERAH ISTIMEWA YOGYAKARTA bulan ini
+059. Pelanggan terbesar di DKI JAKARTA siapa saja
+060. Berapa sales di GORONTALO bulan ini
+061. Pelanggan terbesar di JAMBI siapa saja
+062. Berapa sales di JAWA BARAT bulan ini
+063. Pelanggan terbesar di JAWA TENGAH siapa saja
+064. Berapa sales di JAWA TIMUR bulan ini
+065. Pelanggan terbesar di KALIMANTAN BARAT siapa saja
+066. Berapa sales di KALIMANTAN SELATAN bulan ini
+067. Pelanggan terbesar di KALIMANTAN TENGAH siapa saja
+068. Berapa sales di KALIMANTAN TIMUR bulan ini

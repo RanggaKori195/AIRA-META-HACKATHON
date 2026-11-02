@@ -1,0 +1,410 @@
+[
+  {
+    "kelompok": "sistem",
+    "istilah": "ERP",
+    "istilahAsli": "ERP",
+    "kalimat": "Berapa ERP bulan ini dibanding bulan lalu"
+  },
+  {
+    "kelompok": "sistem",
+    "istilah": "the lab",
+    "istilahAsli": "the lab",
+    "kalimat": "Tolong jelaskan the lab untuk periode berjalan"
+  },
+  {
+    "kelompok": "sistem",
+    "istilah": "the lab",
+    "istilahAsli": "the lab",
+    "kalimat": "Apakah data the lab sudah masuk semuanya"
+  },
+  {
+    "kelompok": "sistem",
+    "istilah": "Master Data",
+    "istilahAsli": "Master Data",
+    "kalimat": "Berapa Master Data bulan ini dibanding bulan lalu"
+  },
+  {
+    "kelompok": "sistem",
+    "istilah": "Order ID",
+    "istilahAsli": "Order ID",
+    "kalimat": "Tolong jelaskan Order ID untuk periode berjalan"
+  },
+  {
+    "kelompok": "sistem",
+    "istilah": "RNS",
+    "istilahAsli": "RNS",
+    "kalimat": "Apakah data RNS sudah masuk semuanya"
+  },
+  {
+    "kelompok": "sistem",
+    "istilah": "TAT",
+    "istilahAsli": "TAT",
+    "kalimat": "Berapa TAT bulan ini dibanding bulan lalu"
+  },
+  {
+    "kelompok": "sistem",
+    "istilah": "nett sales",
+    "istilahAsli": "nett sales",
+    "kalimat": "Tolong jelaskan nett sales untuk periode berjalan"
+  },
+  {
+    "kelompok": "sistem",
+    "istilah": "backlog",
+    "istilahAsli": "backlog",
+    "kalimat": "Apakah data backlog sudah masuk semuanya"
+  },
+  {
+    "kelompok": "sistem",
+    "istilah": "bridging",
+    "istilahAsli": "bridging",
+    "kalimat": "Berapa bridging bulan ini dibanding bulan lalu"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "Open PCR TB",
+    "istilahAsli": "Open PCR TB (Kemenkes)",
+    "kalimat": "Berapa penjualan Open PCR TB bulan ini"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "KALCT",
+    "istilahAsli": "KALCT - Jaringan Small  without Histopot with PA Review",
+    "kalimat": "Tampilkan tren KALCT enam bulan terakhir"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "HPV DNA Genotyping + LBC Thinprep",
+    "istilahAsli": "HPV DNA Genotyping + LBC Thinprep",
+    "kalimat": "Pemeriksaan HPV DNA Genotyping + LBC Thinprep naik atau turun dibanding tahun lalu"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "NutriGEN-ME Life",
+    "istilahAsli": "NutriGEN-ME Life",
+    "kalimat": "Berapa penjualan NutriGEN-ME Life bulan ini"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "KAL-Onco Breast 4",
+    "istilahAsli": "KAL-Onco Breast 4 (ER, PR, HER2, Ki67)",
+    "kalimat": "Tampilkan tren KAL-Onco Breast 4 enam bulan terakhir"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "NIPT Trisure Basic",
+    "istilahAsli": "NIPT Trisure Basic",
+    "kalimat": "Berapa penjualan NIPT Trisure Basic bulan ini"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "Penambahan Slide HE",
+    "istilahAsli": "Penambahan Slide HE (Free)",
+    "kalimat": "Tampilkan tren Penambahan Slide HE enam bulan terakhir"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "EGFR Mutation",
+    "istilahAsli": "EGFR Mutation (4 Exon)",
+    "kalimat": "Pemeriksaan EGFR Mutation naik atau turun dibanding tahun lalu"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "Paket Clinical Trial PML 1",
+    "istilahAsli": "Paket Clinical Trial PML 1",
+    "kalimat": "Berapa penjualan Paket Clinical Trial PML 1 bulan ini"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "SPOTMAS 10in1 Special",
+    "istilahAsli": "SPOTMAS 10in1 Special (Non-Karyawan the company)",
+    "kalimat": "Tampilkan tren SPOTMAS 10in1 Special enam bulan terakhir"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "Identif. Koloni Murni",
+    "istilahAsli": "Identif. Koloni Murni",
+    "kalimat": "Pemeriksaan Identif. Koloni Murni naik atau turun dibanding tahun lalu"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "Liquid Based Cytology",
+    "istilahAsli": "Liquid Based Cytology (LBC)*",
+    "kalimat": "Tampilkan tren Liquid Based Cytology enam bulan terakhir"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "ALK EML4 KALDx",
+    "istilahAsli": "ALK EML4 KALDx",
+    "kalimat": "Pemeriksaan ALK EML4 KALDx naik atau turun dibanding tahun lalu"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "Kultur Identif Res. Sputum",
+    "istilahAsli": "Kultur Identif Res. Sputum",
+    "kalimat": "Berapa penjualan Kultur Identif Res. Sputum bulan ini"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "Kultur Identif Res. Darah Dewasa",
+    "istilahAsli": "Kultur Identif Res. Darah Dewasa",
+    "kalimat": "Tampilkan tren Kultur Identif Res. Darah Dewasa enam bulan terakhir"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "HPV DNA Partial Genotyping",
+    "istilahAsli": "HPV DNA Partial Genotyping (PG)",
+    "kalimat": "Pemeriksaan HPV DNA Partial Genotyping naik atau turun dibanding tahun lalu"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "KAL-Onco Breast 3",
+    "istilahAsli": "KAL-Onco Breast 3 (ER, PR, HER 2 (IHC))",
+    "kalimat": "Berapa penjualan KAL-Onco Breast 3 bulan ini"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "HBsAg Kuantitatif",
+    "istilahAsli": "HBsAg Kuantitatif",
+    "kalimat": "Tampilkan tren HBsAg Kuantitatif enam bulan terakhir"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "HPV DNA Genotyping",
+    "istilahAsli": "HPV DNA Genotyping",
+    "kalimat": "Pemeriksaan HPV DNA Genotyping naik atau turun dibanding tahun lalu"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "LDL Cholesterol",
+    "istilahAsli": "LDL Cholesterol",
+    "kalimat": "Berapa penjualan LDL Cholesterol bulan ini"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "Paket MCU Basic",
+    "istilahAsli": "Paket MCU Basic",
+    "kalimat": "Tampilkan tren Paket MCU Basic enam bulan terakhir"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "HbA1c",
+    "istilahAsli": "HbA1c (HPLC)",
+    "kalimat": "Pemeriksaan HbA1c naik atau turun dibanding tahun lalu"
+  },
+  {
+    "kelompok": "item",
+    "istilah": "Paket Newborn Screening",
+    "istilahAsli": "Paket Newborn Screening",
+    "kalimat": "Berapa penjualan Paket Newborn Screening bulan ini"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "PPK APBN Direktorat Penyakit Menular",
+    "istilahAsli": "PPK APBN Direktorat Penyakit Menular",
+    "kalimat": "Berapa order dari PPK APBN Direktorat Penyakit Menular bulan ini"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "PT. Gene Solutions Indonesia",
+    "istilahAsli": "PT. Gene Solutions Indonesia",
+    "kalimat": "Apakah PT. Gene Solutions Indonesia masih aktif order"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "Tzu Chi Hospital PIK",
+    "istilahAsli": "Tzu Chi Hospital PIK",
+    "kalimat": "Tampilkan rincian pemeriksaan untuk Tzu Chi Hospital PIK"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "PT Pharma Metric Labs",
+    "istilahAsli": "PT Pharma Metric Labs",
+    "kalimat": "Berapa order dari PT Pharma Metric Labs bulan ini"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Abdi Waluyo",
+    "istilahAsli": "RS Abdi Waluyo",
+    "kalimat": "Apakah RS Abdi Waluyo masih aktif order"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "PT.Pharma Metrics Lab",
+    "istilahAsli": "PT.Pharma Metrics Lab (Contract Analysis)",
+    "kalimat": "Tampilkan rincian pemeriksaan untuk PT.Pharma Metrics Lab"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Umum Pekerja",
+    "istilahAsli": "RS Umum Pekerja",
+    "kalimat": "Berapa order dari RS Umum Pekerja bulan ini"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "PT the company Farma Tbk",
+    "istilahAsli": "PT the company Farma Tbk. (Optima)",
+    "kalimat": "Apakah PT the company Farma Tbk masih aktif order"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "Mayapada Hospital Kuningan",
+    "istilahAsli": "Mayapada Hospital Kuningan",
+    "kalimat": "Tampilkan rincian pemeriksaan untuk Mayapada Hospital Kuningan"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Hermina Depok",
+    "istilahAsli": "RS Hermina Depok",
+    "kalimat": "Berapa order dari RS Hermina Depok bulan ini"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Sentra Medika Cibinong",
+    "istilahAsli": "RS Sentra Medika Cibinong",
+    "kalimat": "Apakah RS Sentra Medika Cibinong masih aktif order"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Mitra Keluarga Bintaro",
+    "istilahAsli": "RS Mitra Keluarga Bintaro",
+    "kalimat": "Tampilkan rincian pemeriksaan untuk RS Mitra Keluarga Bintaro"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "Ciputra Hospital CitraRaya",
+    "istilahAsli": "Ciputra Hospital CitraRaya (Cikupa)",
+    "kalimat": "Berapa order dari Ciputra Hospital CitraRaya bulan ini"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Amanda Cikarang Selatan",
+    "istilahAsli": "RS Amanda Cikarang Selatan",
+    "kalimat": "Apakah RS Amanda Cikarang Selatan masih aktif order"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Brawijaya Duren Tiga",
+    "istilahAsli": "RS Brawijaya Duren Tiga",
+    "kalimat": "Tampilkan rincian pemeriksaan untuk RS Brawijaya Duren Tiga"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "PT Hexpharm Jaya Laboratories",
+    "istilahAsli": "PT Hexpharm Jaya Laboratories",
+    "kalimat": "Berapa order dari PT Hexpharm Jaya Laboratories bulan ini"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Brawijaya Antasari",
+    "istilahAsli": "RS Brawijaya Antasari",
+    "kalimat": "Apakah RS Brawijaya Antasari masih aktif order"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Brawijaya Sawangan",
+    "istilahAsli": "RS Brawijaya Sawangan",
+    "kalimat": "Tampilkan rincian pemeriksaan untuk RS Brawijaya Sawangan"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "RS Islam Jakarta Pondok Kopi",
+    "istilahAsli": "RS Islam Jakarta Pondok Kopi",
+    "kalimat": "Berapa order dari RS Islam Jakarta Pondok Kopi bulan ini"
+  },
+  {
+    "kelompok": "pelanggan",
+    "istilah": "BPJS Cab. Jakarta Timur",
+    "istilahAsli": "BPJS Cab. Jakarta Timur (Klinik Melati)",
+    "kalimat": "Apakah BPJS Cab. Jakarta Timur masih aktif order"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "ACEH",
+    "istilahAsli": "ACEH",
+    "kalimat": "Berapa sales di ACEH bulan ini"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "BALI",
+    "istilahAsli": "BALI",
+    "kalimat": "Pelanggan terbesar di BALI siapa saja"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "BANTEN",
+    "istilahAsli": "BANTEN",
+    "kalimat": "Berapa sales di BANTEN bulan ini"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "BENGKULU",
+    "istilahAsli": "BENGKULU",
+    "kalimat": "Pelanggan terbesar di BENGKULU siapa saja"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "DAERAH ISTIMEWA YOGYAKARTA",
+    "istilahAsli": "DAERAH ISTIMEWA YOGYAKARTA",
+    "kalimat": "Berapa sales di DAERAH ISTIMEWA YOGYAKARTA bulan ini"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "DKI JAKARTA",
+    "istilahAsli": "DKI JAKARTA",
+    "kalimat": "Pelanggan terbesar di DKI JAKARTA siapa saja"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "GORONTALO",
+    "istilahAsli": "GORONTALO",
+    "kalimat": "Berapa sales di GORONTALO bulan ini"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "JAMBI",
+    "istilahAsli": "JAMBI",
+    "kalimat": "Pelanggan terbesar di JAMBI siapa saja"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "JAWA BARAT",
+    "istilahAsli": "JAWA BARAT",
+    "kalimat": "Berapa sales di JAWA BARAT bulan ini"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "JAWA TENGAH",
+    "istilahAsli": "JAWA TENGAH",
+    "kalimat": "Pelanggan terbesar di JAWA TENGAH siapa saja"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "JAWA TIMUR",
+    "istilahAsli": "JAWA TIMUR",
+    "kalimat": "Berapa sales di JAWA TIMUR bulan ini"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "KALIMANTAN BARAT",
+    "istilahAsli": "KALIMANTAN BARAT",
+    "kalimat": "Pelanggan terbesar di KALIMANTAN BARAT siapa saja"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "KALIMANTAN SELATAN",
+    "istilahAsli": "KALIMANTAN SELATAN",
+    "kalimat": "Berapa sales di KALIMANTAN SELATAN bulan ini"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "KALIMANTAN TENGAH",
+    "istilahAsli": "KALIMANTAN TENGAH",
+    "kalimat": "Pelanggan terbesar di KALIMANTAN TENGAH siapa saja"
+  },
+  {
+    "kelompok": "wilayah",
+    "istilah": "KALIMANTAN TIMUR",
+    "istilahAsli": "KALIMANTAN TIMUR",
+    "kalimat": "Berapa sales di KALIMANTAN TIMUR bulan ini"
+  }
+]

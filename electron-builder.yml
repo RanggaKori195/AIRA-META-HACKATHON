@@ -1,0 +1,104 @@
+appId: co.id.company.aira
+productName: AIRA
+directories:
+  output: release
+  buildResources: resources
+files:
+  - out/**
+  - resources/**
+  # Sourcemap MENGEMBALIKAN nama asli & komentar utuh — satu file .map yang ikut
+  # terbawa membatalkan seluruh minify di electron.vite.config.ts.
+  - "!**/*.map"
+  # Kode sumber tidak boleh ikut. `out/**` sudah hasil bundling, jadi `src/`
+  # tidak dibutuhkan sama sekali saat runtime.
+  - "!src/**"
+  - "!tests/**"
+  - "!*.md"
+  # Sumber main process sebelum dikompilasi ke bytecode — disimpan untuk
+  # penelusuran lokal, TIDAK boleh ikut ke installer (membatalkan bytenode).
+  - "!out/main/index.js.asli"
+  # ⚠️ whisper (±191 MB) WAJIB dikeluarkan dari asar — ia sudah dibawa lewat
+  # extraResources (dan .exe/.dll tidak bisa dijalankan dari dalam asar). Tanpa
+  # baris ini `resources/**` ikut menyeretnya ke app.asar: build 0.2.0 berisi asar
+  # 302 MB, dan sejak whisper masuk extraResources ia akan terbawa DUA kali.
+  # `original/` = berkas logo sumber, tidak dibaca kode mana pun (dicek 1 Okt 2026).
+  - "!resources/whisper/**"
+  - "!resources/original/**"
+# app.asar bukan enkripsi — ia arsip biasa dan SELALU bisa diekstrak
+# (`npx asar extract`). electron-builder menanam hash asar ke dalam .exe, TAPI hash itu
+# TIDAK diperiksa selama fuse EnableEmbeddedAsarIntegrityValidation mati (koreksi 18 Okt
+# 2026, CLAUDE.md aturan 13) — saat ini belum ada perlindungan integritas.
+asar: true
+extraResources:
+  # Skill dibawa sebagai file terpisah agar tim bisa menambah/mengubah panduan
+  # tanpa perlu build ulang aplikasi.
+  - from: skills
+    to: skills
+  # Font korporat company serif font. Dibutuhkan main process saat MENCETAK PDF —
+  # halaman cetak memuatnya sebagai berkas, bukan lewat bundler renderer.
+  # ⚠️ Tanpa ini, PDF di aplikasi terpasang terbit dengan font cadangan TANPA
+  # pesan apa pun: berkasnya tetap jadi, hanya hurufnya berbeda.
+  - from: resources/fonts
+    to: fonts
+  # Grammar tree-sitter (.wasm) untuk pencarian definisi kode.
+  # ⚠️ Tanpa ini, `cari_simbol` mati di aplikasi terpasang sementara di dev
+  # jalan normal — kegagalan yang hanya muncul SESUDAH dibagikan. Polanya sama
+  # dengan font company serif font dan templat PPT.
+  - from: resources/tree-sitter
+    to: tree-sitter
+  # Gambar latar template presentasi the company (sampul, isi, penutup) + ikon PNG
+  # untuk slide. Dibaca main process saat membuat .pptx.
+  # ⚠️ Kegagalannya sunyi persis seperti font di atas: tanpa ini, presentasi di
+  # aplikasi terpasang tetap terbit — hanya polos putih tanpa logo, warna, dan
+  # ikon. `muatAset` melaporkannya lewat catatanHasil, tapi mencegahnya di sini
+  # jauh lebih murah.
+  - from: resources/templat-ppt
+    to: templat-ppt
+  - from: resources/ikon
+    to: ikon
+  # whisper.cpp (whisper-cli.exe + model ggml) untuk dikte suara.
+  # Dijalankan sebagai PROSES TERPISAH, bukan native module — jadi tidak
+  # menyentuh risiko bytenode/electron-builder (§5b) yang menolak Whisper-GPU,
+  # Docker, sharp, dan resvg.
+  # ⚠️ Tanpa baris ini tombol mikrofon HILANG di aplikasi terpasang sementara
+  # di dev jalan normal — pola kegagalan yang sama persis dengan font the company
+  # Serif, templat PPT, dan tree-sitter di atas.
+  # ⚠️ Folder ini TIDAK ada di git (isinya binary ±190 MB). Kalau belum diisi,
+  # `cariWhisper()` mengembalikan null dan tombolnya disembunyikan — aplikasi
+  # tetap jalan normal, fiturnya saja yang tidak muncul.
+  - from: resources/whisper
+    to: whisper
+asarUnpack:
+  - "**/*.node"
+win:
+  # ⚠️ WAJIB .ico, bukan .png. NSIS menolak PNG dengan "invalid icon file" dan
+  # membatalkan pembuatan installer — pada 19 Agu 2026 inilah yang menggagalkan
+  # build .exe pertama. `resources/icon.ico` dihasilkan dari icon.png:
+  #   npx png-to-ico resources/icon.png > resources/icon.ico
+  # Berisi 16/32/48/256 px format BMP/DIB (bukan PNG-in-ICO, yang dukungannya
+  # bergantung versi NSIS).
+  icon: resources/icon.ico
+  target:
+    - nsis
+nsis:
+  # ⚠️ Nama TANPA spasi (17 Sep 2026, auto-update). Nama bawaan "AIRA Setup x.exe"
+  # ditulis di latest.yml sebagai "AIRA-Setup-x.exe" — berkas yang diunggah dan
+  # nama yang dicari updater jadi berbeda, dan setiap laptop mendapat 404.
+  artifactName: AIRA-Setup-${version}.${ext}
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: AIRA
+  installerIcon: resources/icon.ico
+  uninstallerIcon: resources/icon.ico
+  installerHeaderIcon: resources/icon.ico
+# Auto-update (17 Sep 2026). `npm run dist` menghasilkan `latest.yml` +
+# `.blockmap` di release/ — ketiganya (bersama installer) yang diunggah ke
+# server. ⚠️ `url` WAJIB SAMA dengan URL_UPDATE_BAWAAN di
+# src/main/update/rules.ts (diperiksa tests/update.test.ts).
+publish:
+  - provider: generic
+    url: https://updates.internal.example/update/
+npmRebuild: true
