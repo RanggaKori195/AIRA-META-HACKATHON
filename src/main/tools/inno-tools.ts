@@ -104,8 +104,8 @@ export function saringanItem(args: Record<string, unknown>): {
   if (keyword) {
     const like = likeParam(keyword)
     syarat.push(
-      '(i.item_name LIKE ? OR i.item_code = ? OR i.item_code_lis = ?' +
-        ' OR i.item_name_alias LIKE ? OR i.item_name_eng LIKE ?)'
+      '(i.item_name ILIKE ? OR i.item_code = ? OR i.item_code_lis = ?' +
+        ' OR i.item_name_alias ILIKE ? OR i.item_name_eng ILIKE ?)'
     )
     params.push(like, keyword, keyword, like, like)
   }
@@ -122,7 +122,7 @@ export function saringanItem(args: Record<string, unknown>): {
     params.push(kelompok)
   }
   if (grup) {
-    syarat.push('(i.group_code = ? OR g.description LIKE ?)')
+    syarat.push('(i.group_code = ? OR g.description ILIKE ?)')
     params.push(grup, likeParam(grup))
   }
   return { keyword, jenis, lab, kelompok, grup, syarat, params }
@@ -193,8 +193,8 @@ async function findCustomers(keyword: string, limit: number): Promise<CustomerRo
   return innoQuery<CustomerRow>(
     `SELECT ${CUSTOMER_SELECT} FROM m_customer
      WHERE ${alive('m_customer')}
-       AND (customer_name LIKE ? OR customer_code = ? OR customer_code_lis = ?
-            OR customer_name_alias LIKE ?)
+       AND (customer_name ILIKE ? OR customer_code = ? OR customer_code_lis = ?
+            OR customer_name_alias ILIKE ?)
      ORDER BY (customer_code = ?) DESC, char_length(customer_name), customer_name
      LIMIT ${limit}`,
     [like, keyword, keyword, like, keyword]
@@ -302,7 +302,7 @@ export const innoTools: ToolDefinition[] = [
       const params: unknown[] = []
       if (keyword) {
         const like = likeParam(keyword)
-        syarat.push('(customer_name LIKE ? OR customer_name_alias LIKE ?)')
+        syarat.push('(customer_name ILIKE ? OR customer_name_alias ILIKE ?)')
         params.push(like, like)
       }
       if (tipe) {
@@ -588,7 +588,7 @@ export const innoTools: ToolDefinition[] = [
       const params: unknown[] = [customer.customer_code]
       let itemClause = ''
       if (itemFilter) {
-        itemClause = ` AND (sp.item_code = ? OR sp.item_name LIKE ? OR mi.item_name LIKE ?)`
+        itemClause = ` AND (sp.item_code = ? OR sp.item_name ILIKE ? OR mi.item_name ILIKE ?)`
         params.push(itemFilter, likeParam(itemFilter), likeParam(itemFilter))
       }
       const categoryFilter =
@@ -688,7 +688,7 @@ export const innoTools: ToolDefinition[] = [
       // (190 ribu baris) tidak memakai index dan pernah menggantung >16 menit.
       const items = await innoQuery<{ item_code: string; item_name: string }>(
         `SELECT item_code, item_name FROM m_item
-         WHERE ${alive('m_item')} AND (item_code = ? OR item_name LIKE ? OR item_code_lis = ?)
+         WHERE ${alive('m_item')} AND (item_code = ? OR item_name ILIKE ? OR item_code_lis = ?)
          ORDER BY (item_code = ?) DESC, char_length(item_name) LIMIT 8`,
         [keyword, likeParam(keyword), keyword, keyword]
       )
@@ -847,8 +847,8 @@ export const innoTools: ToolDefinition[] = [
       const params: unknown[] = []
       if (keyword) {
         syarat.push(
-          '(i.item_name LIKE ? OR i.item_code = ? OR i.item_code_lis = ?' +
-            ' OR i.item_name_alias LIKE ? OR i.item_name_eng LIKE ?)'
+          '(i.item_name ILIKE ? OR i.item_code = ? OR i.item_code_lis = ?' +
+            ' OR i.item_name_alias ILIKE ? OR i.item_name_eng ILIKE ?)'
         )
         params.push(like, keyword, keyword, like, like)
       }
@@ -865,7 +865,7 @@ export const innoTools: ToolDefinition[] = [
         params.push(kelompok)
       }
       if (grup) {
-        syarat.push('(i.group_code = ? OR g.description LIKE ?)')
+        syarat.push('(i.group_code = ? OR g.description ILIKE ?)')
         params.push(grup, likeParam(grup))
       }
       // Kolom email & phone dokter SENGAJA tidak diambil: itu data pribadi
@@ -874,7 +874,7 @@ export const innoTools: ToolDefinition[] = [
         `SELECT code, code_lis, name, is_patologist, code_specialist
          FROM m_clinician
          WHERE status = '5' AND deleted_at IS NULL
-           AND (name LIKE ? OR code = ? OR code_lis = ?)
+           AND (name ILIKE ? OR code = ? OR code_lis = ?)
          ORDER BY char_length(name), name
          LIMIT ${limitOf(args, 10)}`,
         [like, keyword, keyword]
@@ -936,8 +936,8 @@ export const innoTools: ToolDefinition[] = [
         `SELECT i.item_code, i.item_name, i.item_type, i.lab_code
            FROM m_item i
           WHERE ${alive('i')}
-            AND (i.item_name LIKE ? OR i.item_code = ? OR i.item_code_lis = ?
-                 OR i.item_name_alias LIKE ?)
+            AND (i.item_name ILIKE ? OR i.item_code = ? OR i.item_code_lis = ?
+                 OR i.item_name_alias ILIKE ?)
             AND EXISTS (
               SELECT 1 FROM m_item_package p
                WHERE p.item_code_main = i.item_code AND p.deleted_at IS NULL

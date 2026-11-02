@@ -10,9 +10,9 @@
 //   4. Akurasi metode pada data hari ini masih di kisaran yang diklaim ke user
 //   5. Proyeksi bulan berjalan tidak lebih kecil dari yang sudah terkumpul
 
-import { readFileSync } from 'fs'
 import { Pool } from 'pg'
 import { RECOGNIZED_CLAUSE } from '../src/main/sales/recognition'
+import { envDb } from './live-env'
 import {
   bulanBerikut,
   harapanTren,
@@ -23,14 +23,7 @@ import {
   MIN_RIWAYAT
 } from '../src/main/sales/forecast'
 
-function envVar(nama: string): string | null {
-  const baris = readFileSync('.env', 'utf8')
-    .split(/\r?\n/)
-    .find((l) => l.startsWith(`${nama}=`))
-  return baris ? baris.slice(nama.length + 1).trim() : null
-}
-
-const cs = envVar('AIRA_SALES_DB')
+const cs = envDb('AIRA_SALES_DB')
 if (!cs) {
   console.error('AIRA_SALES_DB tidak ada di .env')
   process.exit(1)

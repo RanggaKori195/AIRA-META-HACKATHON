@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, shell } from 'electron'
+import { app, BrowserWindow, dialog, Menu, shell } from 'electron'
 import { join } from 'path'
 import { initDb, jumlahSesiTanpaPemilik } from './db'
 import { registerIpcHandlers } from './ipc'
@@ -8,6 +8,7 @@ import { bersihkanRuangLama } from './uji/ruang'
 import { clearAttention, setMainWindow } from './notify'
 import { closeSplash, showSplash } from './splash'
 import { BUNDLED } from './bundled-config'
+import { checkLocalDbs } from './hackathon/local-db'
 import { loadConfig, saveConfig } from './config'
 import { setSecret } from './secrets'
 import { invalidate as invalidateMcp } from './mcp/manager'
@@ -203,6 +204,20 @@ function applyBundledCredentials(): void {
 app.setAppUserModelId('co.id.company.aira')
 
 app.whenReady().then(() => {
+  // Hackathon build: refuse to run at all if ANY database variable points off this machine —
+  // before a pool, a migration or a window exists (pools also check, but only when first used).
+  const nonLocal = checkLocalDbs({
+    AIRA_SALES_DB: BUNDLED.salesDb,
+    AIRA_LOGIN_DB: BUNDLED.loginDb,
+    AIRA_INNO_DB: BUNDLED.innoDb
+  })
+  if (nonLocal.length > 0) {
+    logger().error({ nonLocal }, 'non-local database refused')
+    console.error(`non-local database refused: ${nonLocal.join(' | ')}`)
+    dialog.showErrorBox('AIRA hackathon build', nonLocal.join('\n'))
+    app.exit(1)
+    return
+  }
   hardenWebContents()
   showSplash()
   initDb()

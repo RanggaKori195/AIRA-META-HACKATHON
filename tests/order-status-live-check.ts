@@ -5,8 +5,8 @@
 // Order ID contoh DICARI dari data tiap kali jalan, tidak dipatok di berkas ini.
 // Tidak ada data pasien yang keluar dari database: pemeriksaan "nama pasien/pelanggan
 // tidak bocor" dilakukan DI SERVER (position(... in $hasil)), hasilnya cuma true/false.
-import { readFileSync } from 'fs'
 import { Pool } from 'pg'
+import { envDb } from './live-env'
 import {
   SQL_DATA_TERBARU,
   SQL_STATUS_ORDER,
@@ -16,11 +16,7 @@ import {
   type RingkasOrderId
 } from '../src/main/sales/order-status'
 
-function envVar(nama: string): string | null {
-  const baris = readFileSync('.env', 'utf8').split(/\r?\n/).find((l) => l.startsWith(`${nama}=`))
-  return baris ? baris.slice(nama.length + 1).trim() : null
-}
-const cs = envVar('AIRA_SALES_DB')
+const cs = envDb('AIRA_SALES_DB')
 if (!cs) {
   console.error('AIRA_SALES_DB tidak ada di .env')
   process.exit(1)
@@ -64,10 +60,17 @@ async function main(): Promise<void> {
       [id]
     ))[0]
 
-  // Kebocoran diperiksa DI SERVER — nama pasien/pelanggan tidak pernah keluar ke skrip ini.
+  // Kebocoran diperiksa DI SERVER — nama pelanggan tidak pernah keluar ke skrip ini.
+  // Hackathon dummy DB: patient columns do not exist (checked structurally below), so only the
+  // customer name can leak.
+  const kolomPasien = await q<{ n: number }>(
+    `SELECT count(*)::int AS n FROM information_schema.columns
+      WHERE table_name = 'SalesRepository' AND column_name IN ('patient_name','dob','clin_diagnosis','pa_diagnosis','result','gender')`
+  )
+  cek('SalesRepository has no patient columns (dummy DB)', kolomPasien[0].n === 0)
   const bocor = async (id: string, keluaran: string) =>
     (await q<{ pasien: boolean; pelanggan: boolean }>(
-      `SELECT bool_or(length(patient_name) > 3 AND position(lower(patient_name) in lower($2)) > 0) AS pasien,
+      `SELECT false AS pasien,
               bool_or(length(customer_name) > 3 AND position(lower(customer_name) in lower($2)) > 0) AS pelanggan
          FROM public."SalesRepository" WHERE order_id = $1`,
       [id, keluaran]

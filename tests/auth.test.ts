@@ -1,3 +1,4 @@
+import { HIDDEN_MENUS } from '../src/main/hackathon/flags'
 import { test, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { hashPassword, verifyPassword, sudahDihash } from '../src/main/auth/password'
@@ -211,8 +212,10 @@ describe('akses menu: matriks role × divisi per menu', () => {
     const semuaFalse: MatriksAksesMenu = {
       sales: { direktur: { it: false }, super_admin: { it: false } }
     }
-    assert.deepEqual(menuUntuk({ role: 'direktur', divisi: [] }, semuaFalse), [...MENUS])
-    assert.deepEqual(menuUntuk({ role: 'super_admin', divisi: [] }, {}), [...MENUS])
+    // Hackathon build: menus in HIDDEN_MENUS are never offered, to anyone.
+    const terlihat = MENUS.filter((m) => !HIDDEN_MENUS.includes(m))
+    assert.deepEqual(menuUntuk({ role: 'direktur', divisi: [] }, semuaFalse), terlihat)
+    assert.deepEqual(menuUntuk({ role: 'super_admin', divisi: [] }, {}), terlihat)
   })
 
   test('cukup SATU divisi yang cocok dari beberapa yang dipegang', () => {

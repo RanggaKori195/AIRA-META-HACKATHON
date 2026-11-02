@@ -2,18 +2,15 @@
 // internal the company). Jalankan manual: npx tsx tests/inno-live-check.ts
 //
 // Membuktikan yang tidak bisa dibuktikan unit test:
-//   1. SQL setiap tool Master Data memang jalan di MariaDB
+//   1. SQL setiap tool Master Data memang jalan (hackathon copy: Postgres schema `inno`)
 //   2. Kunci join benar-benar unik, jadi angka & baris tidak menggelembung
 //   3. Query selesai cepat — server ini dipakai aplikasi produksi Master Data
-import { readFileSync } from 'fs'
-import mysql from 'mysql2/promise'
+import { Client } from 'pg'
+import { toPgPlaceholders, INNO_PG_TYPES } from '../src/main/masterdata/sql-dialect'
 import { resolveActivePrices, validityOf, isOpenEnded, type PriceRow } from '../src/main/masterdata/rules'
+import { envDb } from './live-env'
 
-const cs = readFileSync('.env', 'utf8')
-  .split(/\r?\n/)
-  .find((l) => l.startsWith('AIRA_INNO_DB='))!
-  .slice('AIRA_INNO_DB='.length)
-  .trim()
+const cs = envDb('AIRA_INNO_DB')
 
 const TODAY = new Date().toISOString().slice(0, 10)
 let gagal = 0
@@ -24,10 +21,10 @@ function cek(nama: string, ok: boolean, detail = ''): void {
 }
 
 async function main(): Promise<void> {
-  const conn = await mysql.createConnection(cs)
-  await conn.query('SET SESSION max_statement_time=25')
+  const conn = new Client({ connectionString: cs, statement_timeout: 25_000, options: '-c search_path=inno', types: INNO_PG_TYPES })
+  await conn.connect()
   const q = async <T = any>(sql: string, p: unknown[] = []): Promise<T[]> =>
-    (await conn.query(sql, p))[0] as T[]
+    (await conn.query(toPgPlaceholders(sql), p)).rows as T[]
 
   // 1. Kunci join harus unik — kalau tidak, LEFT JOIN menggandakan baris.
   const uk = await q(`SELECT count(*) baris, count(DISTINCT customer_code) unik
@@ -103,7 +100,7 @@ async function main(): Promise<void> {
   // 6. Pencarian pelanggan pakai nama harus cepat (dipakai hampir tiap pertanyaan).
   const t2 = Date.now()
   const cari = await q(`SELECT customer_code, customer_name FROM m_customer
-    WHERE status='5' AND deleted_at IS NULL AND customer_name LIKE ? LIMIT 10`, ['%kariadi%'])
+    WHERE status='5' AND deleted_at IS NULL AND customer_name ILIKE ? LIMIT 10`, ['%kariadi%'])
   cek('cari pelanggan by nama cepat (< 5 dtk)', Date.now() - t2 < 5_000,
     `${Date.now() - t2} ms, ${cari.length} kandidat`)
   console.log(`     kandidat: ${cari.map((c) => c.customer_code).join(', ')}`)

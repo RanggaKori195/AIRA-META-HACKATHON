@@ -13,6 +13,7 @@
 import 'dotenv/config'
 import { Client } from 'pg'
 import { JANGKAR_UMUR, TAHAPAN, ekspresiLama, tahapDari } from '../src/main/lab/rules'
+import { envDb } from './live-env'
 
 const VIEW = 'public.v_sample_tracker'
 const masalah: string[] = []
@@ -26,7 +27,7 @@ function periksa(judul: string, lolos: boolean, detail: string): void {
 }
 
 async function main(): Promise<void> {
-  const conn = process.env.AIRA_SALES_DB
+  const conn = envDb('AIRA_SALES_DB')
   if (!conn) throw new Error('AIRA_SALES_DB tidak ada di .env')
   const db = new Client({ connectionString: conn, statement_timeout: 180_000 })
   await db.connect()
@@ -48,12 +49,11 @@ async function main(): Promise<void> {
   periksa('semua kolom yang dipakai tool masih ada di view', hilang.length === 0,
     hilang.length ? `HILANG: ${hilang.join(', ')}` : `${wajib.length} kolom terverifikasi`)
 
-  // 2. ⚠️ `patient` MASIH ADA di view — justru itu sebabnya daftar-izin kolom
-  //    diperlukan. Kalau kolomnya hilang, daftar-izin jadi tidak relevan dan
-  //    aturannya perlu ditinjau ulang, bukan didiamkan.
-  periksa('kolom patient masih ada di view (alasan daftar-izin kolom tetap berlaku)',
-    ada.has('patient'),
-    ada.has('patient') ? 'ada — tool WAJIB tetap tidak mengambilnya' : 'sudah tidak ada, tinjau ulang aturan')
+  // 2. Hackathon dummy DB: the view has NO patient column at all (production has one, which is why
+  //    the column allow-list exists — the allow-list stays; here the stronger fact is checked).
+  periksa('view has no patient column (dummy DB is patient-free by construction)',
+    !ada.has('patient'),
+    ada.has('patient') ? 'FOUND — the dummy DB must never contain patient data' : 'absent')
 
   // 3. order_validated_at masih selalu tengah malam?
   const jam = await satu(

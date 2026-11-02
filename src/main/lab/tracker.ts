@@ -165,7 +165,7 @@ export async function backlog(f: Saringan, batas: number): Promise<HasilBacklog>
   // Yang paling lama menggantung lebih dulu — itu yang ditindaklanjuti orang lab.
   const daftar = await salesQuery<BarisBacklog>(
     `SELECT order_id, test, category, account, sample_status, is_rns,
-            round(EXTRACT(EPOCH FROM (now() - ${JANGKAR_UMUR})) / 86400.0, 1)::float8 AS umur_hari,
+            round((EXTRACT(EPOCH FROM (now() - ${JANGKAR_UMUR})) / 86400.0)::numeric, 1)::float8 AS umur_hari,
             to_char(order_created_at, 'YYYY-MM-DD') AS order_created_at,
             to_char(lab_sample_received_at, 'YYYY-MM-DD') AS lab_sample_received_at
        FROM ${VIEW} WHERE ${where}
@@ -234,7 +234,7 @@ export async function lacak(orderIdId: string): Promise<BarisLacak[]> {
   const rows = await salesQuery<Record<string, string | null>>(
     `SELECT order_id, test, category, account, payer_name, sample_status,
             is_rns, notes, ${pilih},
-            round(EXTRACT(EPOCH FROM (COALESCE(date_result, now()) - ${JANGKAR_UMUR})) / 86400.0, 1)::text AS umur_hari
+            round((EXTRACT(EPOCH FROM (COALESCE(date_result, now()) - ${JANGKAR_UMUR})) / 86400.0)::numeric, 1)::text AS umur_hari
        FROM ${VIEW}
       WHERE upper(order_id) = upper($1)
       ORDER BY test`,

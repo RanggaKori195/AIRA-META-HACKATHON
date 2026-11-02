@@ -1,5 +1,5 @@
 {
-  "name": "aira-desktop",
+  "name": "aira-hackathon",
   "version": "0.5.0",
   "description": "AIRA - Agentic AI Desktop Assistant (the company internal)",
   "main": "./out/main/index.js",
@@ -23,7 +23,9 @@
     "coba:grafik": "esbuild scripts/coba-grafik.ts --bundle --platform=node --format=cjs --packages=external --outfile=scripts/.grafik-bundle.cjs && electron scripts/.grafik-bundle.cjs",
     "coba:gambar": "esbuild scripts/coba-gambar.ts --bundle --platform=node --format=cjs --packages=external --outfile=scripts/.gambar-bundle.cjs && electron scripts/.gambar-bundle.cjs",
     "coba:simbol": "esbuild scripts/coba-simbol.ts --bundle --platform=node --format=cjs --packages=external --outfile=scripts/.simbol-bundle.cjs && electron scripts/.simbol-bundle.cjs",
-    "coba:onedrive": "esbuild scripts/coba-onedrive.ts --bundle --platform=node --format=cjs --packages=external --outfile=scripts/.onedrive-bundle.cjs && electron scripts/.onedrive-bundle.cjs"
+    "coba:onedrive": "esbuild scripts/coba-onedrive.ts --bundle --platform=node --format=cjs --packages=external --outfile=scripts/.onedrive-bundle.cjs && electron scripts/.onedrive-bundle.cjs",
+    "seed:dummy": "tsx scripts/seed-dummy.ts",
+    "smoke:tools": "esbuild scripts/smoke-tools.ts --bundle --platform=node --format=cjs --packages=external --outfile=scripts/.smoke-bundle.cjs && electron scripts/.smoke-bundle.cjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",

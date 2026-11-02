@@ -1,4 +1,5 @@
 import { LOCKED_ROLES, MENU_VALUES, ROLE_VALUES } from '../../shared/ipc'
+import { HIDDEN_MENUS } from '../hackathon/flags'
 
 // Role, divisi, menu, dan aturan siapa boleh melihat apa.
 //
@@ -148,7 +149,7 @@ export function menuDiizinkan(ctx: KonteksAkses, menu: Menu, matriks: MatriksAks
 
 /** Daftar menu yang boleh dilihat — dipakai UI dan guard IPC. */
 export function menuUntuk(ctx: KonteksAkses, matriks: MatriksAksesMenu): Menu[] {
-  return MENUS.filter((menu) => menuDiizinkan(ctx, menu, matriks))
+  return MENUS.filter((menu) => !HIDDEN_MENUS.includes(menu) && menuDiizinkan(ctx, menu, matriks))
 }
 
 /**

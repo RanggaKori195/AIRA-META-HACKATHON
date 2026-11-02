@@ -10,17 +10,13 @@
 //      DUA KALI memakan modul sales: +23% item, +12,1% pelanggan)
 //   4. RECOGNIZED_CLAUSE benar-benar mengurangi backlog (transfer dibatalkan
 //      tidak boleh dihitung sebagai penumpukan)
-import { readFileSync } from 'fs'
 import { Pool } from 'pg'
 import { RECOGNIZED_CLAUSE } from '../src/main/sales/recognition'
+import { envDb } from './live-env'
 
 const TABLE = 'public."SalesRepository"'
 const ITEM_MASTER = 'public.m_item_repository'
-const cs = readFileSync('.env', 'utf8')
-  .split(/\r?\n/)
-  .find((l) => l.startsWith('AIRA_SALES_DB='))!
-  .slice('AIRA_SALES_DB='.length)
-  .trim()
+const cs = envDb('AIRA_SALES_DB')
 
 const pool = new Pool({ connectionString: cs, max: 2, statement_timeout: 60_000 })
 const DARI = '2026-08-01'

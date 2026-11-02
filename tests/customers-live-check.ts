@@ -3,7 +3,6 @@
 //
 // Memakai SQL yang SAMA PERSIS dengan produksi (customerHistorySql), supaya yang
 // diuji benar-benar yang dipakai aplikasi.
-import { readFileSync } from 'fs'
 import { Pool } from 'pg'
 import {
   customerHistorySql,
@@ -13,13 +12,10 @@ import {
   type BarisPelanggan
 } from '../src/main/sales/customers'
 import { RECOGNIZED_CLAUSE } from '../src/main/sales/recognition'
+import { envDb } from './live-env'
 
 const TABLE = 'public."SalesRepository"'
-const cs = readFileSync('.env', 'utf8')
-  .split(/\r?\n/)
-  .find((l) => l.startsWith('AIRA_SALES_DB='))!
-  .slice('AIRA_SALES_DB='.length)
-  .trim()
+const cs = envDb('AIRA_SALES_DB')
 
 const pool = new Pool({ connectionString: cs, max: 2, statement_timeout: 60_000 })
 const DARI = '2025-08-18'

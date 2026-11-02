@@ -11,12 +11,13 @@
 //   3. Password tersimpan sebagai hash — bukan `12345` polos
 //   4. Username tidak bisa terdaftar dua kali hanya karena beda besar-kecil huruf
 //   5. Baris log benar-benar masuk beserta identitas mesinnya
-import { readFileSync } from 'fs'
 import { Pool } from 'pg'
 import { applySchema, PASSWORD_DUMMY } from '../src/main/auth/schema'
 import { verifyPassword, sudahDihash } from '../src/main/auth/password'
 import { identitasMesin } from '../src/main/auth/identity'
 import { MENU_VALUES } from '../src/shared/ipc'
+import { envDb } from './live-env'
+import { HIDDEN_MENUS } from '../src/main/hackathon/flags'
 import {
   menuDiizinkanLama,
   menuUntuk,
@@ -25,14 +26,7 @@ import {
   type MatriksRoleLama
 } from '../src/main/auth/roles'
 
-function envVar(nama: string): string | null {
-  const baris = readFileSync('.env', 'utf8')
-    .split(/\r?\n/)
-    .find((l) => l.startsWith(`${nama}=`))
-  return baris ? baris.slice(nama.length + 1).trim() : null
-}
-
-const cs = envVar('AIRA_LOGIN_DB') ?? envVar('AIRA_SALES_DB')
+const cs = envDb('AIRA_LOGIN_DB')
 if (!cs) {
   console.error('AIRA_LOGIN_DB / AIRA_SALES_DB tidak ada di .env')
   process.exit(1)
@@ -199,7 +193,17 @@ async function main(): Promise<void> {
   const bacaSel = (): Promise<Sel[]> =>
     q<Sel>('SELECT menu, role, divisi_kode, diizinkan, updated_by FROM tb_menu_role_divisi_aira')
   const selSesudah = await bacaSel()
-  cek('matriks baru terisi (migrasi berjalan)', selSesudah.length > 0, `${selSesudah.length} baris`)
+  // Hackathon dummy DB starts fresh: with no legacy matrix there is nothing to migrate, and the
+  // migration must not invent rows either (new menus/divisions are born closed — rule 36).
+  const [lama] = await q<{ n: string }>(
+    'SELECT (SELECT count(*) FROM tb_menu_akses_aira) + (SELECT count(*) FROM tb_menu_divisi_aira) AS n'
+  )
+  const adaLama = Number(lama.n) > 0
+  cek(
+    adaLama ? 'matriks baru terisi (migrasi berjalan)' : 'fresh DB: migration invents no matrix rows',
+    adaLama ? selSesudah.length > 0 : selSesudah.length === 0,
+    `${selSesudah.length} baris, matriks lama ${lama.n} baris`
+  )
 
   const matriksBaru: MatriksAksesMenu = {}
   for (const r of selSesudah) {
@@ -250,7 +254,8 @@ async function main(): Promise<void> {
     const berubah: string[] = []
     for (const u of semuaUser) {
       const ctx = { role: u.role as any, divisi: u.divisi }
-      const lama = MENU_VALUES.filter((m) => menuDiizinkanLama(ctx, m, roleLama, divLama))
+      // Hackathon build hides HIDDEN_MENUS from everyone; the old rule never knew about that.
+      const lama = MENU_VALUES.filter((m) => !HIDDEN_MENUS.includes(m) && menuDiizinkanLama(ctx, m, roleLama, divLama))
       const baru = menuUntuk(ctx, matriksBaru)
       if (lama.join('|') !== baru.join('|')) berubah.push(`${u.username}: ${lama.join(',')} → ${baru.join(',')}`)
     }

@@ -6,7 +6,6 @@
 //
 // Memakai username SEMENTARA berawalan `ujimon_` dan membersihkan semuanya di
 // akhir, termasuk bila ada pemeriksaan yang gagal.
-import { readFileSync } from 'fs'
 import { randomUUID } from 'crypto'
 import { Pool } from 'pg'
 import { applySchema } from '../src/main/auth/schema'
@@ -14,15 +13,9 @@ import * as mon from '../src/main/monitoring/service'
 import { bentukAktivitas, type AktivitasBaru } from '../src/main/monitoring/rules'
 import type { SesiUser } from '../src/main/auth/service'
 import type { MonitoringFilter, ToolActivity } from '../src/shared/ipc'
+import { envDb } from './live-env'
 
-function envVar(nama: string): string | null {
-  const baris = readFileSync('.env', 'utf8')
-    .split(/\r?\n/)
-    .find((l) => l.startsWith(`${nama}=`))
-  return baris ? baris.slice(nama.length + 1).trim() : null
-}
-
-const cs = envVar('AIRA_LOGIN_DB') ?? envVar('AIRA_SALES_DB')
+const cs = envDb('AIRA_LOGIN_DB')
 if (!cs) {
   console.error('AIRA_LOGIN_DB / AIRA_SALES_DB tidak ada di .env')
   process.exit(1)

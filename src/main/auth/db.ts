@@ -1,5 +1,6 @@
 import { Pool } from 'pg'
 import { BUNDLED } from '../bundled-config'
+import { assertLocalDb } from '../hackathon/local-db'
 import { logger } from '../logger'
 
 // Koneksi ke tabel login.
@@ -26,6 +27,7 @@ export function loginDbConfigured(): boolean {
 
 function getPool(): Pool {
   if (!pool) {
+    assertLocalDb(BUNDLED.loginDb, 'AIRA_LOGIN_DB')
     pool = new Pool({
       connectionString: BUNDLED.loginDb,
       // Satu cukup: semua query auth sudah diserialkan (`serialkan` di bawah),

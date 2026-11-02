@@ -6,7 +6,6 @@
 // diambil dari konstanta yang sama, supaya kesalahan di konstanta ikut tertangkap.
 // Yang dicetak hanya kategori, tanggal, jumlah, dan waktu — tidak ada baris sampel
 // maupun kolom pasien yang keluar dari database.
-import { readFileSync } from 'fs'
 import { Pool } from 'pg'
 import {
   SQL_KATEGORI_BACKLOG,
@@ -33,12 +32,9 @@ import {
   type KategoriBacklog
 } from '../src/main/pemantau/rules'
 import { jakartaToday } from '../src/main/sales/periods'
+import { envDb } from './live-env'
 
-function envVar(nama: string): string | null {
-  const baris = readFileSync('.env', 'utf8').split(/\r?\n/).find((l) => l.startsWith(`${nama}=`))
-  return baris ? baris.slice(nama.length + 1).trim() : null
-}
-const cs = envVar('AIRA_SALES_DB')
+const cs = envDb('AIRA_SALES_DB')
 if (!cs) {
   console.error('AIRA_SALES_DB tidak ada di .env')
   process.exit(1)

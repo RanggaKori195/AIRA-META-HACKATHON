@@ -4,18 +4,14 @@
 // Gunanya membuktikan dua hal yang tidak bisa dibuktikan unit test:
 //   1. SQL dimensi wilayah memang jalan di Postgres
 //   2. totalnya IDENTIK dengan agregat tanpa join master (tidak menggelembung)
-import { readFileSync } from 'fs'
 import { Pool } from 'pg'
 import { CUSTOMER_DIMENSIONS, customerDimensionSql, customerTypeLabel, regionFilter } from '../src/main/sales/region'
 import { withShare } from '../src/main/sales/contribution'
 import { RECOGNIZED_CLAUSE } from '../src/main/sales/recognition'
+import { envDb } from './live-env'
 
 const TABLE = 'public."SalesRepository"'
-const cs = readFileSync('.env', 'utf8')
-  .split(/\r?\n/)
-  .find((l) => l.startsWith('AIRA_SALES_DB='))!
-  .slice('AIRA_SALES_DB='.length)
-  .trim()
+const cs = envDb('AIRA_SALES_DB')
 
 const pool = new Pool({ connectionString: cs, max: 2, statement_timeout: 30_000 })
 const DARI = '2026-08-01'

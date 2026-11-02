@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3'
 import { ToolError, type ToolDefinition } from './types'
 import { assertBukanTabelAuth, assertReadOnly, detectEngine, maskConnectionString } from './db-safety'
+import { assertLocalDb } from '../hackathon/local-db'
 
 // Database client ala DBeaver. Prinsip keamanan dari arsitektur kita:
 // - db_query  : HANYA statement baca (SELECT dkk) — auto-run
@@ -37,6 +38,8 @@ async function runQuery(connectionString: string, query: string): Promise<QueryO
   // lupa memanggilnya. Larangan tabel login berlaku untuk baca maupun tulis.
   assertBukanTabelAuth(query)
   const engine = detectEngine(connectionString)
+  // Hackathon build: the model supplies this string, so it is checked like every app pool.
+  if (engine !== 'sqlite') assertLocalDb(connectionString, 'db_query connectionString')
 
   if (engine === 'postgres') {
     const { Client } = await import('pg')

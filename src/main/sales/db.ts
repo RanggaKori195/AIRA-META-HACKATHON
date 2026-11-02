@@ -1,5 +1,6 @@
 import { Pool } from 'pg'
 import { BUNDLED } from '../bundled-config'
+import { assertLocalDb } from '../hackathon/local-db'
 import { logger } from '../logger'
 import { masalahKoneksi } from '../db-retry'
 
@@ -47,6 +48,7 @@ export function salesDbConfigured(): boolean {
 }
 
 function buatPool(statementTimeout: number, max: number): Pool {
+  assertLocalDb(BUNDLED.salesDb, 'AIRA_SALES_DB')
   const p = new Pool({
     connectionString: BUNDLED.salesDb,
     max,

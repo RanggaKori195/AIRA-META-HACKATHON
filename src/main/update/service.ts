@@ -7,6 +7,7 @@ import { tandaiKeluar } from '../tray'
 import { jumlahRunAktif } from '../agent/orchestrator'
 import * as db from '../db'
 import { logger } from '../logger'
+import { UPDATES_DISABLED } from '../hackathon/flags'
 import {
   JEDA_CEK_MS,
   TUNDA_CEK_AWAL_MS,
@@ -70,6 +71,12 @@ export function mulaiUpdate(): void {
   if (sudahDipasang) return
   sudahDipasang = true
   status.versiSekarang = app.getVersion()
+
+  // Hackathon copy: the default update server is a company domain — never contact it.
+  if (UPDATES_DISABLED) {
+    setel({ tahap: 'mati', pesan: 'Updates are disabled in the hackathon build.' })
+    return
+  }
 
   // Mode dev tidak bisa MEMASANG update (tidak ada installer yang menjalankannya),
   // tapi pemeriksaan & unduhannya bisa diuji dengan AIRA_UPDATE_DEV=1.

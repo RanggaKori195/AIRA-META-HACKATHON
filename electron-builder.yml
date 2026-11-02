@@ -1,4 +1,4 @@
-appId: co.id.company.aira
+appId: co.id.company.aira.hackathon
 productName: AIRA
 directories:
   output: release

@@ -1,6 +1,12 @@
-import mysql from 'mysql2/promise'
+import { Pool } from 'pg'
 import { BUNDLED } from '../bundled-config'
 import { logger } from '../logger'
+import { assertLocalDb } from '../hackathon/local-db'
+import { INNO_PG_TYPES, toPgPlaceholders } from './sql-dialect'
+
+// HACKATHON COPY: Master Data runs on the local dummy Postgres (schema `inno`), not MariaDB.
+// The rules below still hold: read-only, human-written queries, a server-side statement timeout,
+// one connection (same rule as every other pool — see CLAUDE.md on concurrent connections).
 
 // Koneksi ke master data the lab (`inno_collection`, MariaDB 10.4 di 10.0.0.10).
 // Read-only: semua query di modul ini SELECT yang ditulis & diuji manusia.
@@ -15,30 +21,30 @@ import { logger } from '../logger'
 //      Hint MySQL `MAX_EXECUTION_TIME` TIDAK berlaku di MariaDB, jangan dipakai.
 //   2. Semua query tool memakai kolom ber-index dan LIMIT.
 
-const STATEMENT_TIMEOUT_SEC = 20
-const POOL_LIMIT = 3
+const STATEMENT_TIMEOUT_MS = 20_000
 
-let pool: mysql.Pool | null = null
+let pool: Pool | null = null
 
 export function innoDbConfigured(): boolean {
   return BUNDLED.innoDb.length > 0
 }
 
-function getPool(): mysql.Pool {
+function getPool(): Pool {
   if (!pool) {
-    pool = mysql.createPool({
-      uri: BUNDLED.innoDb,
-      connectionLimit: POOL_LIMIT,
-      waitForConnections: true,
-      connectTimeout: 10_000,
-      // Angka besar (harga) tetap number; DECIMAL/BIGINT tidak diubah jadi string
-      // supaya penjumlahan di sisi JS tidak diam-diam jadi penggabungan teks.
-      supportBigNumbers: true,
-      dateStrings: true
+    assertLocalDb(BUNDLED.innoDb, 'AIRA_INNO_DB')
+    pool = new Pool({
+      connectionString: BUNDLED.innoDb,
+      max: 1,
+      connectionTimeoutMillis: 10_000,
+      idleTimeoutMillis: 0,
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10_000,
+      statement_timeout: STATEMENT_TIMEOUT_MS,
+      options: '-c search_path=inno',
+      // Dates as strings + NUMERIC as numbers, like mysql2 — scoped to this pool (sql-dialect.ts).
+      types: INNO_PG_TYPES
     })
-    pool.on('connection', (conn) => {
-      conn.query(`SET SESSION max_statement_time=${STATEMENT_TIMEOUT_SEC}`)
-    })
+    pool.on('error', (err) => logger().warn({ err: String(err) }, 'inno pool error'))
   }
   return pool
 }
@@ -51,7 +57,9 @@ function getPool(): mysql.Pool {
  */
 let keadaanTerakhir: { terhubung: boolean; waktu: number } | null = null
 
-const KODE_PUTUS = /ECONNREFUSED|ETIMEDOUT|ENOTFOUND|EHOSTUNREACH|ECONNRESET|PROTOCOL_CONNECTION_LOST|connect/i
+const KODE_PUTUS = /ECONNREFUSED|ETIMEDOUT|ENOTFOUND|EHOSTUNREACH|ECONNRESET|Connection terminated|connect/i
+/** Postgres statement timeout (57014): the server answered, so it counts as connected. */
+const KODE_TIMEOUT = '57014'
 
 export function statusKoneksiInno(): {
   terkonfigurasi: boolean
@@ -73,11 +81,12 @@ export async function innoQuery<T = Record<string, unknown>>(
   const started = Date.now()
   let rows: unknown
   try {
-    ;[rows] = await getPool().query(sql, params)
+    rows = (await getPool().query(toPgPlaceholders(sql), params)).rows
     keadaanTerakhir = { terhubung: true, waktu: Date.now() }
   } catch (err) {
     const e = err as { code?: string; message?: string }
-    keadaanTerakhir = { terhubung: !KODE_PUTUS.test(`${e.code ?? ''} ${e.message ?? ''}`), waktu: Date.now() }
+    const putus = e.code !== KODE_TIMEOUT && KODE_PUTUS.test(`${e.code ?? ''} ${e.message ?? ''}`)
+    keadaanTerakhir = { terhubung: !putus, waktu: Date.now() }
     throw err
   }
   const list = (Array.isArray(rows) ? rows : []) as T[]

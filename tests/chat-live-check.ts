@@ -8,18 +8,11 @@
 // untuk diuji dua laptop hanyalah tampilannya.
 //
 // Membersihkan sendiri barisnya di akhir.
-import { readFileSync } from 'fs'
 import { Pool } from 'pg'
 import * as layanan from '../src/main/chat/service'
+import { envDb } from './live-env'
 
-function envVar(nama: string): string | null {
-  const baris = readFileSync('.env', 'utf8')
-    .split(/\r?\n/)
-    .find((l) => l.startsWith(`${nama}=`))
-  return baris ? baris.slice(nama.length + 1).trim() : null
-}
-
-const cs = envVar('AIRA_LOGIN_DB') ?? envVar('AIRA_SALES_DB')
+const cs = envDb('AIRA_LOGIN_DB')
 if (!cs) {
   console.error('AIRA_LOGIN_DB / AIRA_SALES_DB tidak ada di .env')
   process.exit(1)
