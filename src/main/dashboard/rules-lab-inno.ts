@@ -48,7 +48,7 @@ export function periodeBanding(dasar: { dari?: unknown; sampai?: unknown }, hari
   let sampai = tanggalSah(dasar.sampai) ? dasar.sampai : null
   if (!dari) {
     const kini = { dari: `${hariIni.slice(0, 8)}01`, sampai: hariIni }
-    return { kini, lalu: bulanSebelumnya(kini), cara: 'Bulan ini s/d hari ini, dibanding bulan lalu pada tanggal yang sama.' }
+    return { kini, lalu: bulanSebelumnya(kini), cara: 'This month to date, compared with last month up to the same date.' }
   }
   if (!sampai || sampai < dari) sampai = hariIni < dari ? dari : hariIni
   // ⚠️ Periode yang MELEWATI hari ini (model mengisi "minggu ini" = Senin–Minggu)
@@ -60,7 +60,7 @@ export function periodeBanding(dasar: { dari?: unknown; sampai?: unknown }, hari
   if (berjalan) sampai = hariIni
   const kini = { dari, sampai }
   if (dari.endsWith('-01') && dari.slice(0, 7) === sampai.slice(0, 7)) {
-    return { kini, lalu: bulanSebelumnya(kini), cara: 'Dibanding bulan sebelumnya pada tanggal yang sama.' }
+    return { kini, lalu: bulanSebelumnya(kini), cara: 'Compared with the previous month up to the same date.' }
   }
   const hariKini = selisihHari(dari, sampai) + 1
   if (berjalan) {
@@ -68,11 +68,11 @@ export function periodeBanding(dasar: { dari?: unknown; sampai?: unknown }, hari
     return {
       kini,
       lalu: { dari: awalLalu, sampai: geserHari(awalLalu, hariKini - 1) },
-      cara: `Periode berjalan: ${hariKini} hari pertama, dibanding ${hariKini} hari pertama periode sebelumnya.`
+      cara: `Current period: the first ${hariKini} days, compared with the first ${hariKini} days of the previous period.`
     }
   }
   const lalu = { dari: geserHari(dari, -hariKini), sampai: geserHari(dari, -1) }
-  return { kini, lalu, cara: `Dibanding ${hariKini} hari tepat sebelumnya.` }
+  return { kini, lalu, cara: `Compared with the ${hariKini} days immediately before.` }
 }
 
 function bulanSebelumnya(kini: Rentang): Rentang {
@@ -80,18 +80,18 @@ function bulanSebelumnya(kini: Rentang): Rentang {
   const m = +kini.dari.slice(5, 7)
   const py = m === 1 ? y - 1 : y
   const pm = m === 1 ? 12 : m - 1
-  const hari = Math.min(+kini.sampai.slice(8, 10), akhirBulan(py, pm))
+  const hariAkhir = Math.min(+kini.sampai.slice(8, 10), akhirBulan(py, pm))
   const mm = String(pm).padStart(2, '0')
-  return { dari: `${py}-${mm}-01`, sampai: `${py}-${mm}-${String(hari).padStart(2, '0')}` }
+  return { dari: `${py}-${mm}-01`, sampai: `${py}-${mm}-${String(hariAkhir).padStart(2, '0')}` }
 }
 
 /** "0,6 hari lebih cepat" / "0,4 hari lebih lambat" / "sama" — TAT: turun = lebih baik. */
 export function kalimatSelisihHari(kini: number | null, lalu: number | null): string {
   if (kini === null || lalu === null) return '—'
   const s = Math.round((kini - lalu) * 10) / 10
-  if (s === 0) return 'sama'
-  const n = Math.abs(s).toLocaleString('id-ID', { maximumFractionDigits: 1 })
-  return s < 0 ? `${n} hari lebih cepat` : `${n} hari lebih lambat`
+  if (s === 0) return 'same'
+  const n = Math.abs(s).toLocaleString('en-US', { maximumFractionDigits: 1 })
+  return s < 0 ? `${n} days faster` : `${n} days slower`
 }
 
 /** Persen perubahan satu desimal; null bila pembanding nol/kosong. */
@@ -124,7 +124,7 @@ export function gabungTat(
   }))
 }
 
-const hari = (n: number): string => `${n.toLocaleString('id-ID', { maximumFractionDigits: 1 })} hari`
+const days = (n: number): string => `${n.toLocaleString('en-US', { maximumFractionDigits: 1 })} days`
 
 /** Minimal sampel supaya satu kategori boleh disebut "paling lama" di insight. */
 export const MIN_SAMPEL_INSIGHT = 5
@@ -149,35 +149,35 @@ export function insightLab(d: IntiInsightLab): string[] {
   if (d.medianKini !== null && d.medianLalu !== null) {
     const sel = kalimatSelisihHari(d.medianKini, d.medianLalu)
     h.push(
-      sel === 'sama'
-        ? `Median TAT total sama dengan periode pembanding (${hari(d.medianKini)}).`
-        : `Median TAT total ${hari(d.medianKini)} — ${sel} dari periode pembanding (${hari(d.medianLalu)}).`
+      sel === 'same'
+        ? `Total median TAT is the same as the comparison period (${days(d.medianKini)}).`
+        : `Total median TAT is ${days(d.medianKini)} — ${sel} than the comparison period (${days(d.medianLalu)}).`
     )
   }
   const pOrder = persen(d.orderKini, d.orderLalu)
   if (pOrder !== null) {
-    h.push(`Order masuk ${pOrder >= 0 ? 'naik' : 'turun'} ${Math.abs(pOrder).toLocaleString('id-ID', { maximumFractionDigits: 1 })}% (${d.orderKini.toLocaleString('id-ID')} vs ${d.orderLalu.toLocaleString('id-ID')}).`)
+    h.push(`Incoming orders ${pOrder >= 0 ? 'rose' : 'fell'} ${Math.abs(pOrder).toLocaleString('en-US', { maximumFractionDigits: 1 })}% (${d.orderKini.toLocaleString('en-US')} vs ${d.orderLalu.toLocaleString('en-US')}).`)
   }
   const layak = d.perKategori.filter((k) => k.nKini >= MIN_SAMPEL_INSIGHT && k.medianKini !== null)
   const terlama = [...layak].sort((a, b) => (b.medianKini as number) - (a.medianKini as number))[0]
-  if (terlama) h.push(`Kategori dengan median TAT terlama: ${terlama.kategori} (${hari(terlama.medianKini as number)}, ${terlama.nKini} sampel).`)
+  if (terlama) h.push(`Category with the longest median TAT: ${terlama['kategori']} (${days(terlama.medianKini as number)}, ${terlama.nKini} samples).`)
   const melambat = layak
     .filter((k) => k.medianLalu !== null && (k.medianKini as number) > (k.medianLalu as number))
     .sort((a, b) => ((b.medianKini as number) - (b.medianLalu as number)) - ((a.medianKini as number) - (a.medianLalu as number)))[0]
-  if (melambat) h.push(`Perlambatan terbesar: ${melambat.kategori} — ${kalimatSelisihHari(melambat.medianKini, melambat.medianLalu)}.`)
+  if (melambat) h.push('Largest slowdown: ' + melambat['kategori'] + ' — ' + kalimatSelisihHari(melambat.medianKini, melambat.medianLalu) + '.')
   const tertua = [...d.backlogPerStatus].filter((s) => s.umur_tertua !== null).sort((a, b) => (b.umur_tertua as number) - (a.umur_tertua as number))[0]
-  if (tertua) h.push(`Backlog saat ini: status "${tertua.sample_status}" punya sampel tertua (${hari(tertua.umur_tertua as number)}).`)
-  if (d.rnsMenunggu !== null && d.rnsMenunggu > 0) h.push(`${d.rnsMenunggu.toLocaleString('id-ID')} RNS di periode ini masih menunggu sampel pengganti.`)
+  if (tertua) h.push(`Current backlog: status "${tertua.sample_status}" has the oldest sample (${days(tertua.umur_tertua as number)}).`)
+  if (d.rnsMenunggu !== null && d.rnsMenunggu > 0) h.push(`${d.rnsMenunggu.toLocaleString('en-US')} RNS in this period are still waiting for a replacement sample.`)
   return h
 }
 
 /** Saran lanjutan — HANYA yang bisa dijawab tool lab (aturan 17). */
 export function saranLab(): string[] {
   return [
-    'Pemeriksaan mana yang TAT-nya paling lama bulan ini?',
-    'Sampel apa saja yang belum keluar lebih dari 14 hari?',
-    'Tahap mana yang paling lama: preparasi atau pembuatan hasil?',
-    'RNS terbanyak bulan ini di pemeriksaan apa?'
+    'Which tests have the longest TAT this month?',
+    'Which samples have been waiting more than 14 days for results?',
+    'Which stage takes the longest: preparation or result generation?',
+    'Which tests have the most RNS this month?'
   ]
 }
 

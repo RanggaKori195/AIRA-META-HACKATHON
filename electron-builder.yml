@@ -1,4 +1,4 @@
-appId: co.id.company.aira.hackathon
+appId: ai.aira.hackathon
 productName: AIRA
 directories:
   output: release
@@ -34,40 +34,21 @@ extraResources:
   # tanpa perlu build ulang aplikasi.
   - from: skills
     to: skills
-  # Font korporat company serif font. Dibutuhkan main process saat MENCETAK PDF —
-  # halaman cetak memuatnya sebagai berkas, bukan lewat bundler renderer.
-  # ⚠️ Tanpa ini, PDF di aplikasi terpasang terbit dengan font cadangan TANPA
-  # pesan apa pun: berkasnya tetap jadi, hanya hurufnya berbeda.
-  - from: resources/fonts
-    to: fonts
   # Grammar tree-sitter (.wasm) untuk pencarian definisi kode.
   # ⚠️ Tanpa ini, `cari_simbol` mati di aplikasi terpasang sementara di dev
-  # jalan normal — kegagalan yang hanya muncul SESUDAH dibagikan. Polanya sama
-  # dengan font company serif font dan templat PPT.
+  # jalan normal — kegagalan yang hanya muncul SESUDAH dibagikan.
   - from: resources/tree-sitter
     to: tree-sitter
-  # Gambar latar template presentasi the company (sampul, isi, penutup) + ikon PNG
-  # untuk slide. Dibaca main process saat membuat .pptx.
+  # Presentation theme backgrounds (cover, content, closing — made with Muse Image) + PNG
+  # icons for slides. Read by the main process when building a .pptx.
   # ⚠️ Kegagalannya sunyi persis seperti font di atas: tanpa ini, presentasi di
   # aplikasi terpasang tetap terbit — hanya polos putih tanpa logo, warna, dan
   # ikon. `muatAset` melaporkannya lewat catatanHasil, tapi mencegahnya di sini
   # jauh lebih murah.
-  - from: resources/templat-ppt
-    to: templat-ppt
+  - from: resources/ppt-theme
+    to: ppt-theme
   - from: resources/ikon
     to: ikon
-  # whisper.cpp (whisper-cli.exe + model ggml) untuk dikte suara.
-  # Dijalankan sebagai PROSES TERPISAH, bukan native module — jadi tidak
-  # menyentuh risiko bytenode/electron-builder (§5b) yang menolak Whisper-GPU,
-  # Docker, sharp, dan resvg.
-  # ⚠️ Tanpa baris ini tombol mikrofon HILANG di aplikasi terpasang sementara
-  # di dev jalan normal — pola kegagalan yang sama persis dengan font the company
-  # Serif, templat PPT, dan tree-sitter di atas.
-  # ⚠️ Folder ini TIDAK ada di git (isinya binary ±190 MB). Kalau belum diisi,
-  # `cariWhisper()` mengembalikan null dan tombolnya disembunyikan — aplikasi
-  # tetap jalan normal, fiturnya saja yang tidak muncul.
-  - from: resources/whisper
-    to: whisper
 asarUnpack:
   - "**/*.node"
 win:
@@ -100,5 +81,5 @@ nsis:
 # src/main/update/rules.ts (diperiksa tests/update.test.ts).
 publish:
   - provider: generic
-    url: https://updates.internal.example/update/
+    url: https://updates.invalid/aira/
 npmRebuild: true

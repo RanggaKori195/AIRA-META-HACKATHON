@@ -17,10 +17,10 @@ import { IconClose } from './Icons'
 
 /** Pilihan yang tampil di dialog, dipetakan ke `jenis` yang disimpan database. */
 const PILIHAN: Array<{ jenis: FeedbackJenis; label: string }> = [
-  { jenis: 'bug', label: 'Angkanya salah / meragukan' },
-  { jenis: 'tidak_terjawab', label: 'Tidak menjawab pertanyaan saya' },
-  { jenis: 'lain', label: 'Aplikasi error / macet' },
-  { jenis: 'lain', label: 'Lainnya' }
+  { jenis: 'bug', label: 'The numbers are wrong or doubtful' },
+  { jenis: 'tidak_terjawab', label: 'It did not answer my question' },
+  { jenis: 'lain', label: 'The app showed an error or froze' },
+  { jenis: 'lain', label: 'Other' }
 ]
 
 interface Props {
@@ -97,14 +97,14 @@ export default function FeedbackDialog({
     <div className="dialog-backdrop" role="dialog" aria-modal="true">
       <div className="dialog dialog-lebar">
         <div className="dialog-head">
-          <h3>Laporkan jawaban ini</h3>
-          <button className="btn-mini" title="Tutup" onClick={onBatal}>
+          <h3>Report this answer</h3>
+          <button className="btn-mini" title="Close" onClick={onBatal}>
             <IconClose size={14} />
           </button>
         </div>
 
         <div className="fb-grup">
-          <label className="fb-label">Apa yang salah?</label>
+          <label className="fb-label">What went wrong?</label>
           {PILIHAN.map((p, i) => (
             <label key={p.label} className="fb-radio">
               <input
@@ -120,7 +120,7 @@ export default function FeedbackDialog({
 
         <div className="fb-grup">
           <label className="fb-label" htmlFor="fb-isi">
-            Ceritakan singkat
+            Tell us briefly
           </label>
           <textarea
             id="fb-isi"
@@ -128,7 +128,7 @@ export default function FeedbackDialog({
             rows={3}
             value={isi}
             maxLength={4000}
-            placeholder="contoh: nett Agustus di layar beda dengan yang di laporan Word"
+            placeholder="e.g. the August net on screen differs from the Word report"
             onChange={(e) => setIsi(e.target.value)}
           />
         </div>
@@ -140,7 +140,7 @@ export default function FeedbackDialog({
               checked={sertakan}
               onChange={(e) => setSertakan(e.target.checked)}
             />
-            <span>Sertakan pertanyaan &amp; jawaban ini</span>
+            <span>Include this question &amp; answer</span>
           </label>
           {/*
             Cuplikan percakapan adalah data sensitif: mode sales berisi angka
@@ -150,7 +150,7 @@ export default function FeedbackDialog({
             sekadar dijanjikan lewat kalimat.
           */}
           <button className="fb-lihat" onClick={() => setLihatData((v) => !v)}>
-            {lihatData ? '▾' : '▸'} Lihat apa yang dikirim
+            {lihatData ? '▾' : '▸'} See what will be sent
           </button>
           {lihatData && (
             <pre className="fb-pratinjau">
@@ -158,8 +158,7 @@ export default function FeedbackDialog({
             </pre>
           )}
           <p className="hint">
-            Terkirim juga: nama akun, divisi, nama komputer, versi aplikasi, dan tool yang dipakai
-            AIRA.
+            Also sent: account name, division, computer name, app version, and the tools AIRA used.
           </p>
         </div>
 
@@ -167,10 +166,10 @@ export default function FeedbackDialog({
 
         <div className="dialog-actions">
           <button className="btn-teks" onClick={onBatal} disabled={kirim}>
-            Batal
+            Cancel
           </button>
           <button className="btn-send" onClick={() => void submit()} disabled={kirim}>
-            {kirim ? 'Mengirim…' : 'Kirim'}
+            {kirim ? 'Sending…' : 'Send'}
           </button>
         </div>
       </div>
@@ -190,18 +189,20 @@ function ringkasKiriman({
 }): string {
   const bagian: string[] = []
   if (sertakan) {
-    bagian.push(`Pertanyaan saya:\n${pertanyaan ?? '(tidak ditemukan)'}`)
-    bagian.push(`Jawaban AIRA:\n${pesan.content || '(kosong)'}`)
+    const teksTanya = pertanyaan ?? '(not found)'
+    const teksJawab = pesan.content || '(empty)'
+    bagian.push(`My question:\n${teksTanya}`)
+    bagian.push(`AIRA's answer:\n${teksJawab}`)
   } else {
-    bagian.push('Pertanyaan & jawaban TIDAK dikirim (centang dicabut).')
+    bagian.push('The question & answer will NOT be sent (checkbox cleared).')
   }
   const tool = pesan.toolLog ?? []
   bagian.push(
     tool.length > 0
-      ? `Tool yang dipakai (selalu ikut — hanya nama & parameter, bukan isi data):\n${tool
+      ? `Tools used (always included — names & parameters only, not the data itself):\n${tool
           .map((t) => `· ${t.label ?? t.name} ${t.argsSummary}`)
           .join('\n')}`
-      : 'Tool yang dipakai: tidak ada.'
+      : 'Tools used: none.'
   )
   return bagian.join('\n\n')
 }

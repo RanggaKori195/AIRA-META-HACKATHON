@@ -32,15 +32,15 @@ export interface KeadaanPanduan {
   izinMenu: readonly MenuId[]
   /** `M365_LANJUTAN` — email, kalender, simpan-balik. */
   m365Lanjutan: boolean
-  /** whisper-cli + modelnya ada di laptop ini. */
+  /** Muse Voice Transcribe is reachable (the Meta API key is present). */
   suaraTersedia: boolean
 }
 
 const MENU_JUDUL: Record<MenuId, string> = {
-  sales: 'Tanya Data Sales',
+  sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
-  lab: 'Tanya TAT Sample',
-  onedrive: 'Tanya Microsoft 365'
+  lab: 'Ask Sample TAT',
+  onedrive: 'Ask Microsoft 365'
 }
 
 const MENU_ISI: Record<MenuId, PanduanBlok[]> = {
@@ -48,51 +48,51 @@ const MENU_ISI: Record<MenuId, PanduanBlok[]> = {
     {
       jenis: 'paragraf',
       teks:
-        'Angka penjualan diambil langsung dari database transaksi, dihitung oleh query yang ' +
-        'ditulis manusia — bukan disimpulkan AIRA dari ingatan. Yang diakui sebagai sales ' +
-        'adalah tanggal hasil/invoice keluar; kalau kamu ingin ORDER YANG MASUK, sebutkan ' +
-        'kata "order" di pertanyaanmu.'
+        'Sales figures are read straight from the transaction database and calculated by queries ' +
+        'written by people — AIRA does not infer them from memory. Sales are recognized on the ' +
+        'date the result/invoice is issued; if you want ORDERS RECEIVED instead, use the ' +
+        'word "order" in your question.'
     },
     {
       jenis: 'daftar',
       butir: [
-        'Ringkasan & perbandingan periode, tren harian, YTD tahun ini vs tahun lalu',
-        'Pemeriksaan terlaris & tersepi, item yang trennya naik atau turun',
-        'Pelanggan terbesar, pelanggan yang berhenti order, pelanggan baru',
-        'Sebaran per provinsi dan per jenis pelanggan',
-        'Proyeksi tutup bulan berjalan dan ramalan beberapa bulan ke depan',
-        'Best Estimate satu tahun penuh (aktual + proyeksi + ramalan, dengan rentang) — mulai bisa dihitung saat sisa tahun tinggal 3 bulan',
-        'Laporan jadi (Word, PDF, atau Excel) lengkap dengan grafiknya',
-        'Status satu transaksi per Order ID: sudah masuk atau belum, diakui atau dibatalkan, hasil/invoice sudah keluar, sudah masuk ERP'
+        'Period summaries and comparisons, daily trends, YTD this year vs last year',
+        'Best- and worst-selling tests, items with rising or falling trends',
+        'Largest customers, customers that stopped ordering, new customers',
+        'Breakdown by province and by customer type',
+        'Projection for the close of the current month and forecast for the next few months',
+        'Full-year Best Estimate (actuals + projection + forecast, with a range) — can be calculated once only 3 months of the year remain',
+        'Finished reports (Word, PDF, or Excel) complete with charts',
+        'Status of a single transaction by Order ID: received or not, recognized or cancelled, result/invoice issued, posted to the ERP'
       ]
     },
     {
       jenis: 'contoh',
       mode: 'sales',
       contoh: [
-        'Berapa sales bulan ini dibanding bulan lalu?',
-        '10 pelanggan terbesar 30 hari terakhir',
-        'Pemeriksaan apa yang trennya menurun?',
-        'Proyeksi tutup bulan ini berapa?',
-        'Forecast BE full year tahun ini berapa?',
-        'Buatkan laporan penjualan bulan ini versi Excel',
-        'Order ID [tulis nomornya] sudah masuk dan sudah invoice?'
+        'How much are sales this month compared to last month?',
+        'Top 10 customers in the last 30 days',
+        'Which tests have a declining trend?',
+        'What is the projection for the end of this month?',
+        'What is the full-year BE forecast for this year?',
+        'Create this month’s sales report as an Excel file',
+        'Has Order ID [type the number] been received and invoiced?'
       ]
     },
     {
       jenis: 'batas',
       butir: [
-        'Hanya angka AGREGAT, ditambah STATUS satu transaksi bila kamu menyebut Order ID-nya. Tidak ada satu pun jalan untuk menampilkan nama pasien, tanggal lahir, atau diagnosis — dan cek Order ID juga tidak menampilkan jenis pemeriksaan, harga, maupun pelanggan. Itu batas yang ditegakkan di kode, bukan kebijakan yang bisa diminta pengecualiannya.',
+        'AGGREGATE figures only, plus the STATUS of a single transaction when you give its Order ID. There is no way at all to show patient names, dates of birth, or diagnoses — and the Order ID check does not show the test type, price, or customer either. This limit is enforced in code, not a policy you can ask an exception to.',
         // Nama menu lain sengaja TIDAK disebut: panduan hanya boleh menyebut menu yang user itu
         // bisa buka (aturan 61, dikunci tests/panduan.test.ts).
-        'Cek Order ID menjawab status TRANSAKSINYA, bukan posisi sampel di lab.',
-        'Ramalan selalu datang bersama rentang dan akurasi historisnya. Ramalan tanpa rentang adalah tebakan yang menyamar jadi angka.',
+        'The Order ID check answers the status of the TRANSACTION, not where the sample is in the lab.',
+        'A forecast always comes with its range and historical accuracy. A forecast without a range is a guess disguised as a number.',
         // ⚠️ Menu tujuannya sengaja TIDAK disebut namanya di sini. Ditemukan
         // test sendiri: kalimat ini membuat "Ask Master Data" muncul di
         // panduan orang yang tidak punya menu itu — persis hal yang aturan 61
         // larang. Kalau ia memang punya, AIRA yang akan menyebutkan menunya saat
         // pertanyaannya salah pintu.
-        'Harga item dan data master pelanggan tidak dijawab dari sini. Tanyakan saja seperti biasa — AIRA akan menunjukkan menu yang benar, dan bila menu itu tidak ada di sidebarmu berarti akunmu belum diberi aksesnya.'
+        'Item prices and customer master data are not answered from here. Just ask as usual — AIRA will point you to the right menu, and if that menu is not in your sidebar, your account has not been given access to it.'
       ]
     }
   ],
@@ -100,35 +100,35 @@ const MENU_ISI: Record<MenuId, PanduanBlok[]> = {
     {
       jenis: 'paragraf',
       teks:
-        'Master data the lab: pelanggan, item pemeriksaan, harga, special price, PKS, dan ' +
-        'dokter. Sumbernya database master, terpisah dari database transaksi — jadi menu ini ' +
-        'menjawab "berapa HARGANYA", bukan "berapa TERJUALNYA".'
+        'Master data: customers, test items, prices, special prices, PKS agreements, and ' +
+        'doctors. The source is the master database, separate from the transaction database — so this menu ' +
+        'answers "what is the PRICE", not "how much was SOLD".'
     },
     {
       jenis: 'daftar',
       butir: [
-        'Cari pelanggan dan lihat datanya',
-        'Cari item pemeriksaan beserta harganya',
-        'Special price per pelanggan maupun per item',
-        'PKS (perjanjian kerja sama) dan daftar dokter',
-        'Isi paket pemeriksaan'
+        'Find a customer and view their details',
+        'Find test items together with their prices',
+        'Special prices per customer or per item',
+        'PKS (cooperation agreements) and the list of doctors',
+        'Contents of test packages'
       ]
     },
     {
       jenis: 'contoh',
       mode: 'masterdata',
       contoh: [
-        'Cari pelanggan dengan nama mengandung "Kariadi"',
-        'Berapa harga pemeriksaan HPV DNA?',
-        'Special price apa saja yang berlaku untuk pelanggan ini?',
-        'Isi paket MCU standar apa saja?'
+        'Find customers whose name contains "Kariadi"',
+        'What is the price of the HPV DNA test?',
+        'Which special prices apply to this customer?',
+        'What is included in the standard MCU package?'
       ]
     },
     {
       jenis: 'batas',
       butir: [
-        'Harga yang disajikan hanya K1 (B2B/Corporate) dan K2 (B2C) — ketentuan pemilik data. BPJS dan kelompok harga lain tidak ditampilkan.',
-        'Kalau kode harga sebuah item tidak ada di ketentuan, AIRA menampilkannya apa adanya dan tidak menebak artinya.'
+        'Prices shown are only K1 (B2B/Corporate) and K2 (B2C) — a data owner rule. BPJS and other price groups are not displayed.',
+        'If an item’s price code is not in the rule set, AIRA shows it as is and does not guess what it means.'
       ]
     }
   ],
@@ -136,34 +136,34 @@ const MENU_ISI: Record<MenuId, PanduanBlok[]> = {
     {
       jenis: 'paragraf',
       teks:
-        'Perjalanan sampel laboratorium: berapa yang menumpuk, sudah sampai tahap mana, ' +
-        'berapa lama prosesnya (TAT), dan sampel mana yang perlu diulang (RNS).'
+        'The journey of laboratory samples: how many are piling up, which stage they have reached, ' +
+        'how long processing takes (TAT), and which samples need to be redone (RNS).'
     },
     {
       jenis: 'daftar',
       butir: [
-        'Backlog: sampel yang belum keluar hasilnya, beserta umurnya',
-        'Lacak satu sampel lewat Order ID',
-        'TAT per tahap dan per jenis pemeriksaan',
-        'RNS: per jumlah maupun per persentase'
+        'Backlog: samples whose results are not out yet, with their age',
+        'Track a single sample by Order ID',
+        'TAT per stage and per test type',
+        'RNS: by count or by percentage'
       ]
     },
     {
       jenis: 'contoh',
       mode: 'lab',
       contoh: [
-        'Berapa backlog sampel saat ini?',
-        'Lacak Order ID ini sudah sampai mana',
-        'Pemeriksaan apa yang TAT-nya paling lama bulan ini?',
-        'Pemeriksaan apa yang RNS-nya paling banyak?'
+        'What is the current sample backlog?',
+        'Track this Order ID and tell me how far it has got',
+        'Which tests have the longest TAT this month?',
+        'Which tests have the most RNS?'
       ]
     },
     {
       jenis: 'batas',
       butir: [
-        'Datanya hasil ETL, BUKAN real-time. Setiap jawaban menyebutkan kapan terakhir data itu diperbarui — baca kalimat itu sebelum memakai angkanya untuk keputusan hari ini.',
-        'Nama pasien tidak pernah ikut keluar, meskipun barisnya ditampilkan per sampel.',
-        'Beberapa tahap tidak dilalui semua jenis pemeriksaan. Nol di sebuah tahap berarti "memang tidak lewat situ", bukan "terlambat".'
+        'The data comes from an ETL job, NOT real-time. Every answer states when the data was last updated — read that sentence before using the numbers for a decision today.',
+        'Patient names are never included, even though rows are shown per sample.',
+        'Some stages are not passed through by every test type. A zero at a stage means "it does not go through there", not "late".'
       ]
     }
   ],
@@ -171,28 +171,28 @@ const MENU_ISI: Record<MenuId, PanduanBlok[]> = {
     {
       jenis: 'paragraf',
       teks:
-        'Mencari dan membaca berkas kerja kamu di OneDrive dan SharePoint. Login memakai akun ' +
-        'Microsoft kamu sendiri lewat browser — AIRA hanya bisa melihat berkas yang memang ' +
-        'sudah boleh kamu lihat.'
+        'Find and read your work files in OneDrive and SharePoint. You sign in with your own ' +
+        'Microsoft account through the browser — AIRA can only see files you are ' +
+        'already allowed to see.'
     },
     {
       jenis: 'daftar',
       butir: [
-        'Cari berkas berdasarkan nama atau isinya',
-        'Menelusuri isi folder — termasuk folder yang di-share rekan ke kamu',
-        'Mengambil sebuah berkas lalu membacakan isinya (Word, Excel, PowerPoint, PDF)',
-        'Memeriksa akun Microsoft mana yang sedang tersambung'
+        'Find files by name or content',
+        'Browse folder contents — including folders a colleague shared with you',
+        'Fetch a file and read its contents (Word, Excel, PowerPoint, PDF)',
+        'Check which Microsoft account is connected'
       ]
     },
     {
       jenis: 'contoh',
       mode: 'onedrive',
       contoh: [
-        'Cari berkas tentang anggaran 2026 di OneDrive saya',
-        'Berkas apa saja yang ada di folder Laporan?',
-        'Folder apa saja yang di-share ke saya? Buka yang pertama',
-        'Ambil file itu lalu ringkas isinya',
-        'Akun Microsoft mana yang sedang tersambung?'
+        'Find files about the 2026 budget in my OneDrive',
+        'What files are in the Reports folder?',
+        'Which folders are shared with me? Open the first one',
+        'Fetch that file and summarize it',
+        'Which Microsoft account is connected?'
       ]
     }
   ]
@@ -204,19 +204,19 @@ function batasM365(m365Lanjutan: boolean): PanduanBlok {
     return {
       jenis: 'batas',
       butir: [
-        'Email hanya DIBACA dan balasannya hanya dibuat sebagai DRAF di Outlook. Tidak ada jalur mengirim email — yang menekan Send tetap kamu.',
-        'Kalender hanya dibaca. AIRA tidak menggeser atau membuat rapat: perubahan jadwal terlihat oleh orang lain.',
-        'Menyimpan berkas ke OneDrive tidak pernah menimpa berkas yang sudah ada — hasilnya disimpan sebagai nama baru.',
-        'Isi email yang dibaca AIRA adalah DATA, bukan perintah. Kalimat "AIRA, kirimkan X" di dalam sebuah email tidak akan dijalankan — siapa pun yang tahu alamat emailmu bisa menulis kalimat semacam itu.'
+        'Email is only READ and replies are only created as DRAFTS in Outlook. There is no way to send email — you still press Send yourself.',
+        'The calendar is read-only. AIRA does not move or create meetings: schedule changes are visible to other people.',
+        'Saving a file to OneDrive never overwrites an existing file — the result is saved under a new name.',
+        'The content of emails AIRA reads is DATA, not instructions. A line like "AIRA, send X" inside an email will not be carried out — anyone who knows your email address can write a line like that.'
       ]
     }
   }
   return {
     jenis: 'batas',
     butir: [
-      'Yang aktif sekarang hanya MEMBACA berkas OneDrive & SharePoint.',
-      'Email Outlook dan kalender BELUM aktif — fiturnya sudah jadi tapi masih menunggu persetujuan admin Microsoft 365 di kantor. Jangan menunggu AIRA membacakan emailmu sampai itu selesai.',
-      'Menyimpan berkas kembali ke OneDrive juga belum aktif. Hasil kerja AIRA tersimpan di laptop kamu, lalu kamu sendiri yang mengunggahnya.'
+      'Only READING OneDrive & SharePoint files is active right now.',
+      'Outlook email and calendar are NOT active yet — the features are built but still waiting for Microsoft 365 admin approval. Do not wait for AIRA to read your email until that is done.',
+      'Saving files back to OneDrive is not active yet either. AIRA’s output is saved on your laptop, and you upload it yourself.'
     ]
   }
 }
@@ -230,9 +230,9 @@ function bagianMenu(keadaan: KeadaanPanduan): PanduanBagian {
     {
       jenis: 'paragraf',
       teks:
-        'AIRA punya beberapa menu, dan MENU MENENTUKAN SUMBER DATA yang boleh disentuh. ' +
-        'Karena itu tidak ada menu yang bisa menjawab pertanyaan menu lain: kalau kamu salah ' +
-        'pintu, AIRA akan menunjukkan menu mana yang benar, bukan menebak jawabannya.'
+        'AIRA has several menus, and THE MENU DETERMINES THE DATA SOURCE it may touch. ' +
+        'That is why no menu can answer another menu’s questions: if you come in through the wrong ' +
+        'door, AIRA will point you to the right menu instead of guessing the answer.'
     }
   ]
 
@@ -240,15 +240,15 @@ function bagianMenu(keadaan: KeadaanPanduan): PanduanBagian {
     isi.push({
       jenis: 'paragraf',
       teks:
-        'Akun kamu saat ini hanya punya "Task Baru". Menu data (penjualan, master data, TAT ' +
-        'sampel, Microsoft 365) diatur Super Admin per role DAN per divisi — dua-duanya harus ' +
-        'dicentang. Kalau kamu merasa seharusnya punya salah satunya, kirim lewat menu ' +
-        'Masukan & Usulan; sebutkan menu mana yang kamu butuhkan dan untuk pekerjaan apa.'
+        'Your account currently only has "New Task". Data menus (sales, master data, sample ' +
+        'TAT) are set by a Super Admin per role AND per division — both must be ' +
+        'ticked. If you think you should have one of them, send a request through the ' +
+        'Feedback menu; say which menu you need and for what work.'
     })
   } else {
     isi.push({
       jenis: 'paragraf',
-      teks: `Menu yang terbuka untuk akun kamu: ${punya.map((m) => MENU_JUDUL[m]).join(', ')}. Daftar ini mengikuti izin akunmu — rekan kerjamu bisa melihat daftar yang berbeda.`
+      teks: `Menus open to your account: ${punya.map((m) => MENU_JUDUL[m]).join(', ')}. This list follows your account’s permissions — your colleagues may see a different list.`
     })
     for (const m of punya) {
       isi.push({ jenis: 'paragraf', teks: `— ${MENU_JUDUL[m]} —` })
@@ -260,58 +260,58 @@ function bagianMenu(keadaan: KeadaanPanduan): PanduanBagian {
   isi.push({
     jenis: 'paragraf',
     teks:
-      '"Task Baru" adalah menu serbaguna: berkas, dokumen, riset, tulis-menulis, dan koding. ' +
-      'Ia SENGAJA tidak pernah menyentuh database — pertanyaan angka penjualan yang diketik di ' +
-      'sini akan diarahkan ke menunya, bukan dijawab dari ingatan.'
+      '"New Task" is the general-purpose menu: files, documents, research, writing, and coding. ' +
+      'It deliberately never touches a database — sales-number questions typed ' +
+      'here are pointed to their menu, not answered from memory.'
   })
 
   return {
     id: 'menu',
-    judul: 'Menu yang kamu punya',
-    ringkas: 'Menu apa saja yang terbuka untuk akunmu, dan masing-masing menjawab apa.',
-    kunci: ['menu', 'akses', 'izin', 'sales', 'masterdata', 'tat', 'onedrive', 'microsoft'],
+    judul: 'The menus you have',
+    ringkas: 'Which menus are open to your account, and what each one answers.',
+    kunci: ['menu', 'menus', 'access', 'permission', 'allowed', 'sales', 'master data', 'tat', 'onedrive', 'microsoft'],
     isi
   }
 }
 
 function bagianDokumen(): PanduanBagian {
   return {
-    id: 'dokumen',
-    judul: 'Berkas & dokumen',
-    ringkas: 'Melampirkan berkas, membaca Word/Excel/PDF/PowerPoint, dan mencari isi dokumen.',
-    kunci: ['file', 'berkas', 'dokumen', 'word', 'excel', 'pdf', 'lampiran', 'folder', 'ocr'],
+    id: 'files',
+    judul: 'Files & documents',
+    ringkas: 'Attaching files, reading Word/Excel/PDF/PowerPoint, and working with document content.',
+    kunci: ['file', 'files', 'document', 'word', 'excel', 'pdf', 'attachment', 'attach', 'folder', 'read', 'ocr', 'index', 'indexing'],
     isi: [
       {
         jenis: 'langkah',
         butir: [
-          'Seret berkasnya ke kotak chat, atau klik ikon penjepit untuk memilih dari komputer.',
-          'Tulis apa yang kamu mau — "ringkas ini", "ambil tabel di halaman 4", "bandingkan dengan yang bulan lalu".',
-          'Untuk berkas yang tinggal di folder (bukan dilampirkan), tambahkan dulu foldernya lewat "Folder Akses" di sidebar.'
+          'Drag the file into the chat box, or click the paperclip icon to pick one from your computer.',
+          'Write what you want — "summarize this", "extract the table on page 4", "compare with last month’s".',
+          'For files that live in a folder (not attached), first add the folder through "Access Folders" in the sidebar.'
         ]
       },
       {
         jenis: 'daftar',
         butir: [
-          'Word, Excel, PowerPoint, PDF, dan berkas teks biasa — dibaca isinya, bukan ditebak dari namanya',
-          'Tabel di dalam PDF bisa diambil terpisah supaya angkanya rapi',
-          'Dokumen panjang dibaca BERTAHAP per halaman; AIRA akan melanjutkan sendiri sampai habis',
-          'Mencari dokumen berdasarkan ISINYA, bukan hanya nama berkasnya',
-          'Mengubah format dokumen Office'
+          'Word, Excel, PowerPoint, PDF, and plain text files — their content is read, not guessed from the file name',
+          'Tables inside a PDF can be extracted separately so the numbers stay tidy',
+          'Long documents are read IN STAGES, page by page; AIRA keeps going on its own until the end',
+          'Converting Office document formats'
         ]
       },
       {
         jenis: 'paragraf',
         teks:
-          'Setiap pembacaan berkas selalu menyertakan keterangan apakah isinya terbaca utuh atau ' +
-          'masih ada sisa. Kalau AIRA menyebut sebuah dokumen terpotong, itu karena keterangan ' +
-          'tadi memang mengatakannya — bukan karena ia menduga-duga.'
+          'Every file read comes with a note saying whether the content was read in full or ' +
+          'there is more left. If AIRA says a document was cut off, it is because that ' +
+          'note says so — not because it is guessing.'
       },
       {
         jenis: 'batas',
         butir: [
-          'AIRA hanya menyentuh folder yang KAMU izinkan. Melampirkan satu berkas tidak berarti membuka seluruh foldernya.',
-          'Berkas yang dihapus atas permintaanmu masuk Recycle Bin, bukan hilang permanen.',
-          'Kalau ada berkas yang dilewati (terlalu besar, formatnya tidak didukung), AIRA menyebutkan berkas dan alasannya. Diam bukan berarti semuanya terbaca.'
+          'AIRA only touches folders YOU allow. Attaching one file does not open its whole folder.',
+          'Files deleted at your request go to the Recycle Bin, not gone for good.',
+          'Document indexing and search by meaning (searching a folder by what the files say) are not available in this build — there is no embedding model. AIRA can still read any file you attach or point to, and search your chat history by keywords.',
+          'If a file is skipped (too large, unsupported format), AIRA names the file and the reason. Silence does not mean everything was read.'
         ]
       }
     ]
@@ -320,62 +320,62 @@ function bagianDokumen(): PanduanBagian {
 
 function bagianLaporan(): PanduanBagian {
   return {
-    id: 'laporan',
-    judul: 'Laporan, Excel & presentasi',
-    ringkas: 'Membuat dokumen jadi: Word, PDF, Excel, dan PowerPoint bertema the company.',
-    kunci: ['laporan', 'pustaka', 'berkas saya', 'diagram', 'flowchart', 'alur', 'sop', 'ppt', 'presentasi', 'powerpoint', 'slide', 'excel', 'pdf', 'word', 'grafik', 'template', 'rca', 'akar masalah', 'insiden', 'fishbone'],
+    id: 'reports',
+    judul: 'Reports, Excel & presentations',
+    ringkas: 'Creating finished documents: Word, PDF, Excel, and PowerPoint.',
+    kunci: ['report', 'reports', 'library', 'my files', 'diagram', 'flowchart', 'flow', 'sop', 'ppt', 'presentation', 'powerpoint', 'slide', 'slides', 'excel', 'pdf', 'word', 'chart', 'template', 'make', 'create', 'rca', 'root cause', 'incident', 'fishbone'],
     isi: [
       {
         jenis: 'langkah',
         butir: [
-          'Sebutkan apa yang mau dibuat dan untuk siapa — "buatkan laporan penjualan bulan ini untuk manajemen", "buatkan presentasi 8 slide soal rencana Q4".',
-          'Kirimkan bahannya: poin-poin, angka, atau berkas sumber yang dilampirkan.',
-          'AIRA menyusun dokumennya, lalu memberi tahu letak berkasnya di komputer kamu.',
-          'BUKA dan baca hasilnya sebelum dikirim ke siapa pun.'
+          'Say what you want made and for whom — "create this month’s sales report for management", "create an 8-slide presentation on the Q4 plan".',
+          'Send the material: bullet points, numbers, or attached source files.',
+          'AIRA puts the document together, then tells you where the file is on your computer.',
+          'OPEN and read the result before sending it to anyone.'
         ]
       },
       {
         jenis: 'daftar',
         butir: [
-          'Word dan PDF dengan font korporat company serif font',
-          'Excel yang rapi, lengkap dengan rumus dan format angka',
-          'PowerPoint memakai template korporat the company — sampul, latar isi, dan penutup aslinya',
-          'Grafik ikut masuk ke dalam laporan Word, PDF, maupun Excel',
-          'Diagram interaktif — alur/SOP, alur sampel, struktur tim, arsitektur sistem: berkas HTML yang bisa digeser, di-zoom, dan diklik, plus gambar PNG untuk ditempel ke PPT/Word',
-          'Untuk laporan penjualan, angkanya diambil dari database, bukan diketik ulang',
-          'Laporan akar masalah (RCA) sebuah kejadian — alat mati, sampel tertukar, TAT molor: kronologi, 5 Whys, Fishbone, tingkat keparahan, dan tindakan korektif ber-PIC'
+          'Word and PDF in a clean corporate style',
+          'Tidy Excel files, complete with formulas and number formats',
+          'PowerPoint with a ready-made corporate layout — cover, content background, and closing slide',
+          'Charts go into Word, PDF, and Excel reports',
+          'Interactive diagrams — flows/SOPs, sample flow, team structure, system architecture: an HTML file you can pan, zoom, and click, plus a PNG image to paste into PPT/Word',
+          'For sales reports, the numbers come from the database, not retyped',
+          'Root cause analysis (RCA) report for an incident — equipment down, samples swapped, TAT overrun: timeline, 5 Whys, Fishbone, severity, and corrective actions with owners'
         ]
       },
       {
         jenis: 'paragraf',
         teks:
-          'Untuk RCA, ceritakan kejadiannya seperti biasa ("alat PCR mati 2 jam tadi pagi, tolong ' +
-          'analisa penyebabnya"). Kalau keterangannya belum cukup, AIRA bertanya dulu. Yang belum ' +
-          'diketahui ditulis "belum diketahui", bukan ditebak — dan laporannya mencari celah ' +
-          'sistem, bukan menyalahkan orang.'
+          'For an RCA, describe the incident as you normally would ("the PCR machine was down for 2 hours this ' +
+          'morning, please analyze the cause"). If the details are not enough, AIRA asks first. What is not ' +
+          'yet known is written as "not yet known", not guessed — and the report looks for system ' +
+          'gaps, not people to blame.'
       },
       {
         jenis: 'paragraf',
         teks:
-          'Tata letak slide dipilih AIRA dari sembilan susunan yang sudah disiapkan sesuai ' +
-          'template the company. Kamu tidak perlu menyebut warna, ukuran huruf, atau posisi kotak — ' +
-          'cukup isinya. Grafik di dalam dokumen selalu memakai angka yang sama persis dengan ' +
-          'tabel di dokumen itu.'
+          'AIRA picks the slide layout from nine prepared arrangements that follow the ' +
+          'corporate template. You do not need to mention colors, font sizes, or box positions — ' +
+          'just the content. Charts inside a document always use exactly the same numbers as ' +
+          'the table in that document.'
       },
       {
         jenis: 'paragraf',
         teks:
-          'Semua berkas yang pernah dibuat AIRA untukmu — laporan, Excel, presentasi, dan gambar — ' +
-          'terkumpul di menu Pustaka di sidebar. Di sana bisa disaring per jenis, dicari, dibuka, ' +
-          'atau dilacak ke percakapan asalnya. Berkas yang sudah kamu pindah atau hapus di luar AIRA ' +
-          'tetap tercantum dengan tanda "Hilang".'
+          'Every file AIRA has ever made for you — reports, Excel files, presentations, and images — ' +
+          'is collected in the Library menu in the sidebar. There you can filter by type, search, open, ' +
+          'or trace a file back to its source conversation. Files you moved or deleted outside AIRA ' +
+          'stay listed with a "Missing" tag.'
       },
       {
         jenis: 'batas',
         butir: [
-          'Hanya template korporat the company yang tersedia. Belum ada cara mengunggah template PowerPoint sendiri.',
-          'Font company serif font tertanam di PDF. Untuk .docx/.xlsx/.pptx font tidak ikut tertanam — di komputer yang tidak punya fontnya, hurufnya akan berganti.',
-          'Kalau ada grafik yang gagal dibuat, AIRA menyebutkannya. Dokumen yang kehilangan grafik tanpa keterangan bukan perilaku yang benar — laporkan kalau kamu menemuinya.'
+          'Only the built-in corporate template is available. There is no way yet to upload your own PowerPoint template.',
+          'Fonts are embedded in PDFs. For .docx/.xlsx/.pptx the fonts are not embedded — on a computer without the font, the letters will change.',
+          'If a chart fails to be created, AIRA says so. A document that loses a chart without a note is not correct behavior — report it if you see one.'
         ]
       }
     ]
@@ -385,34 +385,34 @@ function bagianLaporan(): PanduanBagian {
 function bagianKerjaLain(): PanduanBagian {
   return {
     id: 'kerja-lain',
-    judul: 'Riset, web, dan koding',
-    ringkas: 'Mencari di internet, membuka halaman, menulis kode, dan mengujinya di ruang uji.',
-    kunci: ['web', 'internet', 'browser', 'riset', 'kode', 'coding', 'script', 'program', 'sandbox', 'uji'],
+    judul: 'Research, web, and coding',
+    ringkas: 'Searching the internet, opening web pages, writing code, and testing it in a sandbox.',
+    kunci: ['web', 'internet', 'browser', 'research', 'code', 'coding', 'script', 'program', 'sandbox', 'test'],
     isi: [
       {
         jenis: 'daftar',
         butir: [
-          'Mencari di internet dan meringkas hasilnya — sumbernya selalu disebutkan',
-          'Membuka halaman web dan membacanya, termasuk mengisi form bila kamu memintanya',
-          'Menulis, membaca, dan menyunting berkas kode',
-          'Mencari di mana sebuah fungsi DIPAKAI, dan di mana ia DIDEFINISIKAN',
-          'Menjalankan kode buatannya sendiri di ruang uji terpisah sebelum menyerahkannya'
+          'Search the internet and summarize the results — sources are always named',
+          'Open web pages and read them, including filling in forms if you ask',
+          'Write, read, and edit code files',
+          'Find where a function is USED, and where it is DEFINED',
+          'Run code it wrote itself in a separate sandbox before handing it over'
         ]
       },
       {
         jenis: 'paragraf',
         teks:
-          'Ruang uji itu folder terpisah tempat AIRA boleh menjalankan kode tanpa menyentuh ' +
-          'berkasmu. Kalau AIRA mengatakan sebuah kode "sudah diuji", itu hanya muncul bila ' +
-          'kodenya memang benar-benar dijalankan — kalimat klaim yang tidak ada buktinya ' +
-          'dibuang otomatis dan diganti keterangan "belum dijalankan".'
+          'The sandbox is a separate folder where AIRA may run code without touching ' +
+          'your files. If AIRA says some code was "tested", that only appears when ' +
+          'the code was actually run — a claim without evidence is ' +
+          'removed automatically and replaced with a "not run" note.'
       },
       {
         jenis: 'batas',
         butir: [
-          '"Sudah diuji AIRA" tidak sama dengan "sudah benar". Ujinya ditulis oleh AIRA juga, jadi hijau berarti kode dan ujinya SEPAKAT — belum tentu keduanya benar. Kode untuk hal penting tetap perlu dibaca orang.',
-          'Ruang uji menahan KESALAHAN, bukan niat jahat. Isolasinya isolasi folder.',
-          'Perintah yang mengubah sesuatu selalu minta persetujuanmu dulu. Perintah yang cuma membaca (mis. cek versi) jalan langsung, supaya dialog persetujuan tidak jadi basa-basi yang kamu klik tanpa baca.'
+          '"Tested by AIRA" does not mean "correct". The tests are written by AIRA too, so green means the code and its tests AGREE — not necessarily that both are right. Code for important things still needs a human to read it.',
+          'The sandbox protects against MISTAKES, not malicious intent. Its isolation is folder isolation.',
+          'Commands that change something always ask for your approval first. Commands that only read (e.g. a version check) run right away, so the approval dialog does not become a formality you click through without reading.'
         ]
       }
     ]
@@ -422,44 +422,46 @@ function bagianKerjaLain(): PanduanBagian {
 function bagianIngatan(): PanduanBagian {
   return {
     id: 'ingatan',
-    judul: 'Riwayat chat & ingatan AIRA',
-    ringkas: 'Mencari percakapan lama, dan memberi tahu AIRA hal yang perlu diingat tentang kamu.',
+    judul: 'Chat history & AIRA’s memory',
+    ringkas: 'Finding old conversations, and telling AIRA things it should remember about you.',
     kunci: [
-      'riwayat',
       'history',
-      'ingat',
-      'memori',
-      'percakapan',
-      'kemarin',
-      'lupa',
-      'dicatat',
+      'remember',
+      'memory',
+      'conversation',
+      'conversations',
+      'yesterday',
+      'forget',
+      'logged',
+      'tracked',
+      'usage',
       'monitoring',
-      'privasi',
-      'dipantau'
+      'privacy',
+      'monitored'
     ],
     isi: [
       {
         jenis: 'paragraf',
         teks:
-          'Percakapan lama TIDAK otomatis ada di kepala AIRA — yang terbawa hanya beberapa pesan ' +
-          'terakhir dari percakapan yang sedang dibuka. Kalau kamu menyinggung percakapan ' +
-          'sebelumnya ("kemarin saya tanya apa soal Kariadi?"), AIRA akan mencarinya dulu, bukan ' +
-          'mengarang dari ingatan.'
+          'Old conversations are NOT automatically in AIRA’s head — only the last few messages ' +
+          'of the conversation currently open are carried. If you refer to an earlier ' +
+          'conversation ("what did I ask yesterday about Kariadi?"), AIRA searches for it first instead of ' +
+          'making it up from memory. History search works by keywords.'
       },
       {
         jenis: 'daftar',
         butir: [
-          'Riwayat percakapan tersimpan per akun — orang lain di laptop yang sama tidak melihat punyamu',
-          'Bilang "ingat, saya biasanya butuh angka per divisi" dan AIRA akan mengingatnya di percakapan berikutnya',
-          'Ingatan itu bisa kamu lihat dan hapus sendiri lewat Settings'
+          'Conversation history is stored per account — other people on the same laptop do not see yours',
+          'Say "remember, I usually need numbers per division" and AIRA will remember it in the next conversations',
+          'You can view and delete those memories yourself in Settings'
         ]
       },
       {
         jenis: 'batas',
         butir: [
-          'AIRA tidak pernah menyimpan NILAI DATA sebagai ingatan — angka omzet, hasil lab, dan sejenisnya sengaja ditolak. Alasannya: angka bulan ini akan salah bulan depan, sementara ingatan ikut terbawa berbulan-bulan.',
-          'Riwayat tersimpan di laptop ini. Kalau kamu memakai AIRA di komputer lain, percakapannya memang tidak ada di sini.',
-          `Pemakaian AIRA DICATAT dan dapat ditinjau Super Admin: waktu, menu, pertanyaan yang kamu ketik, nama lampiran, dan alat yang dipakai AIRA. Jawaban AIRA dan isi berkas TIDAK ikut dicatat. Teks pertanyaan dihapus dari catatan itu sesudah ${RETENSI_PROMPT_HARI} hari. Karena itu jangan mengetik kata sandi di kotak chat.`
+          'AIRA never stores DATA VALUES as memory — revenue figures, lab results, and the like are deliberately refused. The reason: this month’s number will be wrong next month, while a memory is carried for months.',
+          'History is stored on this laptop. If you use AIRA on another computer, the conversations are simply not here.',
+          `AIRA usage is LOGGED and can be reviewed by a Super Admin: time, menu, the question you typed, attachment names, and the tools AIRA used. AIRA's answers and file contents are NOT logged. The question text is deleted from that record after ${RETENSI_PROMPT_HARI} days. For that reason, do not type passwords in the chat box.`
         ]
       }
     ]
@@ -472,78 +474,90 @@ function bagianSuaraChat(keadaan: KeadaanPanduan): PanduanBagian {
     isi.push({
       jenis: 'paragraf',
       teks:
-        'Tombol mikrofon di kotak chat mengubah ucapanmu jadi teks. Prosesnya berjalan di ' +
-        'laptop ini, suaramu tidak dikirim ke mana pun. Hasilnya DISISIPKAN ke kotak chat, ' +
-        'tidak langsung dikirim — periksa dulu, karena nama seperti "ERP" atau ' +
-        '"the lab" sering salah dengar, dan pertanyaan yang salah dengar menghasilkan angka ' +
-        'yang salah tapi tetap terdengar meyakinkan.'
+        'The microphone button in the chat box turns your speech into text using Muse Voice Transcribe. ' +
+        'It is an online service: your recording is sent to Meta’s speech service. The result is INSERTED into the chat box, ' +
+        'not sent automatically — check it first, because names such as "ERP" or ' +
+        '"AIRA" are sometimes misheard, and a misheard question produces ' +
+        'a wrong number that still sounds convincing.'
+    })
+    isi.push({
+      jenis: 'paragraf',
+      teks:
+        'You can also talk to AIRA through the mascot: click the mascot and speak. Your transcript is shown ' +
+        'and sent automatically after 2 seconds unless you press Cancel. AIRA then reads a short spoken ' +
+        'summary of the answer; the Mute button turns the voice off.'
     })
   } else {
     isi.push({
       jenis: 'paragraf',
       teks:
-        'Dikte suara tidak aktif di laptop ini (model suaranya tidak terpasang), jadi tombol ' +
-        'mikrofon tidak ditampilkan. Sisanya tetap berjalan normal.'
+        'Voice input is not available in this build (the Meta API key is missing), so the microphone button ' +
+        'and the talking mascot do not work. Everything else works normally.'
     })
   }
   isi.push({
     jenis: 'paragraf',
     teks:
-      'Tombol "Pesan" di pojok kanan bawah membuka chat antar rekan kerja — terpisah dari ' +
-      'percakapan dengan AIRA. Tampilannya seperti WhatsApp Web: daftar percakapan di kiri, ' +
-      'ruang chat di kanan.'
+      'The "Messages" button in the bottom-right corner opens chat between colleagues — separate from ' +
+      'your conversations with AIRA. It looks like WhatsApp Web: the conversation list on the left, ' +
+      'the chat room on the right.'
   })
   isi.push({
     jenis: 'daftar',
     butir: [
-      'Chat pribadi dengan rekan, lengkap dengan tanda ✓ terkirim dan ✓✓ sudah dibaca',
-      'Grup: buat lewat ikon orang bertanda + di atas daftar, pilih anggota, lalu beri nama',
-      'Admin grup bisa menambah & mengeluarkan anggota, menjadikan admin, dan mengganti nama grup',
-      'Hapus pesan sendiri: arahkan kursor ke pesanmu, klik ikon tong sampah',
-      'Notifikasi Windows saat ada pesan masuk, dan angka di ikon AIRA di taskbar',
-      'Matikan notifikasi per percakapan atau per grup lewat ikon lonceng',
-      'Kirim gambar dan dokumen kantor sebagai lampiran'
+      'Private chat with colleagues, with ✓ sent and ✓✓ read ticks',
+      'Groups: create one with the person icon with a + above the list, pick members, then give it a name',
+      'Group admins can add and remove members, make admins, and rename the group',
+      'Delete your own message: hover over it and click the trash icon',
+      'Windows notifications for incoming messages, and a number on the AIRA icon in the taskbar',
+      'Mute notifications per conversation or per group with the bell icon',
+      'Send images and office documents as attachments'
     ]
   })
   isi.push({
     jenis: 'langkah',
     butir: [
-      'Supaya pesan tetap masuk, AIRA harus menyala. Menutup jendela AIRA TIDAK mematikannya — ia pindah ke tray (dekat jam).',
-      'Nyalakan "AIRA otomatis saat Windows login" di Settings → Chat rekan, supaya kamu tetap bisa dihubungi sejak laptop dinyalakan.',
-      'Untuk benar-benar keluar: klik kanan ikon AIRA di tray, pilih Keluar. Selama AIRA mati, pesan untukmu tidak akan sampai.'
+      'For messages to keep arriving, AIRA must be running. Closing the AIRA window does NOT quit it — it moves to the tray (near the clock).',
+      'Turn on "Start AIRA automatically when Windows logs in" in Settings → Teammate chat, so you stay reachable from the moment the laptop starts.',
+      'To really quit: right-click the AIRA icon in the tray and choose Quit. While AIRA is off, messages for you will not arrive.'
     ]
   })
   isi.push({
     jenis: 'batas',
     butir: [
-      'Chat AIRA adalah saluran kerja internal, BUKAN saluran rahasia seperti WhatsApp. Jangan kirim kata sandi, data pribadi pasien, atau hal yang tidak boleh dibaca pihak lain.',
-      'Hanya ada di laptop — tidak ada aplikasi HP. Rekan yang sedang tidak membuka laptopnya tidak akan menerima pesan sampai AIRA-nya menyala. Untuk hal mendesak, tetap telepon.',
-      'Pesan yang dihapus meninggalkan keterangan "Pesan ini dihapus" untuk semua orang, dan tidak bisa dibatalkan.',
-      'Anggota baru grup hanya melihat pesan sejak ia ditambahkan. Anggota yang keluar masih bisa membaca pesan lama, tapi tidak menerima pesan baru.',
-      'Grup maksimal 100 anggota. Untuk pengumuman ke banyak orang, gunakan email.',
-      'Berkas program (.exe, .bat, .ps1) tidak bisa dikirim, lampiran maksimal 5 MB, dan isi lampiran dibersihkan setelah 30 hari — pesannya tetap ada.'
+      'AIRA chat is an internal work channel, NOT a secret channel like WhatsApp. Do not send passwords, patients’ personal data, or anything other people must not read.',
+      'It only exists on laptops — there is no mobile app. A colleague who has not opened their laptop will not receive messages until their AIRA is running. For anything urgent, still call.',
+      'A deleted message leaves a "This message was deleted" note for everyone, and it cannot be undone.',
+      'A new group member only sees messages from the moment they were added. A member who leaves can still read old messages, but receives no new ones.',
+      'Groups have at most 100 members. For announcements to many people, use email.',
+      'Program files (.exe, .bat, .ps1) cannot be sent, attachments are limited to 5 MB, and attachment contents are cleaned up after 30 days — the message itself stays.'
     ]
   })
   return {
     id: 'suara-chat',
-    judul: 'Chat antar rekan & dikte suara',
-    ringkas: 'Chat pribadi & grup dengan rekan kerja, dan bicara alih-alih mengetik.',
+    judul: 'Teammate chat & voice',
+    ringkas: 'Private and group chat with colleagues, and speaking instead of typing.',
     kunci: [
-      'suara',
-      'mikrofon',
-      'dikte',
       'voice',
+      'microphone',
+      'mic',
+      'dictation',
+      'speech',
+      'mascot',
+      'speak',
       'chat',
-      'rekan',
-      'teman',
-      'kirim file',
-      'grup',
+      'teammate',
+      'colleague',
+      'send file',
+      'group',
+      'create group',
       'whatsapp',
-      'pesan',
-      'hapus pesan',
-      'notifikasi',
+      'message',
+      'messages',
+      'delete message',
+      'notifications',
       'tray',
-      'admin grup'
+      'group admin'
     ],
     isi
   }
@@ -552,24 +566,24 @@ function bagianSuaraChat(keadaan: KeadaanPanduan): PanduanBagian {
 function bagianTips(): PanduanBagian {
   return {
     id: 'tips',
-    judul: 'Cara bertanya supaya jawabannya bagus',
-    ringkas: 'Empat kebiasaan yang paling banyak mengubah kualitas jawaban.',
-    kunci: ['tips', 'cara bertanya', 'prompt', 'jawaban jelek', 'salah jawab'],
+    judul: 'How to ask for better answers',
+    ringkas: 'Four habits that change the quality of answers the most.',
+    kunci: ['tips', 'how to ask', 'prompt', 'bad answer', 'wrong answer'],
     isi: [
       {
         jenis: 'daftar',
         butir: [
-          'Sebutkan PERIODENYA. "Bulan ini", "Januari–Juli 2026", "30 hari terakhir" — tanpa itu AIRA harus menebak, dan tebakan periode mengubah seluruh angka.',
-          'Sebutkan untuk SIAPA hasilnya. "Untuk rapat direksi" menghasilkan bentuk yang berbeda dari "untuk saya cek sendiri".',
-          'Satu pertanyaan satu kali. Lima pertanyaan dalam satu paragraf membuat jawabannya dangkal di semuanya.',
-          'Kalau jawabannya melenceng, katakan bagian mana yang salah — jangan mengulang pertanyaan yang sama persis. AIRA memperbaiki dari koreksi, bukan dari pengulangan.'
+          'State the PERIOD. "This month", "January–July 2026", "last 30 days" — without it AIRA has to guess, and a guessed period changes every number.',
+          'Say who the result is FOR. "For the board meeting" produces a different shape than "for my own check".',
+          'One question at a time. Five questions in one paragraph make every answer shallow.',
+          'If the answer is off, say which part is wrong — do not repeat the exact same question. AIRA improves from corrections, not from repetition.'
         ]
       },
       {
         jenis: 'paragraf',
         teks:
-          'Kamu tidak perlu tahu nama fitur atau nama tool. Tulis saja dengan kalimat kerja ' +
-          'sehari-hari — "bandingkan", "ringkas", "buatkan", "cari" — AIRA yang memilih caranya.'
+          'You do not need to know feature or tool names. Just write in everyday action words ' +
+          '— "compare", "summarize", "create", "find" — and AIRA picks how to do it.'
       }
     ]
   }
@@ -577,26 +591,26 @@ function bagianTips(): PanduanBagian {
 
 function bagianBatas(keadaan: KeadaanPanduan): PanduanBagian {
   const butir = [
-    'AIRA tidak membaca email kamu sendiri' +
-      (keadaan.m365Lanjutan ? ', kecuali lewat menu Microsoft 365 dan hanya untuk dibaca.' : ' — fitur email masih menunggu persetujuan admin Microsoft 365.'),
-    'AIRA tidak mengirim email, tidak memposting apa pun, dan tidak mengubah jadwal siapa pun.',
-    'AIRA tidak bisa masuk ke sistem lain (ERP, monitoring, ticketing) kecuali kamu sendiri yang mengeluarkan datanya lalu memberikannya ke AIRA.',
-    'Angka yang keluar dari menu data selalu punya sumber. Angka yang muncul TANPA menu data — mis. diketik di Task Baru — patut kamu curigai; tanyakan ulang lewat menunya.',
-    'Setiap tindakan yang mengubah atau menghapus sesuatu minta persetujuanmu dulu, dan semuanya tercatat di audit log.',
-    'Password tidak pernah diketik sebagai teks chat, dan login di halaman tanpa HTTPS ditolak.'
+    'AIRA does not read your own email' +
+      (keadaan.m365Lanjutan ? ', except through the Microsoft 365 menu and only to read it.' : '.'),
+    'AIRA does not send email, does not post anything, and does not change anyone’s schedule.',
+    'AIRA cannot log in to other systems (ERP, monitoring, ticketing) unless you export the data yourself and give it to AIRA.',
+    'Numbers coming out of a data menu always have a source. Numbers that appear WITHOUT a data menu — e.g. typed in New Task — deserve suspicion; ask again through the menu.',
+    'Every action that changes or deletes something asks for your approval first, and all of it is recorded in the audit log.',
+    'Passwords are never typed as chat text, and signing in on a page without HTTPS is refused.'
   ]
   return {
     id: 'batas',
-    judul: 'Yang TIDAK bisa dilakukan AIRA',
-    ringkas: 'Batas yang sengaja dipasang — baca ini sebelum menjanjikan sesuatu ke orang lain.',
-    kunci: ['batas', 'tidak bisa', 'limit', 'keamanan', 'aman', 'privasi', 'email'],
+    judul: 'What AIRA can NOT do',
+    ringkas: 'Limits that are in place on purpose — read this before promising something to someone else.',
+    kunci: ['limit', 'limits', 'cannot', 'can not', 'security', 'safe', 'privacy', 'email'],
     isi: [
       {
         jenis: 'paragraf',
         teks:
-          'Daftar ini sengaja ada di panduan. Asisten yang terdengar bisa segalanya membuat ' +
-          'orang menjanjikan hal yang tidak bisa ditepati — dan yang malu belakangan adalah ' +
-          'orang yang menjanjikannya, bukan aplikasinya.'
+          'This list is in the guide on purpose. An assistant that sounds like it can do everything makes ' +
+          'people promise things that cannot be delivered — and the one embarrassed later is ' +
+          'the person who made the promise, not the app.'
       },
       { jenis: 'batas', butir }
     ]
@@ -606,24 +620,24 @@ function bagianBatas(keadaan: KeadaanPanduan): PanduanBagian {
 function bagianMasalah(): PanduanBagian {
   return {
     id: 'masalah',
-    judul: 'Kalau ada yang salah',
-    ringkas: 'Jawaban keliru, menu tidak muncul, atau AIRA berhenti di tengah jalan.',
-    kunci: ['error', 'gagal', 'salah', 'lapor', 'bug', 'masukan', 'menu tidak muncul', 'coba lagi'],
+    judul: 'When something goes wrong',
+    ringkas: 'A wrong answer, a missing menu, or AIRA stopping midway.',
+    kunci: ['error', 'failed', 'wrong', 'report', 'bug', 'feedback', 'menu missing', 'not showing', 'showing', 'retry'],
     isi: [
       {
         jenis: 'langkah',
         butir: [
-          'Jawaban gagal atau terputus di tengah: klik "Coba lagi" di bawah jawaban. Pertanyaannya dikirim ulang tanpa menumpuk pertanyaan kembar.',
-          'Jawabannya keliru atau angkanya mencurigakan: klik "Laporkan" di jawaban itu. Pertanyaan dan jawabannya ikut terkirim, jadi kami bisa memeriksa yang persis kamu lihat.',
-          'Menu yang seharusnya ada tidak muncul: kirim lewat Masukan & Usulan. Akses menu butuh role DAN divisi — sering satu sisi saja yang sudah dicentang.',
-          'Usul fitur atau pertanyaan yang belum bisa dijawab AIRA: sama, lewat Masukan & Usulan.'
+          'Answer failed or cut off midway: click "Retry" under the answer. The question is sent again without piling up duplicate questions.',
+          'The answer is wrong or the numbers look suspicious: click "Report" on that answer. The question and answer are sent along, so we can check exactly what you saw.',
+          'A menu that should be there is not showing: send it through Feedback. Menu access needs a role AND a division — often only one side is ticked.',
+          'Feature suggestions or questions AIRA cannot answer yet: same thing, through Feedback.'
         ]
       },
       {
         jenis: 'paragraf',
         teks:
-          'Laporan lewat tombol Laporkan jauh lebih berguna daripada cerita lisan: kami melihat ' +
-          'pertanyaan aslinya, jawaban yang keluar, dan versi aplikasi yang kamu pakai.'
+          'A report through the Report button is far more useful than a verbal account: we see ' +
+          'the original question, the answer that came out, and the app version you use.'
       }
     ]
   }
@@ -634,27 +648,27 @@ function bagianMulai(keadaan: KeadaanPanduan): PanduanBagian {
     {
       jenis: 'paragraf',
       teks:
-        'AIRA adalah rekan kerja yang benar-benar mengerjakan, bukan kotak tanya-jawab. Ia ' +
-        'membaca berkasmu, menghitung dari database, membuat dokumen, dan menjalankan tugas ' +
-        'sampai selesai — semuanya di dalam jaringan the company.'
+        'AIRA is a colleague that actually does the work, not a Q&A box. It ' +
+        'reads your files, calculates from the database, creates documents, and runs tasks ' +
+        'through to the end — all inside a controlled environment.'
     },
     {
       jenis: 'langkah',
       butir: [
-        'Pilih menu di sebelah kiri. Menu menentukan apa yang boleh disentuh AIRA; "Task Baru" untuk pekerjaan umum.',
-        'Tulis maksudmu dengan kalimat biasa. Tidak ada format khusus, tidak perlu menyebut nama fitur.',
-        'Kalau ada berkas, seret ke kotak chat atau tambahkan foldernya lewat "Folder Akses".',
-        'Baca jawabannya, lalu koreksi bagian yang melenceng. Percakapan tersimpan sendiri di sidebar.'
+        'Pick a menu on the left. The menu decides what AIRA may touch; "New Task" is for general work.',
+        'Write what you mean in plain sentences. There is no special format, and you do not need to name features.',
+        'If there is a file, drag it into the chat box or add its folder through "Access Folders".',
+        'Read the answer, then correct the parts that are off. Conversations are saved automatically in the sidebar.'
       ]
     },
     {
       jenis: 'contoh',
       mode: 'general',
       contoh: [
-        'Ringkas dokumen yang saya lampirkan ini jadi 5 poin',
-        'Buatkan presentasi 8 slide tentang rencana kerja Q4',
-        'Cari di folder kerja saya, dokumen mana yang membahas anggaran 2026?',
-        'Rapikan tabel di Excel ini lalu buatkan grafiknya'
+        'Summarize this document I attached into 5 points',
+        'Create an 8-slide presentation about the Q4 work plan',
+        'List the files in my work folder and tell me which looks like the 2026 budget',
+        'Tidy this Excel table and create a chart for it'
       ]
     }
   ]
@@ -662,15 +676,15 @@ function bagianMulai(keadaan: KeadaanPanduan): PanduanBagian {
     isi.push({
       jenis: 'paragraf',
       teks:
-        'Untuk pertanyaan angka — penjualan, harga, TAT sampel — pakai menunya sendiri, jangan ' +
-        'Task Baru. Di sanalah angkanya diambil dari database.'
+        'For number questions — sales, prices, sample TAT — use the menu itself, not ' +
+        'New Task. That is where the numbers are taken from the database.'
     })
   }
   return {
     id: 'mulai',
-    judul: 'Mulai dari mana',
-    ringkas: 'Empat langkah pertama, untuk yang baru pertama kali membuka AIRA.',
-    kunci: ['mulai', 'awal', 'baru', 'pertama', 'cara pakai', 'panduan'],
+    judul: 'Where to start',
+    ringkas: 'The first four steps, for anyone opening AIRA for the first time.',
+    kunci: ['start', 'begin', 'first', 'new', 'how to use', 'guide', 'getting started'],
     isi
   }
 }
@@ -683,25 +697,25 @@ function bagianMulai(keadaan: KeadaanPanduan): PanduanBagian {
  */
 function bagianJadwal(): PanduanBagian {
   return {
-    id: 'jadwal',
-    judul: 'Tugas terjadwal (menu Jadwal)',
-    ringkas: 'Minta AIRA mengerjakan sesuatu sendiri pada jam tertentu — harian, mingguan, atau bulanan.',
-    kunci: ['jadwal', 'terjadwal', 'otomatis', 'rutin', 'tiap', 'setiap', 'pengingat', 'laporan mingguan', 'jam'],
+    id: 'schedule',
+    judul: 'Scheduled tasks (Schedule menu)',
+    ringkas: 'Ask AIRA to do something on its own at a set time — daily, weekly, or monthly.',
+    kunci: ['schedule', 'scheduled', 'automatic', 'recurring', 'every', 'reminder', 'weekly report', 'time'],
     isi: [
       {
         jenis: 'paragraf',
         teks:
-          'Buka menu Jadwal di sidebar, tekan "Tugas baru", tulis perintahnya seperti bertanya di chat, ' +
-          'pilih menunya dan kapan diulang. Pada jamnya AIRA menjalankannya sebagai percakapan baru ' +
-          'berjudul "Jadwal: …", lalu memberi notifikasi. Hasilnya bisa dibuka dari menu Jadwal atau riwayat chat.'
+          'Open the Schedule menu in the sidebar, press "New task", write the instruction as you would ask in chat, ' +
+          'then pick the menu and how often to repeat. At the set time AIRA runs it as a new conversation ' +
+          'titled "Schedule: …", then notifies you. The result can be opened from the Schedule menu or the chat history.'
       },
       {
         jenis: 'batas',
         butir: [
-          'Tugas hanya berjalan SELAMA AIRA MENYALA di laptop ini (termasuk saat tersembunyi di tray). Kalau laptop mati, sleep, atau AIRA di-Keluar-kan, tugasnya disusulkan SEKALI begitu AIRA menyala lagi — tidak diulang sebanyak yang terlewat.',
-          'Tugas hanya berjalan saat PEMILIKNYA yang login. Laptop yang dipakai bergantian tidak menjalankan tugas orang lain.',
-          'Tugas terjadwal tidak pernah menghapus, memindah, menimpa berkas, atau menjalankan perintah — tidak ada orang yang bisa menyetujuinya. Langkah seperti itu dilewati dan disebut di hasilnya. Membuat laporan PDF/Word/Excel/PPT tetap bisa.',
-          'Kalau akses menunya dicabut, tugas di menu itu berhenti dijalankan dan ditandai "Tidak dijalankan".'
+          'Tasks only run WHILE AIRA IS RUNNING on this laptop (including when hidden in the tray). If the laptop is off, asleep, or AIRA was Quit, the task is made up ONCE when AIRA is running again — not repeated as many times as it was missed.',
+          'Tasks only run while their OWNER is signed in. A laptop shared between people does not run someone else’s tasks.',
+          'Scheduled tasks never delete, move, or overwrite files, or run commands — there is nobody there to approve them. Steps like that are skipped and mentioned in the result. Creating PDF/Word/Excel/PPT reports still works.',
+          'If menu access is revoked, tasks in that menu stop running and are marked "Not run".'
         ]
       }
     ]
@@ -720,41 +734,41 @@ function bagianPemantau(keadaan: KeadaanPanduan): PanduanBagian | null {
   const pemicu = PEMICU.filter((p) => keadaan.izinMenu.includes(p.menu))
   if (pemicu.length === 0) return null
   const frasa = pemicu.map((p) => p.judul.charAt(0).toLowerCase() + p.judul.slice(1))
-  const daftar = frasa.length > 1 ? `${frasa.slice(0, -1).join(', ')}, atau ${frasa[frasa.length - 1]}` : frasa[0]
-  const jam = (h: number): string => `${String(h).padStart(2, '0')}.00`
+  const daftar = frasa.length > 1 ? `${frasa.slice(0, -1).join(', ')}, or ${frasa[frasa.length - 1]}` : frasa[0]
+  const hhmm = (h: number): string => `${String(h).padStart(2, '0')}:00`
   return {
     id: 'pemantau',
-    judul: 'Pemberitahuan otomatis (pemantau)',
-    ringkas: `AIRA memberi tahu duluan bila ${daftar}.`,
-    kunci: ['pemantau', 'pemberitahuan', 'notifikasi', 'peringatan', 'alarm', 'macet', 'terlambat', 'anjlok', 'otomatis', 'diperbarui'],
+    judul: 'Automatic alerts (monitor)',
+    ringkas: `AIRA tells you first when it spots: ${daftar}.`,
+    kunci: ['monitor', 'alert', 'alerts', 'notification', 'warning', 'alarm', 'stalled', 'late', 'dropped', 'automatic', 'updated', 'stopped updating'],
     isi: [
       {
         jenis: 'paragraf',
         teks:
-          'AIRA memeriksa data secara berkala dan memberi notifikasi Windows bila ada yang perlu ditindaklanjuti. ' +
-          'Pemantau hanya membaca, dan angkanya dihitung kode — bukan dikarang AIRA. Notifikasi hanya berisi ' +
-          'jumlah & persen; rinciannya ada di Settings → Pemantau → Riwayat peringatan.'
+          'AIRA checks the data regularly and sends a Windows notification when something needs follow-up. ' +
+          'The monitor only reads, and the numbers are calculated by code — not made up by AIRA. Notifications only contain ' +
+          'counts & percentages; the details are in Settings → Monitor → Alert history.'
       },
       { jenis: 'daftar', butir: pemicu.map((p) => `${p.judul}: ${kalimatAturan(p.id)}`) },
       {
         jenis: 'paragraf',
         teks:
-          'Klik notifikasinya untuk membuka menu terkait dengan pertanyaan lanjutan sudah terisi di kotak — tekan ' +
-          'kirim bila ingin menggali. Tidak perlu diberi tahu? Buka Settings → Pemantau lalu hilangkan centang ' +
-          '"Beri tahu saya" pada pemicu itu.'
+          'Click the notification to open the related menu with a follow-up question already filled in the box — press ' +
+          'send if you want to dig in. Do not need to be told? Open Settings → Monitor and untick ' +
+          '"Notify me" for that trigger.'
       },
       {
         jenis: 'batas',
         butir: [
-          `Pemantau hanya berjalan SELAMA AIRA MENYALA di laptop ini (termasuk saat tersembunyi di tray), ` +
-            `Senin–Sabtu ${jam(JAM_MULAI)}–${jam(JAM_SELESAI)}. Laptop mati atau AIRA di-Keluar-kan = tidak ada pemeriksaan.`,
+          `The monitor only runs WHILE AIRA IS RUNNING on this laptop (including when hidden in the tray), ` +
+            `Monday–Saturday ${hhmm(JAM_MULAI)}–${hhmm(JAM_SELESAI)}. Laptop off or AIRA Quit = no checks.`,
           ...(pemicu.some((p) => p.menu === 'lab')
             ? [
-                'Kategori lab yang tidak mencatat jam terima lab atau belum punya cukup riwayat sampel selesai ' +
-                  'tidak dipantau — daftarnya terlihat di Settings → Pemantau.'
+                'Lab categories that do not record a lab receipt time or do not yet have enough completed-sample history ' +
+                  'are not monitored — the list is shown in Settings → Monitor.'
               ]
             : []),
-          'Libur panjang (mis. Lebaran) bisa memicu pemberitahuan "data belum diperbarui" — itu memang keadaan datanya.'
+          'Long holidays (e.g. Eid) can trigger a "data not updated" alert — that really is the state of the data.'
         ]
       }
     ]
@@ -782,9 +796,9 @@ export function susunPanduan(keadaan: KeadaanPanduan): PanduanBagian[] {
 // ------------------------------------------------------------------ pencarian
 
 const KATA_UMUM = new Set([
-  'yang', 'dan', 'atau', 'untuk', 'dari', 'dengan', 'bisa', 'apa', 'saja', 'itu', 'ini',
-  'saya', 'kamu', 'aira', 'gimana', 'bagaimana', 'cara', 'tolong', 'aku', 'ada', 'di',
-  'ke', 'pada', 'kah', 'apakah', 'nya', 'mau', 'ingin', 'the', 'how', 'what', 'can'
+  'the', 'and', 'for', 'with', 'you', 'your', 'are', 'can', 'how', 'what', 'does', 'this', 'that',
+  'from', 'aira', 'please', 'could', 'would', 'about', 'any', 'have', 'has', 'was', 'were', 'its',
+  'into', 'want', 'need', 'where', 'who', 'why', 'when', 'which', 'there', 'there', 'tell', 'show'
 ])
 
 export function kataKunci(teks: string): string[] {
@@ -846,8 +860,8 @@ export function bagianKeTeks(b: PanduanBagian): string {
     if (blok.jenis === 'paragraf') baris.push(blok.teks)
     else if (blok.jenis === 'langkah') baris.push(...blok.butir.map((x, i) => `${i + 1}. ${x}`))
     else if (blok.jenis === 'daftar') baris.push(...blok.butir.map((x) => `- ${x}`))
-    else if (blok.jenis === 'contoh') baris.push(...blok.contoh.map((x) => `- contoh: "${x}"`))
-    else baris.push(...blok.butir.map((x) => `- BATAS: ${x}`))
+    else if (blok.jenis === 'contoh') baris.push(...blok.contoh.map((x) => `- example: "${x}"`))
+    else baris.push(...blok.butir.map((x) => `- LIMIT: ${x}`))
   }
   return baris.join('\n')
 }

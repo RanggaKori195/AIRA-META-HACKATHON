@@ -39,7 +39,7 @@ export function InfoGrup({
   const [menambah, setMenambah] = useState(false)
   const [calon, setCalon] = useState<string[]>([])
   const [konfirmasi, setKonfirmasi] = useState<
-    { jenis: 'keluar' } | { jenis: 'keluarkan'; username: string } | null
+    { jenis: 'leave' } | { jenis: 'keluarkan'; username: string } | null
   >(null)
   const [sibuk, setSibuk] = useState(false)
 
@@ -77,12 +77,12 @@ export function InfoGrup({
     return (
       <aside className="psn-info">
         <div className="psn-info-kepala">
-          <button className="psn-ikon" onClick={onTutup} title="Tutup">
+          <button className="psn-ikon" onClick={onTutup} title="Close">
             <IconClose size={16} />
           </button>
-          <strong>Info grup</strong>
+          <strong>Group info</strong>
         </div>
-        <p className="psn-kosong">{galat ?? 'Memuat…'}</p>
+        <p className="psn-kosong">{galat ?? 'Loading…'}</p>
       </aside>
     )
   }
@@ -94,10 +94,10 @@ export function InfoGrup({
   return (
     <aside className="psn-info">
       <div className="psn-info-kepala">
-        <button className="psn-ikon" onClick={onTutup} title="Tutup">
+        <button className="psn-ikon" onClick={onTutup} title="Close">
           <IconClose size={16} />
         </button>
-        <strong>Info grup</strong>
+        <strong>Group info</strong>
       </div>
 
       <div className="psn-info-isi">
@@ -107,7 +107,7 @@ export function InfoGrup({
             <h3>
               {grup.nama}
               {admin && (
-                <button className="psn-ikon kecil" onClick={() => setUbahNama(grup.nama)} title="Ganti nama grup">
+                <button className="psn-ikon kecil" onClick={() => setUbahNama(grup.nama)} title="Rename group">
                   <IconPencil size={13} />
                 </button>
               )}
@@ -128,29 +128,29 @@ export function InfoGrup({
                   }
                 }}
               />
-              <span className="psn-hitung">Enter untuk simpan · Esc batal</span>
+              <span className="psn-hitung">Enter to save · Esc to cancel</span>
             </div>
           )}
-          <span className="psn-info-sub">Grup · {anggota.length} anggota</span>
+          <span className="psn-info-sub">Group · {anggota.length} members</span>
         </div>
 
         {!grup.aktif && (
           <p className="psn-catatan psn-catatan-waspada">
-            Kamu sudah bukan anggota grup ini. Pesan lama tetap bisa dibaca, tapi kamu tidak
-            bisa mengirim dan tidak menerima pesan baru.
+            You are no longer a member of this group. Old messages can still be read, but you
+            cannot send and will not receive new messages.
           </p>
         )}
 
         <button className="psn-info-baris" onClick={onSenyap}>
           {senyap ? <IconBellOff size={16} /> : <IconBell size={16} />}
-          <span>{senyap ? 'Notifikasi dimatikan — klik untuk menyalakan' : 'Matikan notifikasi grup ini'}</span>
+          <span>{senyap ? 'Notifications off — click to turn on' : 'Mute notifications for this group'}</span>
         </button>
 
         <div className="psn-info-judul">
-          <span>{anggota.length} anggota</span>
+          <span>{anggota.length} members</span>
           {admin && !menambah && (
             <button className="psn-tautan" onClick={() => setMenambah(true)}>
-              <IconPlus size={13} /> Tambah
+              <IconPlus size={13} /> Add
             </button>
           )}
         </div>
@@ -171,7 +171,7 @@ export function InfoGrup({
                   setCalon([])
                 }}
               >
-                Batal
+                Cancel
               </button>
               <button
                 className="psn-tombol-utama"
@@ -184,7 +184,7 @@ export function InfoGrup({
                   })
                 }
               >
-                Tambahkan {calon.length > 0 ? `(${calon.length})` : ''}
+                Add {calon.length > 0 ? `(${calon.length})` : ''}
               </button>
             </div>
           </div>
@@ -197,7 +197,7 @@ export function InfoGrup({
               <li key={a.username} className="psn-anggota-baris">
                 <Avatar nama={a.username} online={a.online} ukuran={34} />
                 <span className="psn-anggota-nama">
-                  <strong>{diriSendiri ? 'Kamu' : a.username}</strong>
+                  <strong>{diriSendiri ? 'You' : a.username}</strong>
                   <span>{a.online ? 'online' : (a.role ?? '')}</span>
                 </span>
                 {a.peran === 'admin' && <span className="psn-lencana-admin">Admin</span>}
@@ -214,14 +214,14 @@ export function InfoGrup({
                         )
                       }
                     >
-                      {a.peran === 'admin' ? 'Cabut admin' : 'Jadikan admin'}
+                      {a.peran === 'admin' ? 'Remove admin' : 'Make admin'}
                     </button>
                     <button
                       className="psn-tautan bahaya"
                       disabled={sibuk}
                       onClick={() => setKonfirmasi({ jenis: 'keluarkan', username: a.username })}
                     >
-                      Keluarkan
+                      Remove
                     </button>
                   </span>
                 )}
@@ -233,23 +233,23 @@ export function InfoGrup({
         {galat && <p className="psn-galat">{galat}</p>}
 
         {grup.aktif && (
-          <button className="psn-info-baris bahaya" onClick={() => setKonfirmasi({ jenis: 'keluar' })}>
+          <button className="psn-info-baris bahaya" onClick={() => setKonfirmasi({ jenis: 'leave' })}>
             <IconLogout size={16} />
-            <span>Keluar dari grup</span>
+            <span>Leave group</span>
           </button>
         )}
       </div>
 
-      {konfirmasi?.jenis === 'keluar' && (
+      {konfirmasi?.jenis === 'leave' && (
         <ConfirmDialog
-          title={`Keluar dari "${grup.nama}"?`}
+          title={`Leave "${grup.nama}"?`}
           body={
-            'Kamu tidak akan menerima pesan baru dari grup ini. Pesan lama tetap bisa dibaca.' +
+            'You will not receive new messages from this group. Old messages can still be read.' +
             (admin && anggota.filter((a) => a.peran === 'admin').length === 1
-              ? ' Karena kamu admin terakhir, anggota paling lama akan otomatis jadi admin.'
+              ? ' Because you are the last admin, the longest-standing member will automatically become admin.'
               : '')
           }
-          confirmLabel="Keluar"
+          confirmLabel="Leave"
           onCancel={() => setKonfirmasi(null)}
           onConfirm={() => {
             setKonfirmasi(null)
@@ -262,9 +262,9 @@ export function InfoGrup({
       )}
       {konfirmasi?.jenis === 'keluarkan' && (
         <ConfirmDialog
-          title={`Keluarkan ${konfirmasi.username}?`}
-          body={`${konfirmasi.username} tidak akan menerima pesan baru dari "${grup.nama}". Semua anggota akan melihat bahwa kamu mengeluarkannya.`}
-          confirmLabel="Keluarkan"
+          title={`Remove ${konfirmasi.username}?`}
+          body={`${konfirmasi.username} will not receive new messages from "${grup.nama}". All members will see that you removed them.`}
+          confirmLabel="Remove"
           onCancel={() => setKonfirmasi(null)}
           onConfirm={() => {
             const u = konfirmasi.username

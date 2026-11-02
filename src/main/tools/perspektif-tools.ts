@@ -47,7 +47,7 @@ const MAX_TOKENS = 4000
 export const perspektifTools: ToolDefinition[] = [
   {
     name: 'analisa_lintas_perspektif',
-    label: 'Analisa Lintas Perspektif',
+    label: 'Cross-Perspective Analysis',
     description:
       'Menganalisa SATU item pemeriksaan dari beberapa sudut pandang sekaligus (Komersial dan ' +
       'Operasional Lab), lalu menandai konflik angka dan klaim berkeyakinan rendah secara otomatis. ' +
@@ -81,7 +81,7 @@ export const perspektifTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: TIMEOUT_MS,
-    summarize: (a) => `Analisa lintas perspektif: ${a.item} (${a.period ?? 'this_month'})`,
+    summarize: (a) => `Cross-perspective analysis: ${a.item} (${a.period ?? 'this_month'})`,
     execute: async (args) => {
       const keyword = typeof args.item === 'string' ? args.item.trim() : ''
       if (!keyword) throw new ToolError('argumen "item" wajib diisi (nama atau kode pemeriksaan)')
@@ -142,7 +142,7 @@ export const perspektifTools: ToolDefinition[] = [
       // BERURUTAN, bukan paralel: gateway ini melayani percakapan user lain
       // pada saat yang sama, dan dua permintaan serentak dari satu tool hanya
       // memperbesar antrean tanpa mempercepat apa pun yang user lihat.
-      const model = loadConfig().modelId
+      const model = loadConfig().chatModelId
       const hasil: KlaimPerspektif[] = []
       for (const p of PERSPEKTIF) {
         let mentah = ''

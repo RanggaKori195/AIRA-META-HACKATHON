@@ -69,7 +69,7 @@ async function run(): Promise<number> {
     { tool: 'sales_forecast', args: {} },
     { tool: 'sales_full_year', args: {} },
     { tool: 'sales_order_status', args: { order_id: s.orderId } },
-    { tool: 'lab_backlog', args: {} },
+    { tool: 'lab_backlog', args: {}, expect: /"perKategori":\[\{"category":"[A-Za-z]/ },
     { tool: 'lab_lacak', args: { order_id: s.orderIdTracked } },
     { tool: 'lab_rns', args: {} },
     { tool: 'lab_tat', args: {} },

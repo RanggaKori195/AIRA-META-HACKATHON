@@ -41,7 +41,7 @@ describe('hackathon isolation: no path to a production database', () => {
 
   test('app identity is separate from the installed AIRA', () => {
     assert.equal(JSON.parse(src('package.json')).name, 'aira-hackathon')
-    assert.match(src('electron-builder.yml'), /^appId: co\.id\.company\.aira\.hackathon$/m)
+    assert.match(src('electron-builder.yml'), /^appId: ai\.aira\.hackathon$/m)
   })
 
   test('Microsoft 365 menu is hidden, data menus stay', () => {

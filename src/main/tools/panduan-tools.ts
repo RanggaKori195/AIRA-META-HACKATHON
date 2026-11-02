@@ -20,7 +20,7 @@ import { panduanSekarang } from '../panduan/keadaan'
 export const panduanTools: ToolDefinition[] = [
   {
     name: 'cari_panduan',
-    label: 'Panduan AIRA',
+    label: 'AIRA Guide',
     description:
       'Panduan resmi pemakaian AIRA — apa yang BISA dan TIDAK BISA dilakukan AIRA, menu apa ' +
       'yang dipunyai user ini, dan langkah memakai tiap fitur. WAJIB dipakai setiap kali user ' +
@@ -43,7 +43,7 @@ export const panduanTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 10_000,
-    summarize: (a) => (a.topik ? `Panduan: ${String(a.topik)}` : 'Panduan AIRA'),
+    summarize: (a) => (a.topik ? `Guide: ${String(a.topik)}` : 'AIRA Guide'),
     execute: async (args) => {
       const topik = typeof args.topik === 'string' ? args.topik : ''
       const semua = panduanSekarang()

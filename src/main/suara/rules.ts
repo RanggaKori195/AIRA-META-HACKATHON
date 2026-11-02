@@ -122,24 +122,24 @@ export type PeriksaWav =
  * "Whisper-nya jelek" padahal audionya yang salah bentuk.
  */
 export function periksaWav(buf: Uint8Array): PeriksaWav {
-  if (buf.length < 44) return { ok: false, alasan: 'berkas audio terlalu pendek (header WAV tidak utuh)' }
+  if (buf.length < 44) return { ok: false, alasan: 'audio file is too short (incomplete WAV header)' }
   const teks = (o: number, n: number): string => String.fromCharCode(...buf.slice(o, o + n))
   if (teks(0, 4) !== 'RIFF' || teks(8, 4) !== 'WAVE') {
-    return { ok: false, alasan: 'bukan berkas WAV (header RIFF/WAVE tidak ditemukan)' }
+    return { ok: false, alasan: 'not a WAV file (RIFF/WAVE header not found)' }
   }
   const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength)
   const kanal = dv.getUint16(22, true)
   const sampleRate = dv.getUint32(24, true)
   const bit = dv.getUint16(34, true)
-  if (kanal !== 1) return { ok: false, alasan: `audio harus mono, terbaca ${kanal} kanal` }
+  if (kanal !== 1) return { ok: false, alasan: `audio must be mono, read ${kanal} channels` }
   if (sampleRate !== SAMPLE_RATE) {
-    return { ok: false, alasan: `audio harus ${SAMPLE_RATE} Hz, terbaca ${sampleRate} Hz` }
+    return { ok: false, alasan: `audio must be ${SAMPLE_RATE} Hz, read ${sampleRate} Hz` }
   }
-  if (bit !== 16) return { ok: false, alasan: `audio harus 16-bit, terbaca ${bit}-bit` }
+  if (bit !== 16) return { ok: false, alasan: `audio must be 16-bit, read ${bit}-bit` }
   const detik = (buf.length - 44) / (sampleRate * 2)
-  if (detik <= 0.2) return { ok: false, alasan: 'rekaman terlalu pendek — tidak ada yang terdengar' }
+  if (detik <= 0.2) return { ok: false, alasan: 'recording too short — nothing audible' }
   if (detik > MAKS_DETIK + 5) {
-    return { ok: false, alasan: `rekaman ${detik.toFixed(0)} detik melebihi batas ${MAKS_DETIK} detik` }
+    return { ok: false, alasan: `recording of ${detik.toFixed(0)} s exceeds the ${MAKS_DETIK} s limit` }
   }
   return { ok: true, detik, sampleRate, kanal }
 }
@@ -154,9 +154,9 @@ export function periksaWav(buf: Uint8Array): PeriksaWav {
  */
 export function catatanTranskrip(teks: string): string {
   if (!teks) {
-    return 'Tidak ada kata yang terdengar. Coba bicara lebih dekat ke mikrofon.'
+    return 'No words were heard. Try speaking closer to the microphone.'
   }
-  return 'Hasil suara belum dikoreksi — pastikan sudah benar sebelum mengirim.'
+  return 'Voice result not yet corrected — make sure it is right before sending.'
 }
 
 // Penjelasan panjangnya (tooltip) ada di `src/shared/dikte.ts` — renderer

@@ -23,7 +23,7 @@
  * `cari_panduan` pada yang pertama berarti menunda pekerjaan demi ceramah.
  */
 const KOSAKATA_KERJA =
-  /\b(sales|penjualan|omzet|omset|revenue|order|invoice|backlog|tat|rns|sampel|pasien|pelanggan|customer|item|harga|price|pks|dokter|provinsi|cabang|ytd|ramalan|forecast|proyeksi|budget|tagihan|log|server|utilisasi)\b/i
+  /\b(sales|penjualan|omzet|omset|revenue|order|invoice|backlog|tat|rns|sampel|pasien|pelanggan|customer|item|harga|price|pks|dokter|provinsi|cabang|ytd|ramalan|forecast|proyeksi|budget|tagihan|log|server|utilisasi|orders|samples?|patients?|customers|items|prices|doctors?|province|branch|stock|reagents?)\b/i
 
 /**
  * Tanda bahwa user menunjuk BERKAS atau DATA konkret di percakapan ini.
@@ -34,7 +34,7 @@ const KOSAKATA_KERJA =
  * Yang ditunjuk harus bendanya: berkas, dokumen, tabel, lampiran.
  */
 const MENUNJUK_PEKERJAAN =
-  /\b(berikut|terlampir|lampiran)\b|\b(file|berkas|dokumen|data|tabel|gambar|foto)\s+(ini|itu|berikut)\b/i
+  /\b(berikut|terlampir|lampiran|attached|attachment)\b|\b(file|berkas|dokumen|data|tabel|gambar|foto)\s+(ini|itu|berikut)\b|\b(this|that|the)\s+(file|document|data|table|image|photo|sheet)\b/i
 
 /**
  * "apa saja yang bisa kamu lakukan", "kamu bisa apa", "fitur apa saja",
@@ -44,7 +44,10 @@ const TANYA_KEMAMPUAN =
   /\b(kamu|kau|aira|lu|anda)\s+(bisa|dapat|mampu)\s+(apa|ngapain)\b|\bapa\s+(saja\s+)?yang\s+(bisa|dapat)\s+(kamu|kau|aira|anda)\b|\b(fitur|kemampuan|kebisaan)\b.*\b(apa|saja|daftar)\b|\bapa\s+(saja\s+)?(fitur|kemampuan)\b/i
 
 /** "apakah kamu bisa membuat PPT?" — bentuk yang paling sering dipakai orang. */
-const TANYA_APAKAH_BISA = /\bapa(kah)?\s+(kamu|kau|aira|anda)\s+(bisa|dapat|mampu)\b/i
+const TANYA_APAKAH_BISA =
+  /\bapa(kah)?\s+(kamu|kau|aira|anda)\s+(bisa|dapat|mampu)\b|\bwhat\s+(can|do)\s+you\s+do\b|\bwhat\s+are\s+your\s+(features|capabilities)\b/i
+// ⚠️ Final review 2 Nov 2026: the English "can/could you …?" form was dropped — it forced `cari_panduan` on
+// ordinary requests ("Can you explain what an API is?", "can you help me write an email?").
 
 /**
  * "gimana cara pakai menu ini", "cara menggunakan AIRA", "ada panduannya?".
@@ -53,10 +56,13 @@ const TANYA_APAKAH_BISA = /\bapa(kah)?\s+(kamu|kau|aira|anda)\s+(bisa|dapat|mamp
  * "panduannya", "tutorialnya", "caranya". Karena itu `\w*`.
  */
 const TANYA_CARA_PAKAI =
-  /\b(panduan|tutorial|user guide|manual)\w*\b|\bcara(nya)?\s+(pakai|pake|memakai|menggunakan|guna(kan)?)\b|\b(gimana|bagaimana)\s+(cara(nya)?|langkah(nya)?)\b|\blangkah[- ]?langkah\w*\b/i
+  /\b(panduan|tutorial|user guide|manual)\w*\b|\bcara(nya)?\s+(pakai|pake|memakai|menggunakan|guna(kan)?)\b|\b(gimana|bagaimana)\s+(cara(nya)?|langkah(nya)?)\b|\blangkah[- ]?langkah\w*\b|\bhow\s+(do|can)\s+I\s+use\s+(aira|this\s+app|this\s+menu|the\s+\w+)\b|\bhow\s+to\s+use\s+(aira|this\s+app)\b/i
+// English kept narrow (final review 2 Nov 2026): bare "guide" caught "Write a style guide for our emails";
+// "user guide" stays via the first alternative.
 
 /** "AIRA itu apa sih", "kamu ini apa" — pertanyaan jati diri. */
-const TANYA_SIAPA = /\b(siapa|apa)\s+(kamu|kau|aira|anda)\b|\b(kamu|aira)\s+(itu\s+)?(siapa|apa)\b/i
+const TANYA_SIAPA =
+  /\b(siapa|apa)\s+(kamu|kau|aira|anda)\b|\b(kamu|aira)\s+(itu\s+)?(siapa|apa)\b|\b(who|what)\s+are\s+you\b|\bwhat\s+is\s+aira\b/i
 
 /**
  * Apakah kalimat ini pertanyaan TENTANG AIRA yang jawabannya ada di panduan.

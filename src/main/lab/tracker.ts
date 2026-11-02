@@ -132,7 +132,17 @@ export interface HasilBacklog {
   totalBaris: number
   totalOrder: number
   perStatus: RingkasanStatus[]
+  /** Same numbers per category, so "backlog per category" is one call, not one call per category. */
+  perKategori: RingkasanKategori[]
   daftar: BarisBacklog[]
+}
+
+export interface RingkasanKategori {
+  category: string | null
+  baris: number
+  order: number
+  umur_median: number | null
+  umur_tertua: number | null
 }
 
 export async function backlog(f: Saringan, batas: number): Promise<HasilBacklog> {
@@ -162,6 +172,24 @@ export async function backlog(f: Saringan, batas: number): Promise<HasilBacklog>
     params
   )
 
+  const perKategori = await salesQuery<{
+    category: string | null
+    baris: string
+    order: string
+    umur_median: string | null
+    umur_tertua: string | null
+  }>(
+    `SELECT category,
+            count(*)::text AS baris,
+            count(DISTINCT order_id)::text AS "order",
+            round(percentile_cont(0.5) WITHIN GROUP (
+              ORDER BY EXTRACT(EPOCH FROM (now() - ${JANGKAR_UMUR})) / 86400.0)::numeric, 1)::text AS umur_median,
+            round(max(EXTRACT(EPOCH FROM (now() - ${JANGKAR_UMUR})) / 86400.0)::numeric, 1)::text AS umur_tertua
+       FROM ${VIEW} WHERE ${where}
+      GROUP BY 1 ORDER BY count(*) DESC`,
+    params
+  )
+
   // Yang paling lama menggantung lebih dulu — itu yang ditindaklanjuti orang lab.
   const daftar = await salesQuery<BarisBacklog>(
     `SELECT order_id, test, category, account, sample_status, is_rns,
@@ -179,6 +207,13 @@ export async function backlog(f: Saringan, batas: number): Promise<HasilBacklog>
     totalOrder: Number(total?.order ?? 0),
     perStatus: perStatus.map((r) => ({
       sample_status: r.sample_status,
+      baris: Number(r.baris),
+      order: Number(r.order),
+      umur_median: r.umur_median === null ? null : Number(r.umur_median),
+      umur_tertua: r.umur_tertua === null ? null : Number(r.umur_tertua)
+    })),
+    perKategori: perKategori.map((r) => ({
+      category: r.category,
       baris: Number(r.baris),
       order: Number(r.order),
       umur_median: r.umur_median === null ? null : Number(r.umur_median),

@@ -184,9 +184,12 @@ export const CITY_MATCH_SQL = `SELECT description FROM ${CITY_MASTER}
 // Guard pemilihan dimensi
 // ---------------------------------------------------------------------------
 
-const REGION_WORD = /\b(wilayah|daerah|provinsi|propinsi|kota|kabupaten|kab|region|area|geografis?|lokasi)\b/i
-const PROVINCE_WORD = /\b(provinsi|propinsi)\b/i
-const PATIENT_WORD = /\bpasien\b/i
+// English words added in the final review (2 Nov 2026): "which city has the highest sales?" kept the
+// free-text patient-city column that splits one city into several rows (see below).
+const REGION_WORD =
+  /\b(wilayah|daerah|provinsi|propinsi|kota|kabupaten|kab|region|regions|area|areas|geografis?|lokasi|city|cities|province|provinces|location|locations)\b/i
+const PROVINCE_WORD = /\b(provinsi|propinsi|province|provinces)\b/i
+const PATIENT_WORD = /\b(pasien|patients?)\b/i
 
 /**
  * Guard di level KODE, bukan imbauan di prompt.

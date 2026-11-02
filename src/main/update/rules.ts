@@ -14,7 +14,7 @@
  * satu alamat sementara aplikasi mengecek alamat lain, dan hasilnya "tidak ada
  * update" selamanya, tanpa satu pun galat.
  */
-export const URL_UPDATE_BAWAAN = 'https://updates.internal.example/update/'
+export const URL_UPDATE_BAWAAN = 'https://updates.invalid/aira/'
 
 /** Pemeriksaan berkala. Rilis AIRA tidak terjadi tiap jam. */
 export const JEDA_CEK_MS = 4 * 60 * 60 * 1000
@@ -66,10 +66,10 @@ export function terjemahkanGalatUpdate(err: unknown): string {
   const teks = err instanceof Error ? `${err.message} ${(err as { code?: string }).code ?? ''}` : String(err)
   const t = teks.toLowerCase()
   if (/enotfound|eai_again|getaddrinfo/.test(t)) {
-    return 'Server update tidak ditemukan (nama domain belum terdaftar atau di luar jaringan the company/VPN).'
+    return 'Server update tidak ditemukan (nama domain belum terdaftar atau di luar jaringan).'
   }
   if (/econnrefused|etimedout|econnreset|socket hang up|net::err_/.test(t)) {
-    return 'Server update tidak terjangkau. Pastikan tersambung ke jaringan the company/VPN.'
+    return 'Server update tidak terjangkau. Pastikan tersambung ke jaringan.'
   }
   if (/cert|self[- ]signed|unable to verify|ssl|tls/.test(t)) {
     return 'Sertifikat HTTPS server update ditolak. Perlu diperiksa tim IT.'

@@ -84,7 +84,7 @@ export async function tulisPdfDariHtml(
       printBackground: true,
       displayHeaderFooter: true,
       headerTemplate: kepalaHalaman(),
-      footerTemplate: kakiHalaman(opsi.catatanKaki, fontDataUrl('CompanySerif-Regular.woff2')),
+      footerTemplate: kakiHalaman(opsi.catatanKaki, fontDataUrl('')),
       // Margin bawah dilebihkan agar kaki halaman tidak menimpa isi.
       margins: { top: 0.7, bottom: 0.75, left: 0.63, right: 0.63 }
     })

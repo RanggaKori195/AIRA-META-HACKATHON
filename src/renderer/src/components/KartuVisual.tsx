@@ -6,7 +6,7 @@ import { IconDatabase } from './Icons'
 // dari `KartuVisual` yang disusun main process dari hasil tool. Satu komponen
 // untuk semua tool: KPI, batang horizontal, deret waktu, tabel.
 
-const rb = (n: number): string => Math.round(n).toLocaleString('id-ID')
+const rb = (n: number): string => Math.round(n).toLocaleString('en-US')
 
 /**
  * @param bertanda tanda "+" hanya untuk nilai PERUBAHAN (punya arah). Porsi
@@ -15,22 +15,22 @@ const rb = (n: number): string => Math.round(n).toLocaleString('id-ID')
 function format(n: number | null, s: Satuan, denganRp = true, bertanda = false): string {
   if (n === null) return '—'
   if (s === 'rp') {
-    const teks = denganRp ? `Rp ${rb(Math.abs(n))}` : rb(Math.abs(n))
+    const teks = denganRp ? `IDR ${rb(Math.abs(n))}` : rb(Math.abs(n))
     return n < 0 ? `−${teks}` : teks
   }
-  if (s === 'persen') return `${bertanda && n > 0 ? '+' : ''}${n.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%`
+  if (s === 'persen') return `${bertanda && n > 0 ? '+' : ''}${n.toLocaleString('en-US', { maximumFractionDigits: 1 })}%`
   // Hari sering pecahan (median TAT 2,5 hari) — dibulatkan ke bilangan bulat
   // berarti 2,5 tampil sebagai 3 dan terbaca lebih lambat dari kenyataan.
-  if (s === 'hari') return `${n.toLocaleString('id-ID', { maximumFractionDigits: 1 })} hari`
+  if (s === 'hari') return `${n.toLocaleString('en-US', { maximumFractionDigits: 1 })} days`
   return rb(n)
 }
 
-/** Singkatan sumbu: M = miliar, jt = juta. */
+/** Axis abbreviations: B = billion, M = million. */
 function singkat(n: number, s: Satuan): string {
-  if (s === 'hari') return `${n.toLocaleString('id-ID', { maximumFractionDigits: 1 })} hr`
+  if (s === 'hari') return `${n.toLocaleString('en-US', { maximumFractionDigits: 1 })} d`
   if (s !== 'rp') return rb(n)
-  if (Math.abs(n) >= 1e9) return `${(n / 1e9).toLocaleString('id-ID', { maximumFractionDigits: 1 })} M`
-  if (Math.abs(n) >= 1e6) return `${(n / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 0 })} jt`
+  if (Math.abs(n) >= 1e9) return `${(n / 1e9).toLocaleString('en-US', { maximumFractionDigits: 1 })}B`
+  if (Math.abs(n) >= 1e6) return `${(n / 1e6).toLocaleString('en-US', { maximumFractionDigits: 0 })}M`
   return rb(n)
 }
 
@@ -103,7 +103,7 @@ function Deret({ p }: { p: Extract<Panel, { jenis: 'deret' }> }): JSX.Element {
       {p.judul && <h5>{p.judul}</h5>}
       <div className="kv-legenda">
         <span>
-          <i className="seri" /> {p.namaSeri ?? 'Nilai'}
+          <i className="seri" /> {p.namaSeri ?? 'Value'}
         </span>
         {p.pembanding && (
           <span>
@@ -112,11 +112,11 @@ function Deret({ p }: { p: Extract<Panel, { jenis: 'deret' }> }): JSX.Element {
         )}
         {adaRentang && (
           <span>
-            <i className="pita" /> Rentang perkiraan
+            <i className="pita" /> Estimate range
           </span>
         )}
       </div>
-      <svg viewBox={`0 0 ${L} ${T}`} className="db-grafik" role="img" aria-label={p.judul ?? 'Grafik deret'}>
+      <svg viewBox={`0 0 ${L} ${T}`} className="db-grafik" role="img" aria-label={p.judul ?? 'Series chart'}>
         {Array.from({ length: 6 }, (_, i) => (
           <g key={i}>
             <line x1={kiri} x2={L - 6} y1={y(langkah * i)} y2={y(langkah * i)} className="db-bantu" />
@@ -169,7 +169,7 @@ function Deret({ p }: { p: Extract<Panel, { jenis: 'deret' }> }): JSX.Element {
           <circle key={i} cx={x(i)} cy={y(t.nilai)} r={n > 20 ? 2.5 : 4} className="db-titik">
             <title>
               {t.label}: {format(t.nilai, p.satuan)}
-              {t.bawah != null && t.atas != null ? ` (rentang ${format(t.bawah, p.satuan)} – ${format(t.atas, p.satuan)})` : ''}
+              {t.bawah != null && t.atas != null ? ` (range ${format(t.bawah, p.satuan)} – ${format(t.atas, p.satuan)})` : ''}
             </title>
           </circle>
         ))}
@@ -201,7 +201,7 @@ function Tabel({ p }: { p: Extract<Panel, { jenis: 'tabel' }> }): JSX.Element {
     <div className="kv-tabel">
       {p.judul && <h5>{p.judul}</h5>}
       {p.baris.length === 0 ? (
-        <p className="db-kosong">Tidak ada baris.</p>
+        <p className="db-kosong">No rows.</p>
       ) : (
         <table className="db-tabel">
           <thead>
@@ -228,7 +228,7 @@ function Tabel({ p }: { p: Extract<Panel, { jenis: 'tabel' }> }): JSX.Element {
       )}
       {p.baris.length > BATAS_BARIS && (
         <button className="beranda-tautan kv-lagi" onClick={() => setSemua((x) => !x)}>
-          {semua ? 'Tampilkan lebih sedikit' : `Tampilkan semua (${p.baris.length})`}
+          {semua ? 'Show less' : `Show all (${p.baris.length})`}
         </button>
       )}
     </div>
@@ -258,7 +258,7 @@ function GambarPanel({ p }: { p: Panel }): JSX.Element {
 }
 
 export function KartuVisual({ k }: { k: Kartu }): JSX.Element {
-  const sumber = k.tool.startsWith('sales_') ? 'SalesRepository' : k.tool.startsWith('lab_') || k.tool === 'dashboard_lab' ? 'Pelacakan sampel' : k.tool.startsWith('inno_') || k.tool === 'dashboard_inno' ? 'Master Data' : null
+  const sumber = k.tool.startsWith('sales_') ? 'SalesRepository' : k.tool.startsWith('lab_') || k.tool === 'dashboard_lab' ? 'Sample tracking' : k.tool.startsWith('inno_') || k.tool === 'dashboard_inno' ? 'Master Data' : null
   return (
     <section className="db-kartu kv">
       <div className="db-kepala">
@@ -268,7 +268,7 @@ export function KartuVisual({ k }: { k: Kartu }): JSX.Element {
         </div>
         {sumber && (
           <span className="gambar-pilih db-sumber">
-            <IconDatabase size={14} /> Sumber: {sumber}
+            <IconDatabase size={14} /> Source: {sumber}
           </span>
         )}
       </div>

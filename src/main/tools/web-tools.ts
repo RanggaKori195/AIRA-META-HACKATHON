@@ -22,7 +22,7 @@ export const webTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 30_000,
-    summarize: (a) => `Cari di web: "${a.query}"`,
+    summarize: (a) => `Search the web: "${a.query}"`,
     execute: async (args) => {
       const query = args.query
       if (typeof query !== 'string' || !query.trim()) {

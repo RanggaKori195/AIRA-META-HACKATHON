@@ -52,69 +52,69 @@ interface Kelompok {
 
 const KELOMPOK: Kelompok[] = [
   {
-    judul: 'Mencari Berkas',
-    ket: 'Temukan dokumen yang kamu butuhkan',
+    judul: 'Find Files',
+    ket: 'Find the documents you need',
     ikon: <IconSearch size={22} />,
     warna: 'hijau',
     contoh: [
-      { tampil: 'Cari dokumen tentang SOP di OneDrive saya' },
-      { tampil: 'Temukan file laporan penjualan tahun 2024' },
-      { tampil: 'Cari presentasi dengan kata kunci "product"' }
+      { tampil: 'Find documents about SOPs in my OneDrive' },
+      { tampil: 'Find the 2024 sales report file' },
+      { tampil: 'Find presentations with the keyword "product"' }
     ]
   },
   {
-    judul: 'Isi Folder',
-    ket: 'Lihat daftar isi folder dan eksplorasi dokumen',
+    judul: 'Folder Contents',
+    ket: 'See what is inside a folder and explore documents',
     ikon: <IconFolder size={22} />,
     warna: 'biru',
     contoh: [
-      { tampil: 'Ada folder apa saja di OneDrive saya?' },
-      { tampil: 'Tampilkan isi folder Documents' },
-      { tampil: 'Berkas apa saja yang di-share ke saya?' }
+      { tampil: 'Which folders are in my OneDrive?' },
+      { tampil: 'Show the contents of the Documents folder' },
+      { tampil: 'Which files have been shared with me?' }
     ]
   },
   {
-    judul: 'Membaca & Meringkas',
-    ket: 'Pahami isi dokumen dengan cepat — sebutkan nama berkasnya',
+    judul: 'Read & Summarize',
+    ket: 'Understand a document quickly — mention the file name',
     ikon: <IconFileText size={22} />,
     warna: 'ungu',
     contoh: [
-      { tampil: 'Buka dan ringkas dokumen ini', isi: 'Buka dan ringkas dokumen ' },
-      { tampil: 'Ambil poin-poin penting dari file tersebut', isi: 'Ambil poin-poin penting dari file ' },
-      { tampil: 'Jelaskan isi dokumen dengan sederhana', isi: 'Jelaskan dengan sederhana isi dokumen ' }
+      { tampil: 'Open and summarize this document', isi: 'Open and summarize the document ' },
+      { tampil: 'Extract the key points from that file', isi: 'Extract the key points from the file ' },
+      { tampil: 'Explain the document in simple terms', isi: 'Explain in simple terms the document ' }
     ]
   },
   {
-    judul: 'Bandingkan Dokumen',
-    ket: 'Temukan perbedaan antar dokumen — sebutkan kedua berkasnya',
+    judul: 'Compare Documents',
+    ket: 'Find the differences between documents — mention both files',
     ikon: <IconTimbangan />,
     warna: 'kuning',
     contoh: [
-      { tampil: 'Bandingkan dua dokumen, apa bedanya?', isi: 'Bandingkan dua dokumen ini, apa bedanya: ' },
+      { tampil: 'Compare two documents — what is different?', isi: 'Compare these two documents and tell me what is different: ' },
       {
-        tampil: 'Tunjukkan perubahan antara dua versi dokumen',
-        isi: 'Tunjukkan perubahan antara dua versi dokumen ini: '
+        tampil: 'Show the changes between two versions of a document',
+        isi: 'Show the changes between these two versions of a document: '
       },
       {
-        tampil: 'Mana yang lebih baru dan apa perubahannya?',
-        isi: 'Dari dua dokumen ini, mana yang lebih baru dan apa perubahannya: '
+        tampil: 'Which is newer and what changed?',
+        isi: 'Of these two documents, which is newer and what changed: '
       }
     ]
   }
 ]
 
 const SUMBER = [
-  { nilai: '', label: 'Sumber: OneDrive saya' },
-  { nilai: 'berkas yang di-share ke saya', label: 'Sumber: Di-share ke saya' }
+  { nilai: '', label: 'Source: My OneDrive' },
+  { nilai: 'files shared with me', label: 'Source: Shared with me' }
 ]
 
 const TIPE = ['Word', 'Excel', 'PowerPoint', 'PDF']
 
 const TIPS = [
-  'Gunakan kata kunci spesifik untuk hasil lebih relevan.',
-  'Tentukan folder jika ingin pencarian lebih terfokus.',
-  'Kamu bisa meminta ringkasan, poin penting, atau perbandingan antar file.',
-  'AIRA hanya membaca file yang bisa kamu akses (sesuai izin OneDrive).'
+  'Use specific keywords for more relevant results.',
+  'Pick a folder for a more focused search.',
+  'You can ask for a summary, key points, or a comparison between files.',
+  'AIRA only reads files you can access (per your OneDrive permissions).'
 ]
 
 const MAKS_KARAKTER = 2000
@@ -155,22 +155,22 @@ function IconChevron(): JSX.Element {
 
 function sejak(ms: number): string {
   const menit = Math.max(0, Math.round((Date.now() - ms) / 60_000))
-  if (menit < 1) return 'baru saja'
-  if (menit < 60) return `${menit} menit yang lalu`
+  if (menit < 1) return 'just now'
+  if (menit < 60) return menit + ' min ago'
   const jam = Math.round(menit / 60)
-  if (jam < 24) return `${jam} jam yang lalu`
+  if (jam < 24) return jam + ' h ago'
   const hari = Math.round(jam / 24)
-  if (hari < 30) return `${hari} hari yang lalu`
-  return new Date(ms).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+  if (hari < 30) return hari + ' d ago'
+  return new Date(ms).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 /** Tambahan konteks yang ditempel ke kalimat — hanya yang belum disebut user sendiri. */
 function tempel(teks: string, sumber: string, folder: string, tipe: string): string {
   const kecil = teks.toLowerCase()
   const tambahan: string[] = []
-  if (sumber && !kecil.includes('share')) tambahan.push(`sumber: ${sumber}`)
+  if (sumber && !kecil.includes('share')) tambahan.push('source: ' + sumber)
   if (folder && !kecil.includes(folder.toLowerCase())) tambahan.push(`folder: ${folder}`)
-  if (tipe && !kecil.includes(tipe.toLowerCase())) tambahan.push(`tipe file: ${tipe}`)
+  if (tipe && !kecil.includes(tipe.toLowerCase())) tambahan.push(`file type: ${tipe}`)
   return tambahan.length ? `${teks} (${tambahan.join(', ')})` : teks
 }
 
@@ -221,23 +221,23 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
   const terhubung = status?.keadaan === 'terhubung'
 
   const labelStatus = memuat
-    ? { teks: 'Memeriksa…', kelas: 'belum', judul: 'Sedang memeriksa sambungan Microsoft 365.' }
+    ? { teks: 'Checking…', kelas: 'belum', judul: 'Checking the Microsoft 365 connection.' }
     : status === null
-      ? { teks: 'Tidak diketahui', kelas: 'belum', judul: 'Status tidak bisa dibaca.' }
+      ? { teks: 'Unknown', kelas: 'belum', judul: 'The status could not be read.' }
       : !status.terkonfigurasi
-        ? { teks: 'Belum dikonfigurasi', kelas: 'gagal', judul: 'Microsoft 365 tidak tertanam di aplikasi ini.' }
+        ? { teks: 'Not configured', kelas: 'gagal', judul: 'Microsoft 365 is not built into this app.' }
         : status.keadaan === 'terhubung'
           ? {
-              teks: status.lanjutan ? 'Terhubung' : 'Terhubung (berkas saja)',
+              teks: status.lanjutan ? 'Connected' : 'Connected (files only)',
               kelas: 'ok',
-              judul: status.akun ? `Masuk sebagai ${status.akun}` : 'Terhubung'
+              judul: status.akun ? `Signed in as ${status.akun}` : 'Connected'
             }
           : status.keadaan === 'gagal'
-            ? { teks: 'Tidak terhubung', kelas: 'gagal', judul: status.galat ?? 'Sambungan gagal.' }
+            ? { teks: 'Not connected', kelas: 'gagal', judul: status.galat ?? 'The connection failed.' }
             : {
-                teks: 'Belum login',
+                teks: 'Not signed in',
                 kelas: 'belum',
-                judul: 'Login Microsoft diminta otomatis saat kamu mengirim pertanyaan pertama.'
+                judul: 'Microsoft sign-in is requested automatically when you send your first question.'
               }
 
   return (
@@ -246,22 +246,22 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
         <header className="drive-hero">
           <div className="drive-hero-teks">
             <span className="hero-lencana">
-              <IconFolder size={15} /> Tanya Microsoft 365
+              <IconFolder size={15} /> Ask Microsoft 365
             </span>
-            <h1>Tanya Dokumen OneDrive</h1>
+            <h1>Ask OneDrive Documents</h1>
             <p>
-              Cari, baca, ringkas, dan bandingkan berkas di OneDrive Microsoft 365 kamu dengan mudah dan
-              cepat. AIRA membantu kamu menemukan informasi penting dari dokumen yang bisa kamu akses.
+              Search, read, summarize, and compare files in your Microsoft 365 OneDrive quickly and
+              easily. AIRA helps you find the key information in documents you can access.
             </p>
             <div className="drive-fitur">
               <span>
-                <i><IconSearch size={17} /></i> Cari dokumen<br />dengan konteks
+                <i><IconSearch size={17} /></i> Search documents<br />with context
               </span>
               <span>
-                <i><IconFileText size={17} /></i> Baca &amp; ringkas<br />isi dokumen
+                <i><IconFileText size={17} /></i> Read &amp; summarize<br />documents
               </span>
               <span>
-                <i><IconTimbangan /></i> Bandingkan<br />antar dokumen
+                <i><IconTimbangan /></i> Compare<br />documents
               </span>
             </div>
           </div>
@@ -293,7 +293,7 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
         <div className="task-box sales-kotak drive-kotak">
           <textarea
             ref={kotak}
-            placeholder="Contoh: cari dokumen tentang SOP di OneDrive saya"
+            placeholder="Example: find documents about SOPs in my OneDrive"
             value={text}
             maxLength={MAKS_KARAKTER}
             onChange={(e) => setText(e.target.value)}
@@ -309,7 +309,7 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
             <div className="row-left">
               {/* Hasil dikte DISISIPKAN ke kotak teks, tidak dikirim otomatis. */}
               <TombolDikte onTeks={(t) => setText((s) => (s.trim() ? `${s.trim()} ${t}` : t).slice(0, MAKS_KARAKTER))} />
-              <label className="gambar-pilih" title="Sumber ditempelkan ke pertanyaanmu saat dikirim">
+              <label className="gambar-pilih" title="The source is appended to your question when sent">
                 <IconAwan size={18} />
                 <select value={sumber} onChange={(e) => setSumber(e.target.value)}>
                   {SUMBER.map((s) => (
@@ -323,13 +323,13 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
                 className="gambar-pilih"
                 title={
                   terhubung
-                    ? 'Folder ditempelkan ke pertanyaanmu saat dikirim'
-                    : 'Daftar folder muncul sesudah kamu login Microsoft 365'
+                    ? 'The folder is appended to your question when sent'
+                    : 'The folder list appears after you sign in to Microsoft 365'
                 }
               >
                 <IconFolder size={16} />
                 <select value={folder} onChange={(e) => setFolder(e.target.value)}>
-                  <option value="">Semua folder</option>
+                  <option value="">All folders</option>
                   {status?.folder.map((f) => (
                     <option key={f} value={f}>
                       {f}
@@ -337,15 +337,15 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
                   ))}
                   {!terhubung && (
                     <option value="" disabled>
-                      (login dulu untuk memilih folder)
+                      (sign in first to choose a folder)
                     </option>
                   )}
                 </select>
               </label>
-              <label className="gambar-pilih" title="Tipe file ditempelkan ke pertanyaanmu saat dikirim">
+              <label className="gambar-pilih" title="The file type is appended to your question when sent">
                 <IconFileText size={16} />
                 <select value={tipe} onChange={(e) => setTipe(e.target.value)}>
-                  <option value="">Semua tipe file</option>
+                  <option value="">All file types</option>
                   {TIPE.map((t) => (
                     <option key={t} value={t}>
                       {t}
@@ -359,7 +359,7 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
                 {text.length}/{MAKS_KARAKTER}
               </span>
               <button className="btn-send sales-tanya" disabled={!text.trim()} onClick={submit}>
-                <IconSparkle size={15} /> Tanya <IconArrowRight size={15} />
+                <IconSparkle size={15} /> Ask <IconArrowRight size={15} />
               </button>
             </div>
           </div>
@@ -367,9 +367,9 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
 
         <div className="beranda-kepala drive-kepala-contoh">
           <h3>
-            <IconBulb size={18} /> Contoh pertanyaan populer
+            <IconBulb size={18} /> Popular example questions
           </h3>
-          <span>Pilih contoh pertanyaan di bawah ini atau ketik pertanyaanmu sendiri.</span>
+          <span>Pick an example question below or type your own.</span>
         </div>
         <div className="drive-kategori">
           {KELOMPOK.map((k) => (
@@ -386,7 +386,7 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
                   <button
                     key={c.tampil}
                     onClick={() => pakaiContoh(c)}
-                    title={c.isi ? 'Mengisi kotak tanya — lengkapi dengan nama berkasnya' : 'Langsung bertanya'}
+                    title={c.isi ? 'Fills the question box — complete it with the file name' : 'Ask right away'}
                   >
                     <span>{c.tampil}</span>
                     <IconChevron />
@@ -402,28 +402,28 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconInfo size={17} /> Tentang Menu Ini
+              <IconInfo size={17} /> About This Menu
             </h4>
           </div>
           <p className="panel-kosong">
-            Menu ini digunakan untuk mencari, membaca, meringkas, dan membandingkan file dari OneDrive Microsoft 365
-            kamu — termasuk yang di-share oleh orang lain.
+            Use this menu to search, read, summarize, and compare files from your Microsoft 365 OneDrive
+            — including those shared by other people.
           </p>
           <ul className="drive-centang">
-            <li><IconCheck size={14} /> Mencari berkas &amp; melihat isi folder</li>
-            <li><IconCheck size={14} /> Membaca Word, Excel, PowerPoint &amp; PDF</li>
-            <li><IconCheck size={14} /> Meringkas dan membandingkan dokumen</li>
-            <li><IconCheck size={14} /> Hanya mengakses file yang kamu punya akses</li>
+            <li><IconCheck size={14} /> Search files &amp; view folder contents</li>
+            <li><IconCheck size={14} /> Read Word, Excel, PowerPoint &amp; PDF</li>
+            <li><IconCheck size={14} /> Summarize and compare documents</li>
+            <li><IconCheck size={14} /> Only accesses files you have access to</li>
           </ul>
           {status && !status.lanjutan && (
-            <p className="drive-catatan">Email, kalender, SharePoint &amp; Teams belum tersambung — menunggu izin admin.</p>
+            <p className="drive-catatan">Email, calendar, SharePoint &amp; Teams are not connected yet — waiting for admin approval.</p>
           )}
         </div>
 
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconDatabase size={17} /> Sumber Data
+              <IconDatabase size={17} /> Data Source
             </h4>
           </div>
           <div className="drive-sumber">
@@ -435,7 +435,7 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
               </span>
               {terhubung && status?.akun && <span className="drive-akun">{status.akun}</span>}
             </span>
-            <button className="btn-mini" title="Periksa ulang" onClick={periksa} disabled={memuat}>
+            <button className="btn-mini" title="Check again" onClick={periksa} disabled={memuat}>
               <IconSegarkan />
             </button>
           </div>
@@ -444,7 +444,7 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconBulb size={17} /> Tips Menggunakan
+              <IconBulb size={17} /> Usage Tips
             </h4>
           </div>
           <ol className="drive-tips">
@@ -460,16 +460,16 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconHistory size={17} /> Pencarian Terakhir
+              <IconHistory size={17} /> Recent Searches
             </h4>
             {riwayat.length > 5 && (
               <button className="beranda-tautan" onClick={() => setSemuaRiwayat((x) => !x)}>
-                {semuaRiwayat ? 'Lebih sedikit' : 'Lihat semua'}
+                {semuaRiwayat ? 'Show less' : 'View all'}
               </button>
             )}
           </div>
           {riwayat.length === 0 ? (
-            <p className="panel-kosong">Pertanyaan yang kamu ajukan di menu ini akan muncul di sini.</p>
+            <p className="panel-kosong">Questions you ask in this menu will appear here.</p>
           ) : (
             <ul className="sales-riwayat">
               {riwayat.slice(0, semuaRiwayat ? 15 : 5).map((s) => (

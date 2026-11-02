@@ -30,15 +30,15 @@ interface Props {
   onBukaSesi: (sessionId: string) => boolean
 }
 
-const JENIS: Array<{ id: KategoriPustaka | 'semua'; label: string; warna: string }> = [
-  { id: 'semua', label: 'Semua', warna: 'hijau' },
+const JENIS: Array<{ id: KategoriPustaka | 'all'; label: string; warna: string }> = [
+  { id: 'all', label: 'All', warna: 'hijau' },
   { id: 'word', label: 'Word', warna: 'biru' },
   { id: 'pdf', label: 'PDF', warna: 'merah' },
   { id: 'excel', label: 'Excel', warna: 'hijau' },
   { id: 'ppt', label: 'PowerPoint', warna: 'oranye' },
-  { id: 'gambar', label: 'Gambar', warna: 'ungu' },
+  { id: 'gambar', label: 'Images', warna: 'ungu' },
   { id: 'diagram', label: 'Diagram', warna: 'kuning' },
-  { id: 'lain', label: 'Lainnya', warna: 'nila' }
+  { id: 'lain', label: 'Other', warna: 'nila' }
 ]
 
 const WARNA: Record<KategoriPustaka, string> = {
@@ -51,23 +51,23 @@ const WARNA: Record<KategoriPustaka, string> = {
   lain: 'nila'
 }
 
-function ikon(k: KategoriPustaka | 'semua', s: number): JSX.Element {
+function ikon(k: KategoriPustaka | 'all', s: number): JSX.Element {
   if (k === 'word' || k === 'pdf') return <IconFileText size={s} />
   if (k === 'excel') return <IconTable size={s} />
   if (k === 'ppt') return <IconPresentation size={s} />
   if (k === 'gambar') return <IconImage size={s} />
   if (k === 'diagram') return <IconTimeline size={s} />
-  if (k === 'semua') return <IconLibrary size={s} />
+  if (k === 'all') return <IconLibrary size={s} />
   return <IconFile size={s} />
 }
 
-type Urut = 'baru' | 'lama' | 'nama' | 'besar'
+type Urut = 'newest' | 'oldest' | 'name' | 'largest'
 
 const ukuran = (b: number | null): string =>
   b === null ? '—' : b < 1024 ? `${b} B` : b < 1048576 ? `${Math.round(b / 1024)} KB` : `${(b / 1048576).toFixed(1)} MB`
 
 const tanggal = (ms: number): string =>
-  new Date(ms).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  new Date(ms).toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
 /** Thumbnail gambar dimuat per kartu, hanya saat kartunya tampil. */
 function Thumb({ it }: { it: ItemPustaka }): JSX.Element {
@@ -90,10 +90,10 @@ function Thumb({ it }: { it: ItemPustaka }): JSX.Element {
 export default function Pustaka({ onBukaSesi }: Props): JSX.Element {
   const [item, setItem] = useState<ItemPustaka[] | null>(null)
   const [galat, setGalat] = useState<string | null>(null)
-  const [jenis, setJenis] = useState<KategoriPustaka | 'semua'>('semua')
+  const [jenis, setJenis] = useState<KategoriPustaka | 'all'>('all')
   const [cari, setCari] = useState('')
-  const [urut, setUrut] = useState<Urut>('baru')
-  const [tampilan, setTampilan] = useState<'grid' | 'daftar'>('grid')
+  const [urut, setUrut] = useState<Urut>('newest')
+  const [tampilan, setTampilan] = useState<'grid' | 'list'>('grid')
   const [pesan, setPesan] = useState<string | null>(null)
 
   const muat = (): void => {
@@ -108,7 +108,7 @@ export default function Pustaka({ onBukaSesi }: Props): JSX.Element {
   useEffect(muat, [])
 
   const hitung = useMemo(() => {
-    const h: Record<string, number> = { semua: item?.length ?? 0 }
+    const h: Record<string, number> = { all: item?.length ?? 0 }
     for (const x of item ?? []) h[x.kategori] = (h[x.kategori] ?? 0) + 1
     return h
   }, [item])
@@ -117,16 +117,16 @@ export default function Pustaka({ onBukaSesi }: Props): JSX.Element {
     const q = cari.trim().toLowerCase()
     const hasil = (item ?? []).filter(
       (x) =>
-        (jenis === 'semua' || x.kategori === jenis) &&
+        (jenis === 'all' || x.kategori === jenis) &&
         (!q ||
           x.nama.toLowerCase().includes(q) ||
           (x.judulSesi ?? '').toLowerCase().includes(q) ||
           (x.keterangan ?? '').toLowerCase().includes(q))
     )
     const salin = [...hasil]
-    if (urut === 'lama') salin.sort((a, b) => a.dibuat - b.dibuat)
-    else if (urut === 'nama') salin.sort((a, b) => a.nama.localeCompare(b.nama, 'id'))
-    else if (urut === 'besar') salin.sort((a, b) => (b.ukuran ?? -1) - (a.ukuran ?? -1))
+    if (urut === 'oldest') salin.sort((a, b) => a.dibuat - b.dibuat)
+    else if (urut === 'name') salin.sort((a, b) => a.nama.localeCompare(b.nama, 'en'))
+    else if (urut === 'largest') salin.sort((a, b) => (b.ukuran ?? -1) - (a.ukuran ?? -1))
     return salin
   }, [item, jenis, cari, urut])
 
@@ -135,32 +135,32 @@ export default function Pustaka({ onBukaSesi }: Props): JSX.Element {
   const buka = async (it: ItemPustaka, aksi: 'buka' | 'folder'): Promise<void> => {
     try {
       const ok = await window.aira.berkasBuka(it.path, aksi)
-      if (!ok) setPesan(`Berkas "${it.nama}" tidak bisa dibuka — mungkin tidak ada aplikasi untuk jenis ini.`)
+      if (!ok) setPesan('The file "' + it.nama + '" could not be opened — there may be no app installed for this file type.')
     } catch (e) {
       setPesan(e instanceof Error ? e.message.split('Error: ').pop() ?? e.message : String(e))
     }
   }
 
   const sesi = (it: ItemPustaka): void => {
-    if (it.sessionId && !onBukaSesi(it.sessionId)) setPesan('Percakapan asal berkas ini sudah dihapus dari riwayat.')
+    if (it.sessionId && !onBukaSesi(it.sessionId)) setPesan('The conversation this file came from has been deleted from your history.')
   }
 
   /** Gambar dari galeri berjudul prompt-nya; nama berkasnya (UUID) tetap terlihat di tooltip. */
   const judul = (it: ItemPustaka): string => it.keterangan ?? it.nama
 
   const asal = (it: ItemPustaka): string =>
-    it.asal === 'gambar' ? 'Dibuat di layar Gambar' : it.judulSesi ? `Dari: ${it.judulSesi}` : 'Dari percakapan'
+    it.asal === 'gambar' ? 'Created on the Images screen' : it.judulSesi ? `From: ${it.judulSesi}` : 'From a conversation'
 
   const aksi = (it: ItemPustaka): JSX.Element => (
     <div className="pky-aksi">
-      <button disabled={it.hilang} onClick={() => void buka(it, 'buka')} title="Buka berkas">
-        Buka
+      <button disabled={it.hilang} onClick={() => void buka(it, 'buka')} title="Open file">
+        Open
       </button>
-      <button disabled={it.hilang} onClick={() => void buka(it, 'folder')} title="Tampilkan di folder">
+      <button disabled={it.hilang} onClick={() => void buka(it, 'folder')} title="Show in folder">
         <IconFolder size={14} />
       </button>
       {it.sessionId && (
-        <button onClick={() => sesi(it)} title="Buka percakapan asalnya">
+        <button onClick={() => sesi(it)} title="Open the source conversation">
           <IconChat size={14} />
         </button>
       )}
@@ -174,11 +174,11 @@ export default function Pustaka({ onBukaSesi }: Props): JSX.Element {
           <IconLibrary size={28} />
         </span>
         <div className="pky-hero-teks">
-          <span className="pdx-lencana">Pustaka</span>
-          <h1>Pustaka Berkas</h1>
+          <span className="pdx-lencana">Library</span>
+          <h1>File Library</h1>
           <p>
-            Semua berkas yang pernah dibuat AIRA untukmu — laporan Word, PDF, Excel, presentasi, dan gambar — di satu
-            tempat. Hanya berkas milik akunmu yang tampil.
+            Every file AIRA has created for you — Word and PDF reports, Excel sheets, presentations, and images — in one
+            place. Only files that belong to your account are shown.
           </p>
         </div>
         <svg className="pky-seni" viewBox="0 0 240 120" aria-hidden="true">
@@ -196,7 +196,7 @@ export default function Pustaka({ onBukaSesi }: Props): JSX.Element {
       </header>
 
       <div className="pky-jenis">
-        {JENIS.filter((j) => j.id === 'semua' || j.id !== 'lain' || (hitung.lain ?? 0) > 0).map((j) => (
+        {JENIS.filter((j) => j.id === 'all' || j.id !== 'lain' || (hitung.lain ?? 0) > 0).map((j) => (
           <button key={j.id} className={`pky-jenis-kartu ${jenis === j.id ? 'aktif' : ''}`} onClick={() => setJenis(j.id)}>
             <span className={`tile-ikon ${j.warna}`}>{ikon(j.id, 20)}</span>
             <span>
@@ -210,26 +210,26 @@ export default function Pustaka({ onBukaSesi }: Props): JSX.Element {
       <div className="pky-alat">
         <div className="pky-cari">
           <IconSearch size={16} />
-          <input value={cari} onChange={(e) => setCari(e.target.value)} placeholder="Cari nama berkas atau judul percakapan…" />
+          <input value={cari} onChange={(e) => setCari(e.target.value)} placeholder="Search by file name or conversation title…" />
           {cari && (
-            <button onClick={() => setCari('')} title="Kosongkan">
+            <button onClick={() => setCari('')} title="Clear">
               ×
             </button>
           )}
         </div>
         <label className="gambar-pilih">
           <select value={urut} onChange={(e) => setUrut(e.target.value as Urut)}>
-            <option value="baru">Terbaru</option>
-            <option value="lama">Terlama</option>
-            <option value="nama">Nama A–Z</option>
-            <option value="besar">Ukuran terbesar</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="name">Name A–Z</option>
+            <option value="largest">Largest size</option>
           </select>
         </label>
         <div className="pky-tampilan">
-          <button className={tampilan === 'grid' ? 'aktif' : ''} onClick={() => setTampilan('grid')} title="Kisi">
+          <button className={tampilan === 'grid' ? 'aktif' : ''} onClick={() => setTampilan('grid')} title="Grid">
             <IconGrid size={16} />
           </button>
-          <button className={tampilan === 'daftar' ? 'aktif' : ''} onClick={() => setTampilan('daftar')} title="Daftar">
+          <button className={tampilan === 'list' ? 'aktif' : ''} onClick={() => setTampilan('list')} title="List">
             <IconList size={16} />
           </button>
         </div>
@@ -237,38 +237,37 @@ export default function Pustaka({ onBukaSesi }: Props): JSX.Element {
 
       {jumlahHilang > 0 && (
         <p className="pky-info">
-          {jumlahHilang} berkas sudah dipindah atau dihapus di luar AIRA — tetap ditampilkan dengan tanda “Hilang” supaya
-          jelas pernah dibuat.
+          {jumlahHilang} {jumlahHilang === 1 ? 'file has' : 'files have'} been moved or deleted outside AIRA — still listed
+          with a “Missing” tag so it is clear they were once created.
         </p>
       )}
       {pesan && (
-        <div className="psn-galat-bar pky-pesan" onClick={() => setPesan(null)} title="Klik untuk menutup">
+        <div className="psn-galat-bar pky-pesan" onClick={() => setPesan(null)} title="Click to dismiss">
           {pesan}
         </div>
       )}
 
       {galat ? (
-        <p className="pky-kosong">Pustaka tidak bisa dimuat: {galat}</p>
+        <p className="pky-kosong">The library could not be loaded: {galat}</p>
       ) : item === null ? (
-        <p className="pky-kosong">Memuat pustaka…</p>
+        <p className="pky-kosong">Loading library…</p>
       ) : tampil.length === 0 ? (
         <p className="pky-kosong">
           {item.length === 0
-            ? 'Belum ada berkas. Minta AIRA membuat laporan, presentasi, atau gambar — hasilnya akan terkumpul di sini.'
-            : 'Tidak ada berkas yang cocok dengan saringan ini.'}
+            ? 'No files yet. Ask AIRA to create a report, presentation, or image — the results will collect here.'
+            : 'No files match this filter.'}
         </p>
       ) : tampilan === 'grid' ? (
         <div className="pky-grid">
           {tampil.map((it) => (
             <article key={it.path} className={`pky-kartu${it.hilang ? ' hilang' : ''}`}>
-              <button className="pky-thumb" disabled={it.hilang} onClick={() => void buka(it, 'buka')} title={it.hilang ? 'Berkas hilang' : 'Buka'}>
+              <button className="pky-thumb" disabled={it.hilang} onClick={() => void buka(it, 'buka')} title={it.hilang ? 'File missing' : 'Open'}>
                 <Thumb it={it} />
                 <span className="pky-lencana-ext">{it.ekstensi.toUpperCase() || '?'}</span>
-                {it.hilang && <span className="pky-lencana-hilang">Hilang</span>}
+                {it.hilang && <span className="pky-lencana-hilang">Missing</span>}
               </button>
               <div className="pky-kartu-teks">
-                <strong title={`${judul(it)}
-${it.nama}`}>{judul(it)}</strong>
+                <strong title={judul(it) + '\n' + it.nama}>{judul(it)}</strong>
                 <small title={asal(it)}>{asal(it)}</small>
                 <small>
                   {tanggal(it.dibuat)} · {ukuran(it.ukuran)}
@@ -283,11 +282,11 @@ ${it.nama}`}>{judul(it)}</strong>
           <table className="fbx-tabel pky-tabel">
             <thead>
               <tr>
-                <th>Nama</th>
-                <th>Jenis</th>
-                <th>Asal</th>
-                <th>Dibuat</th>
-                <th>Ukuran</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Source</th>
+                <th>Created</th>
+                <th>Size</th>
                 <th />
               </tr>
             </thead>
@@ -298,7 +297,7 @@ ${it.nama}`}>{judul(it)}</strong>
                     <div className="pky-nama-sel">
                       <span className={`tile-ikon ${WARNA[it.kategori]} mini`}>{ikon(it.kategori, 14)}</span>
                       <span title={it.path}>{judul(it)}</span>
-                      {it.hilang && <span className="fbx-tag merah">Hilang</span>}
+                      {it.hilang && <span className="fbx-tag merah">Missing</span>}
                     </div>
                   </td>
                   <td>{it.ekstensi.toUpperCase()}</td>

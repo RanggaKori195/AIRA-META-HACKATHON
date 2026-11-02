@@ -20,7 +20,7 @@ export default function AttachBar({ attachments, onRemove }: Props): JSX.Element
         <div key={a.id} className="attach-chip" title={`${a.name} · ${formatSize(a.size)}`}>
           <span>{a.kind === 'image' ? '🖼️' : '📄'}</span>
           <span className="attach-name">{a.name}</span>
-          <button className="attach-remove" onClick={() => onRemove(a.id)} title="Hapus lampiran">
+          <button className="attach-remove" onClick={() => onRemove(a.id)} title="Remove attachment">
             ×
           </button>
         </div>

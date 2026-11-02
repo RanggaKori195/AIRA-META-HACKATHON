@@ -16,11 +16,11 @@ import { berkasIkon, type WarnaIkon } from './ikon'
 // diam-diam: setiap aset yang tidak ketemu dicatat di `MASALAH_ASET` dan ikut
 // dilaporkan ke user lewat `catatanHasil`.
 
-/** Berkas latar yang harus ada di `resources/templat-ppt`. */
+/** Background images in `resources/ppt-theme` (made with Muse Image, `npm run ppt:theme`). */
 export const LATAR = {
-  sampul: 'sampul.jpg',
-  isi: 'isi.png',
-  penutup: 'penutup.jpg'
+  sampul: 'cover.png',
+  isi: 'content.png',
+  penutup: 'closing.png'
 } as const
 
 export type NamaLatar = keyof typeof LATAR
@@ -51,7 +51,7 @@ function cariFolder(sub: string, penanda: string): string | null {
 
 /** Folder gambar latar template, atau null bila tidak ada. */
 export function folderTemplat(): string | null {
-  return cariFolder('templat-ppt', LATAR.isi)
+  return cariFolder('ppt-theme', LATAR.isi)
 }
 
 /** Folder ikon hasil `npm run buat:ikon`, atau null bila belum dibuat. */
@@ -107,11 +107,11 @@ export function muatAset(): AsetPpt {
   const dirLatar = folderTemplat()
   if (!dirLatar) {
     masalah.push(
-      'gambar latar template the company TIDAK ditemukan (resources/templat-ppt), ' +
-        'jadi slide dibuat berlatar putih polos tanpa logo dan tanpa warna korporat'
+      'presentation background images were NOT found (resources/ppt-theme), ' +
+        'so the slides have a plain white background'
     )
     logger().warn(
-      { dicari: kandidatDir('templat-ppt') },
+      { dicari: kandidatDir('ppt-theme') },
       'latar template PPT tidak ditemukan — deck akan polos'
     )
   } else {

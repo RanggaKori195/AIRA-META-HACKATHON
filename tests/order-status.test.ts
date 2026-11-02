@@ -117,51 +117,51 @@ describe('sales_order_status: kalimat status', () => {
   test('tidak ditemukan: sebab mungkin disebut, tidak ada status karangan', () => {
     const h = susunStatusOrderId('999', [], '2026-10-01')
     assert.equal(h.ditemukan, false)
-    assert.match(String(h.ringkasan), /BELUM ADA di SalesRepository/)
-    assert.ok((h.sebabMungkin as string[]).some((s) => /tersinkron/.test(s)))
+    assert.match(String(h.ringkasan), /NOT in SalesRepository yet/)
+    assert.ok((h.sebabMungkin as string[]).some((s) => /synced/.test(s)))
     assert.match(String(h.catatanKesegaran), /2026-10-01/)
   })
 
   test('semua hasil keluar = sudah diakui sebagai sales', () => {
     const h = satu(baris())
-    assert.match(h.status, /SUDAH diakui sebagai sales/)
-    assert.match(h.orderDiERP, /sudah masuk ERP \(3\/3/)
+    assert.match(h.status, /ALREADY recognized as sales/)
+    assert.match(h.orderDiERP, /already in the ERP \(3\/3/)
     assert.equal(h.tanggalOrderMasuk, '2026-09-30')
   })
 
   test('belum ada hasil = order masuk, belum sales; sisi invoice tidak disebut "belum diproses"', () => {
     const h = satu(baris({ item_hasil: 0, hasil_dari: null, hasil_sampai: null, invoice_erp_sukses: 0 }))
-    assert.match(h.status, /hasil\/invoice BELUM keluar/)
-    assert.match(h.invoiceDiERP, /hasil\/invoice belum keluar/)
-    assert.doesNotMatch(h.invoiceDiERP, /belum diproses/)
+    assert.match(h.status, /results\/invoice are NOT released yet/)
+    assert.match(h.invoiceDiERP, /results\/invoice not released/)
+    assert.doesNotMatch(h.invoiceDiERP, /not processed yet/)
   })
 
   test('sebagian hasil keluar', () => {
     const h = satu(baris({ item_hasil: 1, invoice_erp_sukses: 1 }))
-    assert.match(h.status, /1 dari 3 pemeriksaan/)
-    assert.match(h.invoiceDiERP, /sudah masuk ERP \(1\/1/)
+    assert.match(h.status, /1 of 3 tests/)
+    assert.match(h.invoiceDiERP, /already in the ERP \(1\/1/)
   })
 
   test('semua dibatalkan = ADA tapi tidak dihitung', () => {
     const h = satu(baris({ item_diakui: 0, item_batal: 2, item_hasil: 0 }))
-    assert.match(h.status, /DIBATALKAN \(2 pemeriksaan\)/)
+    assert.match(h.status, /CANCELLED \(2 tests\)/)
     assert.equal(h.diakui, false)
   })
 
   test('campuran: sebagian dibatalkan ikut disebut', () => {
-    assert.match(satu(baris({ item_batal: 1 })).status, /1 pemeriksaan lain .* dibatalkan/)
+    assert.match(satu(baris({ item_batal: 1 })).status, /1 other tests .* cancelled/)
   })
 
   test('bridging gagal disebut GAGAL, bukan "belum"', () => {
     const h = satu(baris({ order_erp_sukses: 2, order_erp_gagal: 1 }))
-    assert.match(h.orderDiERP, /2 sudah masuk, 1 GAGAL di-bridging/)
+    assert.match(h.orderDiERP, /2 already in, 1 FAILED bridging/)
     // ...dan ikut di kalimat ringkas, bukan hanya di rincian (temuan live-check 2 Okt).
-    assert.match(h.status, /Perhatian: 1 order GAGAL di-bridging ke ERP/)
+    assert.match(h.status, /Attention: 1 order FAILED bridging to the ERP/)
   })
 
   test('order sebelum bridging berjalan: "belum diproses" diberi konteks', () => {
     const h = satu(baris({ order_dari: '2025-08-01', order_sampai: '2025-08-01', order_erp_sukses: 0, invoice_erp_sukses: 0 }))
-    assert.match(h.orderDiERP, /sebelum bridging order ERP berjalan penuh/)
+    assert.match(h.orderDiERP, /predates full order bridging to the ERP/)
   })
 
   test('cocok dengan variasi ID disebutkan', () => {
@@ -187,9 +187,9 @@ describe('sales_order_status: kartu visual', () => {
     }], '2026-10-01')))
     assert.ok(ada)
     assert.match(String(ada?.judul), /2609301003/)
-    assert.ok(ada?.catatan.some((c) => /sengaja tidak ditampilkan/.test(c)))
+    assert.ok(ada?.catatan.some((c) => /deliberately not shown/.test(c)))
     const tidak = visualDariHasil('sales_order_status', JSON.stringify(susunStatusOrderId('999', [], null)))
-    assert.equal(tidak?.sub, 'Belum ada di SalesRepository')
+    assert.equal(tidak?.sub, 'Not in SalesRepository yet')
     assert.equal(visualDariHasil('sales_order_status', JSON.stringify({ error: 'db mati' })), null)
   })
 })
@@ -198,7 +198,7 @@ describe('Order ID wajib dari pesan user SAAT INI (temuan uji aplikasi 2 Okt 202
   test('kejadian asli: pertanyaan tanpa ID, model memakai ID giliran sebelumnya → DITOLAK', () => {
     const galat = orderIdBukanDariUser('sales_order_status', { order_id: '126100200020' },
       'transaksi pasien saya tadi pagi sudah masuk salesrepo belum ya?')
-    assert.match(String(galat), /TIDAK ada di pesan user yang sekarang/)
+    assert.match(String(galat), /NOT in the user's current message/)
   })
 
   test('berlaku juga untuk lab_lacak (risiko yang sama)', () => {

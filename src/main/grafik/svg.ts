@@ -15,12 +15,12 @@
 // letaknya bisa diuji.
 
 /** Palet the company — SAMA dengan `PALET_GRAFIK` di `ppt/tema.ts`. */
-export const PALET = ['#027733', '#209038', '#78909C', '#FFAB40', '#0097A7', '#187C3B']
+export const PALET = ['#1F4E9C', '#2F7BE5', '#78909C', '#FFAB40', '#0097A7', '#1565C0']
 
 const WARNA_TEKS = '#1d3b24'
 const WARNA_REDUP = '#6b7a70'
 const WARNA_GARIS = '#dfe6e0'
-const FONT = "'company serif font','Segoe UI',sans-serif"
+const FONT = "'Segoe UI',system-ui,sans-serif"
 
 export type JenisGrafik = 'batang' | 'garis' | 'pai' | 'batang-tumpuk'
 

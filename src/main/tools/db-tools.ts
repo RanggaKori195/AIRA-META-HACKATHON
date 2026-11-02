@@ -162,7 +162,7 @@ export const dbTools: ToolDefinition[] = [
     tier: 'mutate',
     timeoutMs: 45_000,
     summarize: (a) =>
-      `SQL TULIS: ${String(a.query ?? '').slice(0, 200)}  @ ${maskConnectionString(String(a.connectionString ?? '')).slice(0, 80)}`,
+      `SQL WRITE: ${String(a.query ?? '').slice(0, 200)}  @ ${maskConnectionString(String(a.connectionString ?? '')).slice(0, 80)}`,
     execute: async (args) => {
       const connectionString = strArg(args, 'connectionString')
       const query = strArg(args, 'query')

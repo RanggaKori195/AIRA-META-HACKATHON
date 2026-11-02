@@ -1,4 +1,5 @@
 import { app } from 'electron'
+import { MUSE, META_ENDPOINT, migrateRawModels } from './hackathon/models'
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { join, dirname } from 'path'
 import { z } from 'zod'
@@ -14,14 +15,14 @@ const McpServerSchema = z.object({
 
 export type McpServerConfig = z.infer<typeof McpServerSchema>
 
-const ConfigSchema = z.object({
-  endpoint: z.string().url().default('https://gateway.internal.example'),
+export const ConfigSchema = z.object({
+  endpoint: z.string().url().default(META_ENDPOINT),
   // modelId = model agent (utama). Model lain dipakai lewat routing per pesan.
-  modelId: z.string().min(1).default('old-think-model'),
-  chatModelId: z.string().min(1).default('AURA'),
-  coderModelId: z.string().min(1).default('old-coder-model'),
+  modelId: z.string().min(1).default(MUSE.agent),
+  chatModelId: z.string().min(1).default(MUSE.quick),
+  coderModelId: z.string().min(1).default(MUSE.agent),
   // Parser TIDAK mendukung tool calling — hanya untuk panggilan langsung (OCR).
-  parserModelId: z.string().min(1).default('old-vision-model'),
+  parserModelId: z.string().min(1).default(MUSE.vision),
   modelChoice: z.enum(['auto', 'chat', 'agent', 'coder']).default('auto'),
   embedModel: z.string().min(1).default('BAAI/bge-m3'),
   rerankModel: z.string().min(1).default('BAAI/bge-reranker-v2-m3'),
@@ -99,7 +100,7 @@ export function loadConfig(): AppConfig {
   try {
     if (existsSync(configPath())) {
       const raw = JSON.parse(readFileSync(configPath(), 'utf-8'))
-      return ConfigSchema.parse(raw)
+      return ConfigSchema.parse(migrateRawModels(raw))
     }
   } catch {
     // config korup -> fallback ke default, jangan crash aplikasi

@@ -148,7 +148,7 @@ function ringkasSaringanItem(awalan: string): (a: Record<string, unknown>) => st
     const bagian = (['keyword', 'jenis', 'lab', 'grup', 'kelompokHarga'] as const)
       .map((k) => (typeof a[k] === 'string' && (a[k] as string).trim() ? `${k} ${(a[k] as string).trim()}` : ''))
       .filter(Boolean)
-    return `${awalan}: ${bagian.length ? bagian.join(', ') : 'semua'}`
+    return `${awalan}: ${bagian.length ? bagian.join(', ') : 'all'}`
   }
 }
 
@@ -230,11 +230,11 @@ async function resolveOneCustomer(keyword: string): Promise<CustomerRow> {
 export const innoTools: ToolDefinition[] = [
   {
     name: 'inno_customer_search',
-    label: 'Cari Pelanggan',
+    label: 'Search Customers',
     description:
-      'Mencari pelanggan yang TERDAFTAR di master Master Data berdasarkan nama atau kode. ' +
-      'Pakai untuk "apakah RS X sudah terdaftar", "kode pelanggan untuk klinik Y", ' +
-      'dan sebagai langkah pertama sebelum menanyakan special price/PKS milik pelanggan tertentu.',
+      'Searches customers REGISTERED in the Master Data by name or code. ' +
+      'Use for "is hospital X registered", "customer code for clinic Y", ' +
+      'and as the first step before asking about the special price/PKS of a specific customer.',
     parameters: {
       type: 'object',
       properties: {
@@ -245,7 +245,7 @@ export const innoTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 45_000,
-    summarize: (a) => `Cari pelanggan: ${a.keyword}`,
+    summarize: (a) => `Search customers: ${a.keyword}`,
     execute: async (args) => {
       guard()
       const keyword = requiredText(args, 'keyword', 'keyword')
@@ -262,7 +262,7 @@ export const innoTools: ToolDefinition[] = [
   },
   {
     name: 'inno_customer_count',
-    label: 'Hitung Pelanggan',
+    label: 'Count Customers',
     description:
       'MENGHITUNG jumlah pelanggan TERDAFTAR di master (agregat COUNT, bukan daftar) — total beserta ' +
       'rincian per tipe pelanggan (Rumah Sakit, Klinik, Pasien Pribadi, Laboratorium, dst.). Pakai untuk ' +
@@ -285,7 +285,7 @@ export const innoTools: ToolDefinition[] = [
       const bagian = (['keyword', 'tipe'] as const)
         .map((k) => (typeof a[k] === 'string' && (a[k] as string).trim() ? `${k} ${(a[k] as string).trim()}` : ''))
         .filter(Boolean)
-      return `Hitung pelanggan: ${bagian.length ? bagian.join(', ') : 'semua'}`
+      return `Count customers: ${bagian.length ? bagian.join(', ') : 'all'}`
     },
     execute: async (args) => {
       guard()
@@ -338,7 +338,7 @@ export const innoTools: ToolDefinition[] = [
   },
   {
     name: 'inno_item_search',
-    label: 'Cari Item Pemeriksaan',
+    label: 'Search Test Items',
     description:
       'Mencari item/pemeriksaan yang terdaftar di master beserta HARGA REGULER-nya ' +
       '(B2B/Corporate dan B2C), jenis item, laboratorium, grup pemeriksaan, dan kelompok harga. ' +
@@ -374,7 +374,7 @@ export const innoTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 45_000,
-    summarize: ringkasSaringanItem('Cari item'),
+    summarize: ringkasSaringanItem('Search items'),
     execute: async (args) => {
       guard()
       const { keyword, jenis, lab, kelompok, grup, syarat, params } = saringanItem(args)
@@ -477,7 +477,7 @@ export const innoTools: ToolDefinition[] = [
   },
   {
     name: 'inno_item_count',
-    label: 'Hitung Item Pemeriksaan',
+    label: 'Count Test Items',
     description:
       'MENGHITUNG jumlah item/pemeriksaan di master (agregat COUNT, bukan daftar) — total beserta ' +
       'rincian per laboratorium, per jenis item, dan per grup pemeriksaan. Pakai untuk "ada berapa ' +
@@ -504,7 +504,7 @@ export const innoTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 45_000,
-    summarize: ringkasSaringanItem('Hitung item'),
+    summarize: ringkasSaringanItem('Count items'),
     execute: async (args) => {
       guard()
       const { keyword, jenis, lab, kelompok, grup, syarat, params } = saringanItem(args)
@@ -547,7 +547,7 @@ export const innoTools: ToolDefinition[] = [
   },
   {
     name: 'inno_special_price',
-    label: 'Special Price Pelanggan',
+    label: 'Customer Special Price',
     description:
       'Harga khusus (special price) yang dimiliki SATU pelanggan. Pakai untuk ' +
       '"tolong carikan special price dari rumah sakit X", "harga khusus klinik Y untuk pemeriksaan Z", ' +
@@ -663,7 +663,7 @@ export const innoTools: ToolDefinition[] = [
   },
   {
     name: 'inno_item_special_price',
-    label: 'Pelanggan dengan Harga Khusus',
+    label: 'Customers with Special Price',
     description:
       'Kebalikan dari inno_special_price: menampilkan PELANGGAN MANA SAJA yang punya harga khusus ' +
       'untuk SATU item. Pakai untuk "siapa saja yang dapat harga khusus untuk pemeriksaan X", ' +
@@ -678,7 +678,7 @@ export const innoTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Pelanggan dengan harga khusus: ${a.item}`,
+    summarize: (a) => `Customers with special price: ${a.item}`,
     execute: async (args) => {
       guard()
       const keyword = requiredText(args, 'item', 'item')
@@ -743,7 +743,7 @@ export const innoTools: ToolDefinition[] = [
   },
   {
     name: 'inno_pks',
-    label: 'PKS Pelanggan',
+    label: 'Customer Agreement (PKS)',
     description:
       'Perjanjian Kerja Sama (PKS) milik pelanggan: apakah ada, nomornya, masa berlaku, termin pembayaran. ' +
       'Pakai untuk "apakah RS X sudah ada PKS", "PKS-nya berlaku sampai kapan", "PKS mana yang akan habis".',
@@ -799,7 +799,7 @@ export const innoTools: ToolDefinition[] = [
   },
   {
     name: 'inno_clinician_search',
-    label: 'Cari Dokter',
+    label: 'Search Doctors',
     description:
       'Mencari dokter/klinisi yang terdaftar di master. Pakai untuk "apakah dr. X terdaftar", ' +
       '"kode dokter untuk dr. Y", "berapa dokter yang terdaftar".',
@@ -813,7 +813,7 @@ export const innoTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 45_000,
-    summarize: (a) => `Cari dokter: ${a.keyword}`,
+    summarize: (a) => `Search doctors: ${a.keyword}`,
     execute: async (args) => {
       guard()
       const keyword = typeof args.keyword === 'string' ? args.keyword.trim() : ''
@@ -898,7 +898,7 @@ export const innoTools: ToolDefinition[] = [
   },
   {
     name: 'inno_item_package',
-    label: 'Isi Paket Pemeriksaan',
+    label: 'Test Package Contents',
     description:
       'Menampilkan ISI sebuah paket pemeriksaan — pemeriksaan apa saja yang tercakup di dalamnya. ' +
       'Pakai untuk "paket X isinya apa saja", "apa saja yang termasuk dalam paket MCU Y", ' +
@@ -917,7 +917,7 @@ export const innoTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 45_000,
-    summarize: (a) => `Isi paket: ${a.paket}`,
+    summarize: (a) => `Package contents: ${a.paket}`,
     execute: async (args) => {
       guard()
       const cari = requiredText(args, 'paket', 'paket')

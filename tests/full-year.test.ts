@@ -77,10 +77,10 @@ describe('sales_full_year: kelompok tool & kartu', () => {
     const kpi = k.panel[0]
     assert.ok(kpi.jenis === 'kpi')
     assert.equal(kpi.item[0].nilai, 110e9)
-    assert.match(String(kpi.item[0].catatan), /rentang/)
+    assert.match(String(kpi.item[0].catatan), /range/)
     const d = k.panel[1]
     assert.ok(d.jenis === 'deret')
     assert.deepEqual(d.titik.map((t) => !!t.perkiraan), [false, false, true, true])
-    assert.ok(k.catatan.some((c) => /bukan target/.test(c)))
+    assert.ok(k.catatan.some((c) => /not a target/.test(c)))
   })
 })

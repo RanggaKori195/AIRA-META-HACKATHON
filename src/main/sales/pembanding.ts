@@ -13,10 +13,10 @@
  * jumlah hari untuk periode berjalan, jadi "bulan lalu" menjadi 1–29 Agustus.
  */
 const PASANGAN: Array<{ period: string; banding: string; kata: RegExp }> = [
-  { period: 'this_month', banding: 'last_month', kata: /\bbulan\s+(lalu|kemarin|sebelumnya)\b/i },
-  { period: 'this_week', banding: 'last_week', kata: /\bminggu\s+(lalu|kemarin|sebelumnya)\b/i },
-  { period: 'today', banding: 'yesterday', kata: /\bkemarin\b/i },
-  { period: 'this_year', banding: 'last_year', kata: /\btahun\s+(lalu|kemarin|sebelumnya)\b/i }
+  { period: 'this_month', banding: 'last_month', kata: /\bbulan\s+(lalu|kemarin|sebelumnya)\b|\b(last|previous|prior)\s+month\b/i },
+  { period: 'this_week', banding: 'last_week', kata: /\bminggu\s+(lalu|kemarin|sebelumnya)\b|\b(last|previous|prior)\s+week\b/i },
+  { period: 'today', banding: 'yesterday', kata: /\bkemarin\b|\byesterday\b/i },
+  { period: 'this_year', banding: 'last_year', kata: /\btahun\s+(lalu|kemarin|sebelumnya)\b|\b(last|previous|prior)\s+year\b/i }
 ]
 
 export function applyComparePeriod(

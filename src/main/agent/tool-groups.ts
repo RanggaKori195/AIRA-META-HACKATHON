@@ -160,7 +160,7 @@ const SEARCH_HINT =
 
 // Kata yang sendirian sudah cukup menandakan urusan data penjualan.
 const SALES_HINT =
-  /\b(sales|penjualan|omzet|omset|revenue|pendapatan|transaksi|invoice|customer|pelanggan|item terlaris|cabang|penjamin|target|erp|nett|gross|ytd|year.?to.?date|growth)\b/i
+  /\b(sales|penjualan|omzet|omset|revenue|pendapatan|transaksi|invoice|customer|pelanggan|item terlaris|cabang|penjamin|target|erp|nett|gross|ytd|year.?to.?date|growth|customers|turnover|best.?selling|top.?selling|invoiced|billed)\b/i
 
 // Kosakata bisnis lab yang BARU berarti penjualan bila digabung dengan kata performa.
 // Regresi nyata: "Item apa yang trennya menurun dibanding bulan lalu?" tidak memuat
@@ -227,7 +227,7 @@ export function isSalesQuestion(text: string): boolean {
 // ("paket apa yang paling laris"). Yang dipakai frasa yang khas master:
 // "isi paket", "paket pemeriksaan".
 const INNO_HINT =
-  /\b(masterdata|inno master|special price|harga khusus|harga item|harga pemeriksaan|price list|pks|perjanjian kerja ?sama|terdaftar|master data|master pelanggan|master item|dokter terdaftar|klinisi|top days|termin|isi paket|isinya apa|paket pemeriksaan|c ?coret|segitiga bertanda|reguler price|single test|patologi klinik|patologi anatomi|mikrobiologi|grup pemeriksaan|kelompok harga)\b/i
+  /\b(masterdata|inno master|special price|harga khusus|harga item|harga pemeriksaan|price list|pks|perjanjian kerja ?sama|terdaftar|master data|master pelanggan|master item|dokter terdaftar|klinisi|top days|termin|isi paket|isinya apa|paket pemeriksaan|c ?coret|segitiga bertanda|reguler price|single test|patologi klinik|patologi anatomi|mikrobiologi|grup pemeriksaan|kelompok harga|list price|item price|test price|price of|contract price|registered (doctors?|customers?|items?)|package contents|price category)\b/i
 
 /** Pemicu kelompok Master Data. */
 export function isInnoQuestion(text: string): boolean {
@@ -372,11 +372,24 @@ export function selectGroups(input: GroupSelection): Set<ToolGroup> {
  * bila dilonggarkan tetap `\b`: "tat" akan menjaring "tata", "rns" aman.
  */
 const LAB_HINT =
-  /\b(tat|rns)\b|\bturn ?around\b|\bretake\b|\bsampel\w*|\bsample\w*|\bbacklog\w*|\borderId ?id\b|\bpreparasi\w*|\bpatologi\w*|\bhistologi\w*|\bsitologi\w*|\bmolekuler\w*|\bbelum keluar\b|\bbelum ada hasil\w*|\bnyangkut\w*|\bmengendap\w*|\btahap\w*/i
+  /\b(tat|rns)\b|\bturn ?around\b|\bretake\b|\bsampel\w*|\bsample\w*|\bbacklog\w*|\borderId ?id\b|\bpreparasi\w*|\bpatologi\w*|\bhistologi\w*|\bsitologi\w*|\bmolekuler\w*|\bbelum keluar\b|\bbelum ada hasil\w*|\bnyangkut\w*|\bmengendap\w*|\btahap\w*|\border id\b|\bpending results?\b|\bstill pending\b|\bstage\b/i
 
 export function isLabQuestion(text: string): boolean {
   return LAB_HINT.test(text)
 }
+
+/**
+ * An order/Order ID on its own is NOT a lab signal inside the sales menu: "is Order ID X in the ERP yet?" /
+ * "Order ID X sudah masuk belum?" is the `sales_order_status` question (rule 86). Final review 2 Nov 2026:
+ * these were redirected to the TAT menu. A real lab word ("stage", "TAT", "sample") still redirects.
+ */
+const LAB_ID_SAJA = /\b(?:orderId ?id|order id)\b/gi
+
+/**
+ * "ERP" counts as a sales word only INSIDE the sales menu ("is Order ID X in the ERP yet?"). It is not in
+ * SALES_HINT: in New Task "write an email about our ERP migration" would be redirected to the Sales menu.
+ */
+const ERP_DI_SALES = /\berp\b/i
 
 export function saranMenu(
   text: string,
@@ -401,7 +414,8 @@ export function saranMenu(
     if (inno) return 'masterdata'
     // Lab hanya diarahkan bila kata labnya JELAS dan kata penjualannya tidak —
     // "sales per kategori" tidak boleh terlempar ke menu TAT.
-    return lab && !sales ? 'lab' : null
+    const labJelas = isLabQuestion(text.replace(LAB_ID_SAJA, ' '))
+    return labJelas && !sales && !ERP_DI_SALES.test(text) ? 'lab' : null
   }
   if (mode === 'masterdata') {
     if (lab && !inno) return 'lab'

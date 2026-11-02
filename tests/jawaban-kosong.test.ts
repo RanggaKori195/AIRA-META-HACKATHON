@@ -19,7 +19,7 @@ describe('jawaban kosong tidak boleh sampai ke layar (lapangan 8 Sep 2026)', () 
     // menyalahkan `max_tokens` keliru; test ini mengunci kasus yang BENAR.
     const pesan = pesanBilaKosong({ content: '', finishReason: 'stop', jumlahTool: 3 })
     assert.equal(pesan, PESAN_TANPA_JAWABAN)
-    assert.match(pesan!, /tidak menghasilkan teks jawaban/)
+    assert.match(pesan!, /did not produce any answer text/)
   })
 
   test('jatah token habis tetap dibedakan — gejalanya identik, sebabnya lain', () => {
@@ -28,17 +28,17 @@ describe('jawaban kosong tidak boleh sampai ke layar (lapangan 8 Sep 2026)', () 
     // cabang ini yang menyalakan pesan yang tepat.
     const pesan = pesanBilaKosong({ content: '', finishReason: 'length', jumlahTool: 3 })
     assert.equal(pesan, PESAN_TOKEN_HABIS)
-    assert.match(pesan!, /kehabisan jatah keluaran/)
+    assert.match(pesan!, /ran out of its output allowance/)
   })
 
   test('pesan token habis MENYEBUT bahwa datanya sudah terambil', () => {
     // Penting: user melihat chip tool yang berhasil. Kalau pesannya berbunyi
     // seperti kegagalan total, ia akan mengira datanya juga gagal diambil.
-    assert.match(PESAN_TOKEN_HABIS, /sudah\s+terambil/)
+    assert.match(PESAN_TOKEN_HABIS, /already\s+retrieved/)
   })
 
   test('pesan token habis memberi LANGKAH, bukan cuma keluhan', () => {
-    assert.match(PESAN_TOKEN_HABIS, /tanyakan ulang/)
+    assert.match(PESAN_TOKEN_HABIS, /asking again/i)
   })
 
   test('berhenti tanpa teks sesudah tool jalan', () => {
@@ -80,18 +80,18 @@ describe('dorongan menulis jawaban (pengulangan sekali)', () => {
   test('menyuruh menulis jawaban, BUKAN memanggil tool lagi', () => {
     // Memaksa panggilan tool di sini mengulang kegagalan 25 Agu 2026: model yang
     // dipaksa tanpa tahu harus mengisi apa akan mengarang argumennya.
-    assert.match(DORONGAN_JAWAB, /Tulis jawabannya sekarang/)
-    assert.match(DORONGAN_JAWAB, /Jangan memanggil tool lagi/)
+    assert.match(DORONGAN_JAWAB, /Write the answer for the user now/)
+    assert.match(DORONGAN_JAWAB, /Do not call any tool again/)
   })
 
   test('memberi JALAN KELUAR bila data memang belum cukup', () => {
     // Tanpa ini, dorongan berubah jadi tekanan menjawab apa pun — dan model yang
     // ditekan menjawab akan mengarang, persis yang dihindari seluruh arsitektur.
-    assert.match(DORONGAN_JAWAB, /katakan apa adanya/)
-    assert.match(DORONGAN_JAWAB, /jangan mengarang angka/)
+    assert.match(DORONGAN_JAWAB, /say so plainly/)
+    assert.match(DORONGAN_JAWAB, /do not make up numbers/)
   })
 
   test('menyebut hasil tool sebagai sumber, bukan ingatan model', () => {
-    assert.match(DORONGAN_JAWAB, /hasil tool/)
+    assert.match(DORONGAN_JAWAB, /tool results/)
   })
 })

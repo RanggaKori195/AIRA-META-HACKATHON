@@ -110,8 +110,24 @@ const PENUNJUK_LAMPAU =
 const KATA_PERCAKAPAN =
   /\b(?:me|mem|men|meng|di|ber|ter|per)?(tanya|nanya|jawab|bahas|obrol|omong|bilang|diskusi|cakap)\w*\b|\b(percakapan|chat|riwayat chat)\b/i
 
+/**
+ * English: a past marker AND a first/second-person conversation pattern ("did I ask", "we discussed",
+ * "you said", "your answer", "our last chat").
+ *
+ * ⚠️ Final review 2 Nov 2026: the first English version paired any of "before/ago" with any of
+ * "answer/said/told", and forced `search_history` on "Before you answer, read the attached file." and
+ * "The customer said the samples arrived late two days ago, write an apology email". A guard that FORCES a
+ * tool must be tested hardest on the false-positive side (rule 26). Bare "before" is not a past marker.
+ */
+const PENUNJUK_LAMPAU_EN = /\b(yesterday|earlier|previously|last time|last week|the other day|ago)\b/i
+const PERCAKAPAN_EN =
+  /\b(?:I|we)\s+(?:asked|discussed|talked about|mentioned)\b|\bdid\s+(?:I|we)\s+(?:ask|discuss|talk about|mention)\b|\byou\s+(?:said|answered|told me|replied|suggested)\b|\byour\s+(?:answer|reply)\b|\bour\s+(?:last\s+)?(?:conversation|chat)\b/i
+
 export function menyinggungRiwayat(teks: string): boolean {
-  return PENUNJUK_LAMPAU.test(teks) && KATA_PERCAKAPAN.test(teks)
+  return (
+    (PENUNJUK_LAMPAU.test(teks) && KATA_PERCAKAPAN.test(teks)) ||
+    (PENUNJUK_LAMPAU_EN.test(teks) && PERCAKAPAN_EN.test(teks))
+  )
 }
 
 /** Kata yang benar-benar dipakai mencari — untuk ditampilkan & untuk cuplikan. */

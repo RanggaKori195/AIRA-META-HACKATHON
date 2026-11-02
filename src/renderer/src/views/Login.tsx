@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type JSX } from 'react'
 import type { AuthSession } from '@shared/ipc'
-import logo from '../assets/aira-logo.png'
+import logo from '../assets/mascot/hello.png'
 
 interface Props {
   /** false = database login tidak terjangkau. Layar tetap tampil, tapi dengan sebabnya. */
@@ -35,7 +35,7 @@ export default function Login({ ready, onLoggedIn }: Props): JSX.Element {
         setPassword('')
         onLoggedIn(hasil.session)
       } else {
-        setError(hasil.error ?? 'Login gagal.')
+        setError(hasil.error ?? 'Sign-in failed.')
         setPassword('')
       }
     } catch (err) {
@@ -49,13 +49,13 @@ export default function Login({ ready, onLoggedIn }: Props): JSX.Element {
     <div className="setup">
       <form className="card login-card" onSubmit={(e) => void submit(e)}>
         <img src={logo} alt="AIRA" />
-        <h2>Masuk ke AIRA</h2>
-        <p className="hint">Assisten the lab Rekan Anda — the lab</p>
+        <h2>Sign in to AIRA</h2>
+        <p className="hint">AI Lab Assistant</p>
 
         {!ready && (
           <div className="error-text">
-            Database login tidak terjangkau. Pastikan kamu terhubung ke jaringan internal the company
-            (VPN bila sedang di luar kantor), lalu buka ulang AIRA.
+            The sign-in database is unreachable. Make sure you are connected to the network
+            (use the VPN when you are away from the office), then reopen AIRA.
           </div>
         )}
 
@@ -89,13 +89,13 @@ export default function Login({ ready, onLoggedIn }: Props): JSX.Element {
           type="submit"
           disabled={busy || !ready || username.trim().length === 0 || password.length === 0}
         >
-          {busy ? 'Memeriksa…' : 'Masuk'}
+          {busy ? 'Checking…' : 'Sign in'}
         </button>
 
         <p className="hint login-note">
-          Setiap percobaan masuk tercatat beserta nama komputer dan alamat IP-nya. Pemakaian AIRA
-          (waktu, menu, pertanyaan yang diketik, dan alat yang dipakai) juga dicatat dan dapat
-          ditinjau admin.
+          Every sign-in attempt is recorded together with the computer name and IP address. AIRA
+          usage (time, menu, questions typed, and tools used) is also recorded and can be
+          reviewed by an admin.
         </p>
       </form>
     </div>

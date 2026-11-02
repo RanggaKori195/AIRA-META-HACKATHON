@@ -63,6 +63,7 @@ import {
   SQL_SAMPEL_LEWAT_BATAS
 } from '../src/main/pemantau/sql'
 import { RECOGNIZED_CLAUSE } from '../src/main/sales/recognition'
+import { rupiah } from '../src/main/sales/report'
 import { BACKLOG_CLAUSE, DIAKUI_CLAUSE, JANGKAR_UMUR, KOLOM_AMAN } from '../src/main/lab/rules'
 
 // Pemantau proaktif (20 Okt 2026) — pemeriksaan berkala yang HANYA MEMBACA lalu memberi
@@ -243,7 +244,7 @@ describe('pemantau: data macet', () => {
     assert.equal(waktuMasaDepan({ terakhir: '2026-10-20 14:56', umurJam: 0 }), false)
     assert.equal(waktuMasaDepan({ terakhir: '2026-10-20 15:10', umurJam: -0.1 }), true)
     assert.equal(waktuMasaDepan({ terakhir: null, umurJam: null }), false)
-    assert.equal(ringkasDataMacet('tat', { terakhir: '2026-10-20 14:56', umurJam: 0 }, false), 'Data terakhir Sel 20 Okt 14.56 — normal.')
+    assert.equal(ringkasDataMacet('tat', { terakhir: '2026-10-20 14:56', umurJam: 0 }, false), 'Last data Tue Oct 20 14:56 — normal.')
   })
 })
 
@@ -264,8 +265,8 @@ describe('pemantau: sampel terlambat', () => {
       { category: 'Zeta', di_lab: 3, backlog: 3 }
     ]
     assert.deepEqual(tidakDipantau(backlog, ['Molekuler']), [
-      'PK (jam terima lab tidak tercatat)',
-      'Zeta (riwayat sampel selesai belum cukup)'
+      'PK (lab receipt time not recorded)',
+      'Zeta (not enough completed-sample history)'
     ])
   })
 })
@@ -330,7 +331,7 @@ describe('pemantau: sales anjlok', () => {
 describe('pemantau: kabar (teks notifikasi)', () => {
   const kTat = kabarDataMacet('tat', { terakhir: '2026-10-08 02:25', umurJam: 296 })
   const kSales = kabarDataMacet('sales', { terakhir: '2026-10-19 22:46', umurJam: 36 })
-  const kSampel = kabarSampel(B, false, ['PK (jam terima lab tidak tercatat)'])
+  const kSampel = kabarSampel(B, false, ['PK (lab receipt time not recorded)'])
   const kPertama = kabarSampel(B, true, [])
   const pSales: PenilaianSales = {
     hasil: 'berbunyi',
@@ -346,120 +347,122 @@ describe('pemantau: kabar (teks notifikasi)', () => {
   const kAnjlok = kabarSales(pSales)
 
   test('data TAT macet 12 hari', () => {
-    assert.equal(kTat.judul, 'Data TAT Sample belum diperbarui 12 hari')
-    assert.match(kTat.isi, /Kam 8 Okt 02\.25/)
-    assert.match(kTat.isi, /pemantau sampel terlambat ditahan/)
+    assert.equal(kTat.judul, 'Sample TAT data not updated for 12 days')
+    assert.match(kTat.isi, /Thu Oct 8 02:25/)
+    assert.match(kTat.isi, /late-sample monitor is on hold/)
     assert.deepEqual(kTat.aksi, { tujuan: 'panel' })
   })
 
   test('data Sales macet 36 jam menyebut kemungkinan libur', () => {
-    assert.equal(kSales.judul, 'Data Sales belum diperbarui ±36 jam')
+    assert.equal(kSales.judul, 'Sales data not updated for ~36 hours')
     // "Baris baru", bukan "terakhir diperbarui": updated_at tabel bisa lebih baru (retry bridging),
     // dan pelaksana yang memeriksa database tidak boleh mengira toast-nya salah.
-    assert.match(kSales.isi, /^Baris baru terakhir masuk Sen 19 Okt 22\.46\./)
-    assert.match(kSales.isi, /bisa karena libur/)
+    assert.match(kSales.isi, /^Last new row arrived Mon Oct 19 22:46\./)
+    assert.match(kSales.isi, /it may be a holiday/)
   })
 
   test('sampel: judul, isi per kategori, aksi mengisi kotak TAT', () => {
-    assert.equal(kSampel.judul, '7 sampel lab baru melewati batas wajar')
-    assert.equal(kSampel.isi, 'Molekuler 5 (> 9,3 hari), Histologi 2 (> 6,0 hari). Total terlambat: 48.')
-    assert.match(kSampel.rincian, /Tidak dipantau: PK \(jam terima lab tidak tercatat\)\./)
+    assert.equal(kSampel.judul, '7 lab samples newly past their normal limit')
+    assert.equal(kSampel.isi, 'Molekuler 5 (> 9.3 days), Histologi 2 (> 6.0 days). Total late: 48.')
+    assert.match(kSampel.rincian, /Not monitored: PK \(lab receipt time not recorded\)\./)
     assert.deepEqual(kSampel.aksi, {
       tujuan: 'menu',
       mode: 'lab',
-      tanya: 'Tampilkan sampel Molekuler yang sudah diterima lab tapi hasilnya belum keluar, urut dari yang paling lama'
+      tanya: 'Show Molekuler samples that the lab has received but whose results are not out yet, oldest first'
     })
   })
 
   test('sampel pertama kali: total yang sedang terlambat', () => {
-    assert.equal(kPertama.judul, '48 sampel lab sedang melewati batas wajar')
-    assert.equal(kPertama.isi, 'Molekuler 43 (> 9,3 hari), Histologi 5 (> 6,0 hari).')
+    assert.equal(kPertama.judul, '48 lab samples are currently past their normal limit')
+    assert.equal(kPertama.isi, 'Molekuler 43 (> 9.3 days), Histologi 5 (> 6.0 days).')
   })
 
   test('sales anjlok: persen tanpa Rupiah, rincian ber-Rupiah, aksi mengisi kotak Sales', () => {
-    assert.equal(kAnjlok.judul, 'Sales Sen 19 Okt anjlok: 32% dari biasanya')
-    assert.equal(kAnjlok.isi, 'Order masuk 98% dari biasanya (tidak ikut anjlok). Klik untuk menggali.')
+    assert.equal(kAnjlok.judul, 'Sales Mon Oct 19 dropped: 32% of usual')
+    assert.equal(kAnjlok.isi, 'Orders received 98% of usual (did not drop with it). Click to dig in.')
     // Review akhir: order 55% bukan "normal" — kalimatnya tidak boleh menyebutnya begitu.
     const order55 = kabarSales({ ...pSales, rasioOrder: 0.55 })
     assert.doesNotMatch(order55.isi, /normal/i)
-    assert.match(order55.isi, /55% dari biasanya/)
-    for (const s of ['Rp 96.000.000', 'Rp 300.000.000', 'Senin', '12 Okt, 5 Okt, 28 Sep, 21 Sep']) {
+    assert.match(order55.isi, /55% of usual/)
+    for (const s of [rupiah(96e6), rupiah(300e6), 'Monday', 'Oct 12, Oct 5, Sep 28, Sep 21']) {
       assert.ok(kAnjlok.rincian.includes(s), s)
     }
     assert.deepEqual(kAnjlok.aksi, {
       tujuan: 'menu',
       mode: 'sales',
-      tanya: 'Bandingkan sales 19 Oktober 2026 dengan 12 Oktober 2026 per kategori layanan'
+      tanya: 'Compare sales on October 19, 2026 with October 12, 2026 by service category'
     })
   })
 
   test('rincian sales menyebut jumlah pembanding yang SEBENARNYA dipakai', () => {
     // Temuan review akhir: rincian selalu menulis "4 minggu" walau pembanding yang dipakai 3.
-    assert.match(
-      kAnjlok.rincian,
-      /Median 4 hari Senin sebelumnya \(12 Okt, 5 Okt, 28 Sep, 21 Sep\): Rp 300\.000\.000\./
+    assert.ok(
+      kAnjlok.rincian.includes(`Median of the previous 4 Mondays (Oct 12, Oct 5, Sep 28, Sep 21): ${rupiah(300e6)}.`),
+      kAnjlok.rincian
     )
     const tiga = kabarSales({ ...pSales, pembanding: ['2026-10-12', '2026-09-28', '2026-09-21'] })
-    assert.match(
-      tiga.rincian,
-      /Median 3 hari Senin sebelumnya \(12 Okt, 28 Sep, 21 Sep; 5 Okt tidak dipakai — sales atau order nol\): Rp 300\.000\.000\./
+    assert.ok(
+      tiga.rincian.includes(
+        `Median of the previous 3 Mondays (Oct 12, Sep 28, Sep 21; Oct 5 not used — sales or orders were zero): ${rupiah(300e6)}.`
+      ),
+      tiga.rincian
     )
-    assert.doesNotMatch(tiga.rincian, /4 minggu|4 hari/)
+    assert.doesNotMatch(tiga.rincian, /4 weeks|4 Mondays/)
   })
 
   test('toast tidak pernah memuat Rupiah, Order ID, atau kolom pasien', () => {
     // Layar bisa sedang dibagikan/diproyeksikan (pola chatPratinjau): rincian
     // berangka hanya di riwayat di dalam aplikasi.
     for (const k of [kTat, kSales, kSampel, kPertama, kAnjlok]) {
-      assert.doesNotMatch(`${k.judul} ${k.isi}`, /Rp|\b\d{8,18}\b|patient/i, k.judul)
+      assert.doesNotMatch(`${k.judul} ${k.isi}`, /Rp|IDR|\b\d{8,18}\b|patient/i, k.judul)
     }
   })
 })
 
 describe('pemantau: kalimat status & aturan', () => {
   test('status data macet', () => {
-    assert.equal(ringkasDataMacet('tat', { terakhir: null, umurJam: null }, false), 'Waktu pembaruan data tidak terbaca.')
+    assert.equal(ringkasDataMacet('tat', { terakhir: null, umurJam: null }, false), 'The data update time could not be read.')
     assert.equal(
       ringkasDataMacet('tat', { terakhir: '2026-10-08 02:25', umurJam: 296 }, true),
-      'Belum diperbarui sejak Kam 8 Okt 02.25 (12 hari).'
+      'Not updated since Thu Oct 8 02:25 (12 days).'
     )
     assert.equal(
       ringkasDataMacet('tat', { terakhir: '2026-10-20 10:36', umurJam: 0.5 }, false),
-      'Data terakhir Sel 20 Okt 10.36 — normal.'
+      'Last data Tue Oct 20 10:36 — normal.'
     )
-    assert.equal(RINGKAS_GAGAL, 'Gagal memeriksa: database tidak terjangkau.')
+    assert.equal(RINGKAS_GAGAL, 'Check failed: the database could not be reached.')
   })
 
   test('status sampel: ditahan & berjalan', () => {
     assert.equal(
       ringkasSampel({ ditahanSejak: '2026-10-08 02:25' }),
-      'Ditahan: data TAT belum diperbarui sejak Kam 8 Okt 02.25.'
+      'On hold: TAT data not updated since Thu Oct 8 02:25.'
     )
-    assert.equal(ringkasSampel({ ditahanSejak: null }), 'Ditahan: data TAT belum diperbarui.')
+    assert.equal(ringkasSampel({ ditahanSejak: null }), 'On hold: TAT data not updated.')
     assert.equal(
       ringkasSampel({ baru: 7, terlambat: 1048 }),
-      'Sedang terlambat 1.048 sampel; 7 baru sejak pemeriksaan sebelumnya.'
+      '1,048 samples currently late; 7 new since the previous check.'
     )
   })
 
   test('status sales di tiap keadaan', () => {
     const dasar = { tanggal: D, nett: 0, order: 0, medianNett: 1, medianOrder: 1, pembanding: P }
-    assert.equal(ringkasSales({ hasil: 'menunggu', tanggal: D }), 'Menunggu sinkronisasi data Sen 19 Okt.')
+    assert.equal(ringkasSales({ hasil: 'menunggu', tanggal: D }), 'Waiting for the Mon Oct 19 data sync.')
     assert.equal(
       ringkasSales({ ...dasar, hasil: 'kurang_data', rasioNett: null, rasioOrder: null }),
-      'Sen 19 Okt: pembanding kurang dari 3 hari — tidak dinilai.'
+      'Mon Oct 19: fewer than 3 comparison days — not assessed.'
     )
     assert.equal(
       ringkasSales({ ...dasar, hasil: 'libur', rasioNett: 0.1, rasioOrder: 0.04 }),
-      'Sen 19 Okt: order masuk hanya 4% dari biasanya — dianggap libur.'
+      'Mon Oct 19: orders received only 4% of usual — treated as a holiday.'
     )
     assert.equal(
       ringkasSales({ ...dasar, hasil: 'normal', rasioNett: 1.166, rasioOrder: 0.98 }),
-      'Sen 19 Okt: 117% dari biasanya (order 98%) — normal.'
+      'Mon Oct 19: 117% of usual (orders 98%) — normal.'
     )
     assert.equal(
       ringkasSales({ ...dasar, hasil: 'berbunyi', rasioNett: 0.32, rasioOrder: 0.98 }),
-      'Sen 19 Okt: 32% dari biasanya — diberitahukan.'
+      'Mon Oct 19: 32% of usual — notified.'
     )
   })
 
@@ -561,20 +564,20 @@ describe('pemantau: SQL baca-saja', () => {
 describe('pemantau: kalimat aturan', () => {
   test('kalimat aturan memakai konstanta, bukan angka ketikan', () => {
     const ds = kalimatAturan('data_sales')
-    assert.ok(ds.includes(`${AMBANG_DATA_SALES_JAM} jam`) && ds.includes('Senin–Jumat 08.00–18.00'), ds)
+    assert.ok(ds.includes(`${AMBANG_DATA_SALES_JAM} hours`) && ds.includes('Monday–Friday 08:00–18:00'), ds)
     // Orang yang membaca aturannya harus tahu yang diukur BARIS BARU, dan kenapa Senin pagi diam.
-    assert.ok(ds.includes('baris baru') && ds.includes('jam hari Minggu tidak dihitung'), ds)
+    assert.ok(ds.includes('no new rows') && ds.includes('Sunday hours are not counted'), ds)
     const dt = kalimatAturan('data_tat')
-    assert.ok(dt.includes(`${AMBANG_DATA_TAT_JAM} jam`) && dt.includes('Senin–Sabtu 08.00–18.00'), dt)
+    assert.ok(dt.includes(`${AMBANG_DATA_TAT_JAM} hours`) && dt.includes('Monday–Saturday 08:00–18:00'), dt)
     const sa = kalimatAturan('sales_anjlok')
     assert.ok(sa.includes(`${Math.round(SALES_RASIO_ANJLOK * 100)}%`), sa)
     assert.ok(sa.includes(`${Math.round(SALES_RASIO_LIBUR * 100)}%`), sa)
     // Orang yang melihat status "Jum 16 Okt" pada hari Senin harus bisa membaca sebabnya di aturan.
-    assert.ok(sa.includes('menyusul') && sa.includes(`${SALES_SUSULAN_HARI_KERJA} hari kerja`), sa)
+    assert.ok(sa.includes('assessed later') && sa.includes(`${SALES_SUSULAN_HARI_KERJA} working days`), sa)
     const st = kalimatAturan('sampel_terlambat')
-    assert.ok(st.includes(`${LAB_UMUR_MAKS_HARI} hari`), st)
+    assert.ok(st.includes(`${LAB_UMUR_MAKS_HARI} days`), st)
     assert.ok(st.includes(`${Math.round(LAB_PERSENTIL * 100)}%`), st)
-    assert.ok(st.includes(`${LAB_JENDELA_HARI} hari`), st)
+    assert.ok(st.includes(`${LAB_JENDELA_HARI} days`), st)
   })
 })
 
@@ -650,9 +653,9 @@ describe('pemantau: penyimpanan', () => {
     s.simpan('budi', 'sampel_terlambat', {
       nilai: null,
       diperiksa: 9,
-      status: { hasil: 'ditahan', ringkas: 'Ditahan.', tidakDipantau: ['PK (jam terima lab tidak tercatat)'] }
+      status: { hasil: 'ditahan', ringkas: 'Ditahan.', tidakDipantau: ['PK (lab receipt time not recorded)'] }
     })
-    assert.deepEqual(s.baca('budi', 'sampel_terlambat').status?.tidakDipantau, ['PK (jam terima lab tidak tercatat)'])
+    assert.deepEqual(s.baca('budi', 'sampel_terlambat').status?.tidakDipantau, ['PK (lab receipt time not recorded)'])
     const kolom = (t: string): string[] =>
       (db.prepare(`PRAGMA table_info(${t})`).all() as Array<{ name: string }>).map((c) => c.name)
     assert.deepEqual(kolom('pemantau_penanda'), ['username', 'pemicu', 'nilai', 'diperiksa', 'status'])
@@ -858,13 +861,13 @@ describe('pemantau: service', () => {
     const u = buatUji({ sesi: { username: 'Budi', menu: ['lab'] } })
     await periksaPemantau(u.deps)
     assert.deepEqual(u.kejadian.slice(0, 3), ['simpan:data_tat', 'riwayat:data_tat', 'notify'])
-    assert.equal(u.toast[0].title, 'Data TAT Sample belum diperbarui 12 hari')
+    assert.equal(u.toast[0].title, 'Sample TAT data not updated for 12 days')
     // Toast diberi grup & pemilik; toast pemantau milik user LAIN ditutup tiap putaran.
     assert.deepEqual([u.toast[0].grup, u.toast[0].pemilik], ['pemantau', 'budi'])
     assert.deepEqual(u.tutup, ['budi'])
     u.toast[0].onClick()
     assert.deepEqual(u.dibuka, [{ tujuan: 'panel' }])
-    assert.equal(u.simpan.riwayat('budi', 5)[0].judul, 'Data TAT Sample belum diperbarui 12 hari')
+    assert.equal(u.simpan.riwayat('budi', 5)[0].judul, 'Sample TAT data not updated for 12 days')
   })
 
   test('data TAT macet berbunyi sekali; jam berikutnya tidak', async () => {
@@ -872,7 +875,7 @@ describe('pemantau: service', () => {
     await periksaPemantau(u.deps)
     u.setSekarang(t(2026, 10, 20, 12, 0))
     await periksaPemantau(u.deps)
-    assert.equal(u.toast.filter((x) => x.title.startsWith('Data TAT')).length, 1)
+    assert.equal(u.toast.filter((x) => x.title.startsWith('Sample TAT data')).length, 1)
     assert.equal(u.query.filter((q) => q.sql === SQL_KESEGARAN_TAT).length, 2, 'jam berikutnya tetap diperiksa')
     // Log adalah bukti dari aplikasi: wajib membedakan "toast dikirim" dari "keadaan masih berlaku".
     const logTat = u.log.filter((l) => l.startsWith('pemantau: data_tat '))
@@ -886,9 +889,9 @@ describe('pemantau: service', () => {
     const p = u.simpan.baca('budi', 'sampel_terlambat')
     assert.equal(p.nilai, null)
     assert.equal(p.status?.hasil, 'ditahan')
-    assert.equal(p.status?.ringkas, 'Ditahan: data TAT belum diperbarui sejak Kam 8 Okt 02.25.')
+    assert.equal(p.status?.ringkas, 'On hold: TAT data not updated since Thu Oct 8 02:25.')
     assert.equal(dipanggil(u, SQL_SAMPEL_LEWAT_BATAS), false)
-    assert.equal(u.toast.filter((x) => /sampel lab/.test(x.title)).length, 0)
+    assert.equal(u.toast.filter((x) => /lab samples/.test(x.title)).length, 0)
   })
 
   test('jendela sampel memakai waktu database, bersambung tanpa celah', async () => {
@@ -903,7 +906,7 @@ describe('pemantau: service', () => {
     const q1 = u.query.find((q) => q.sql === SQL_SAMPEL_LEWAT_BATAS)
     assert.deepEqual(q1?.params, [W1.toISOString(), W1.toISOString()])
     assert.equal(u.simpan.baca('budi', 'sampel_terlambat').nilai, W1.toISOString())
-    assert.equal(u.toast.filter((x) => x.title === '48 sampel lab sedang melewati batas wajar').length, 1)
+    assert.equal(u.toast.filter((x) => x.title === '48 lab samples are currently past their normal limit').length, 1)
     u.setSekarang(t(2026, 10, 21, 11, 0))
     u.setTat({ terakhir: '2026-10-21 02:00', umur_jam: 6, waktu_db: W2 })
     await periksaPemantau(u.deps)
@@ -922,8 +925,8 @@ describe('pemantau: service', () => {
     assert.equal(p.status?.hasil, 'kurang_data')
     assert.equal(p.status?.ringkas, RINGKAS_SAMPEL_KOSONG)
     assert.deepEqual(p.status?.tidakDipantau, [
-      'Molekuler (riwayat sampel selesai belum cukup)',
-      'PK (jam terima lab tidak tercatat)'
+      'Molekuler (not enough completed-sample history)',
+      'PK (lab receipt time not recorded)'
     ])
     assert.equal(u.toast.length, 0)
     assert.ok(u.log.some((l) => l.startsWith('pemantau: sampel_terlambat kurang_data') && l.includes('"kategori":0')))
@@ -951,7 +954,7 @@ describe('pemantau: service', () => {
     await periksaPemantau(senin.deps)
     assert.deepEqual(
       { hasil: senin.simpan.baca('budi', 'data_sales').status?.hasil, ringkas: senin.simpan.baca('budi', 'data_sales').status?.ringkas },
-      { hasil: 'normal', ringkas: 'Baris baru terakhir Sab 10 Okt 13.20 — normal.' }
+      { hasil: 'normal', ringkas: 'Last new row Sat Oct 10 13:20 — normal.' }
     )
     assert.equal(senin.toast.length, 0)
     // Sel 25 Agu (libur Maulid Nabi) 15.05: 24,5 jam tanpa hari Minggu — tetap berbunyi; toast
@@ -963,23 +966,23 @@ describe('pemantau: service', () => {
       sales: { terakhir: '2026-08-24 14:35', umur_jam: 24.5 }
     })
     await periksaPemantau(libur.deps)
-    assert.equal(libur.simpan.baca('budi', 'data_sales').status?.ringkas, 'Tidak ada baris baru sejak Sen 24 Agu 14.35 (±25 jam).')
-    assert.deepEqual(libur.toast.map((x) => x.title), ['Data Sales belum diperbarui ±25 jam'])
+    assert.equal(libur.simpan.baca('budi', 'data_sales').status?.ringkas, 'No new rows since Mon Aug 24 14:35 (~25 hours).')
+    assert.deepEqual(libur.toast.map((x) => x.title), ['Sales data not updated for ~25 hours'])
   })
 
   test('sales dinilai sekali; Periksa sekarang tidak membunyikan ulang hari yang sama', async () => {
     const u = buatUji({ sesi: { username: 'budi', menu: ['sales'] }, nett: rek(50e6, [417e6, 191e6, 383e6, 214e6]) })
     await periksaPemantau(u.deps)
-    assert.equal(u.toast.filter((x) => x.title.startsWith('Sales ')).length, 1)
+    assert.equal(u.toast.filter((x) => /^Sales .* dropped/.test(x.title)).length, 1)
     assert.equal(u.simpan.baca('budi', 'sales_anjlok').nilai, '2026-10-19')
     await periksaPemantau(u.deps, { paksa: true })
-    assert.equal(u.toast.filter((x) => x.title.startsWith('Sales ')).length, 1)
+    assert.equal(u.toast.filter((x) => /^Sales .* dropped/.test(x.title)).length, 1)
     assert.match(u.simpan.riwayat('budi', 5)[0].isi, /Rp /, 'rincian Rupiah hanya di riwayat')
   })
 
   test('Sabtu tanpa baris baru sebelum 18.00, lalu Senin: Jumat dinilai menyusul sebelum Sabtu, satu toast', async () => {
     const { u, sabtu } = await sabtuTanpaBarisBaruLaluSenin()
-    assert.deepEqual([sabtu.nilai, sabtu.status?.ringkas], ['2026-10-15', 'Menunggu sinkronisasi data Jum 16 Okt.'])
+    assert.deepEqual([sabtu.nilai, sabtu.status?.ringkas], ['2026-10-15', 'Waiting for the Fri Oct 16 data sync.'])
     const dinilai = (): unknown[] => u.query.filter((q) => q.sql === SQL_NETT_HARIAN).map((q) => q.params[0])
     assert.deepEqual(dinilai(), [], 'Sabtu: belum ada hari yang bisa dinilai')
     u.setSekarang(t(2026, 10, 19, 10, 5))
@@ -988,14 +991,14 @@ describe('pemantau: service', () => {
     u.setSekarang(t(2026, 10, 19, 11, 5))
     await periksaPemantau(u.deps)
     assert.deepEqual(dinilai(), [JUMAT_16, SABTU_17], 'Senin 11.05: Sabtu')
-    assert.equal(u.simpan.baca('budi', 'sales_anjlok').status?.ringkas, 'Sab 17 Okt: 100% dari biasanya (order 100%) — normal.')
+    assert.equal(u.simpan.baca('budi', 'sales_anjlok').status?.ringkas, 'Sat Oct 17: 100% of usual (orders 100%) — normal.')
     u.setSekarang(t(2026, 10, 19, 12, 5))
     await periksaPemantau(u.deps)
     assert.equal(dinilai().length, 2, 'antrean habis: tidak jatuh tempo lagi')
     await periksaPemantau(u.deps, { paksa: true })
     assert.deepEqual(
-      u.toast.filter((x) => x.title.startsWith('Sales ')).map((x) => x.title),
-      ['Sales Jum 16 Okt anjlok: 20% dari biasanya'],
+      u.toast.filter((x) => /^Sales .* dropped/.test(x.title)).map((x) => x.title),
+      ['Sales Fri Oct 16 dropped: 20% of usual'],
       'Jumat diberitahukan sekali; Periksa sekarang sesudahnya tidak membunyikan ulang'
     )
     assert.equal(u.simpan.baca('budi', 'sales_anjlok').nilai, '2026-10-17')
@@ -1010,11 +1013,11 @@ describe('pemantau: service', () => {
     u.setHariIni('2026-10-19')
     u.setSekarang(t(2026, 10, 19, 11, 0))
     await periksaPemantau(u.deps, { paksa: true })
-    assert.equal(u.simpan.baca('budi', 'sales_anjlok').nilai, '2026-10-19', 'menilai ulang Sab 17 Okt tidak memundurkan penanda')
+    assert.equal(u.simpan.baca('budi', 'sales_anjlok').nilai, '2026-10-19', 'menilai ulang Sat Oct 17 tidak memundurkan penanda')
     u.setHariIni('2026-10-20')
     u.setSekarang(t(2026, 10, 20, 12, 0))
     await periksaPemantau(u.deps)
-    assert.equal(u.toast.filter((x) => x.title.startsWith('Sales ')).length, 1)
+    assert.equal(u.toast.filter((x) => /^Sales .* dropped/.test(x.title)).length, 1)
   })
 
   test('log menandai hari yang dinilai menyusul (bukti saat diuji dari aplikasi)', async () => {
@@ -1054,25 +1057,25 @@ describe('pemantau: service', () => {
     }
     assert.deepEqual(status('data_tat'), {
       hasil: 'gagal',
-      ringkas: 'Waktu data terakhir tercatat di masa depan (Rab 21 Okt 09.00) — kemacetan tidak bisa dinilai.',
+      ringkas: 'The last data time is recorded in the future (Wed Oct 21 09:00) — a stall cannot be assessed.',
       nilai: null
     })
     assert.deepEqual(status('data_sales'), {
       hasil: 'gagal',
-      ringkas: 'Waktu data terakhir tercatat di masa depan (Sel 20 Okt 18.30) — kemacetan tidak bisa dinilai.',
+      ringkas: 'The last data time is recorded in the future (Tue Oct 20 18:30) — a stall cannot be assessed.',
       nilai: null
     })
     // Sampel: kesegaran TAT tidak bisa dipastikan = ditahan, seperti data basi.
     assert.deepEqual(status('sampel_terlambat'), {
       hasil: 'ditahan',
-      ringkas: 'Ditahan: waktu data TAT tercatat di masa depan (Rab 21 Okt 09.00) — kesegarannya tidak bisa dipastikan.',
+      ringkas: 'On hold: the TAT data time is recorded in the future (Wed Oct 21 09:00) — its freshness cannot be confirmed.',
       nilai: null
     })
     assert.equal(dipanggil(u, SQL_SAMPEL_LEWAT_BATAS), false)
     // Sales kemarin: "sinkronisasi sesudah hari itu sudah berjalan" tidak bisa dipastikan.
     assert.deepEqual(status('sales_anjlok'), {
       hasil: 'gagal',
-      ringkas: 'Waktu data Sales tercatat di masa depan (Sel 20 Okt 18.30) — kelengkapan data Sen 19 Okt tidak bisa dipastikan, belum dinilai.',
+      ringkas: 'The Sales data time is recorded in the future (Tue Oct 20 18:30) — the completeness of Mon Oct 19 data cannot be confirmed, not assessed yet.',
       nilai: null
     })
     assert.equal(dipanggil(u, SQL_NETT_HARIAN), false)
@@ -1204,7 +1207,7 @@ describe('pemantau: service', () => {
     })
     await periksaPemantau(u.deps, { paksa: true })
     assert.equal(u.simpan.baca('budi', 'data_sales').diperiksa, null)
-    assert.equal(u.toast.filter((x) => x.title.startsWith('Data Sales')).length, 0)
+    assert.equal(u.toast.filter((x) => x.title.startsWith('Sales data')).length, 0)
     assert.notEqual(u.simpan.baca('budi', 'sales_anjlok').diperiksa, null, 'sales anjlok tetap Senin–Sabtu')
   })
 
@@ -1238,10 +1241,10 @@ describe('pemantau: service', () => {
     assert.equal((await periksaSekarang(u.deps)).catatanPeriksa, undefined)
     u.setSekarang(detik(20))
     const kena = await periksaSekarang(u.deps)
-    assert.equal(kena.catatanPeriksa, 'Baru saja diperiksa — coba lagi dalam 40 detik (dibatasi sekali per 60 detik).')
+    assert.equal(kena.catatanPeriksa, 'Just checked — try again in 40 seconds (limited to once per 60 seconds).')
     assert.equal(kena.pemicu.length, 4, 'status tetap dikirim')
     u.setSekarang(detik(59.5))
-    assert.match((await periksaSekarang(u.deps)).catatanPeriksa ?? '', /coba lagi dalam 1 detik/)
+    assert.match((await periksaSekarang(u.deps)).catatanPeriksa ?? '', /try again in 1 second /)
     u.setSekarang(detik(60))
     assert.equal((await periksaSekarang(u.deps)).catatanPeriksa, undefined)
   })
@@ -1259,7 +1262,7 @@ describe('pemantau: service', () => {
   test('mode uji dev berlabel [UJI]', async () => {
     const u = buatUji({ sesi: { username: 'budi', menu: ['sales'] }, uji: { sales: true, lab: false } })
     await periksaPemantau(u.deps)
-    const sales = u.toast.filter((x) => /Sales Sen 19 Okt anjlok/.test(x.title))
+    const sales = u.toast.filter((x) => /Sales Mon Oct 19 dropped/.test(x.title))
     assert.equal(sales.length, 1)
     assert.ok(sales[0].title.startsWith('[UJI] '), sales[0].title)
   })
@@ -1293,9 +1296,9 @@ describe('pemantau: tampilan (helper murni)', () => {
 
   test('waktu ringkas relatif ke hari ini', () => {
     const kini = t(2026, 10, 20, 11, 0).getTime()
-    assert.equal(waktuRingkas(t(2026, 10, 20, 10, 32).getTime(), kini), 'hari ini 10.32')
-    assert.equal(waktuRingkas(t(2026, 10, 19, 9, 5).getTime(), kini), 'kemarin 09.05')
-    assert.equal(waktuRingkas(t(2026, 10, 17, 10, 0).getTime(), kini), 'Sab 17 Okt 10.00')
+    assert.equal(waktuRingkas(t(2026, 10, 20, 10, 32).getTime(), kini), 'today 10:32')
+    assert.equal(waktuRingkas(t(2026, 10, 19, 9, 5).getTime(), kini), 'yesterday 09:05')
+    assert.equal(waktuRingkas(t(2026, 10, 17, 10, 0).getTime(), kini), 'Sat Oct 17 10:00')
   })
 })
 

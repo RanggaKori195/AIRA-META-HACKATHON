@@ -328,9 +328,9 @@ describe('instruksi model: penanda giliran lalu tidak terlihat', () => {
   test('ONEDRIVE_PROMPT menyuruh mendaftar ulang, bukan menebak penanda', () => {
     const awal = src.indexOf('const ONEDRIVE_PROMPT')
     const prompt = src.slice(awal, src.indexOf('const LAB_PROMPT'))
-    assert.match(prompt, /PENANDA DARI GILIRAN SEBELUMNYA TIDAK TERLIHAT/)
-    assert.match(prompt, /onedrive_daftar atau onedrive_cari lagi/)
-    assert.match(prompt, /JANGAN menebak/)
+    assert.match(prompt, /PENANDA VALUES FROM EARLIER TURNS ARE NOT VISIBLE TO YOU/)
+    assert.match(prompt, /onedrive_daftar or onedrive_cari again/)
+    assert.match(prompt, /DO NOT guess/)
   })
 
   test('premisnya masih benar: riwayat ke model hanya role + content', () => {

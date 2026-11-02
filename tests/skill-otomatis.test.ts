@@ -76,6 +76,6 @@ test('panduan menyebut RCA hanya karena skill-nya memang ada (aturan 61)', async
   const teks = JSON.stringify(
     susunPanduan({ izinMenu: [], m365Lanjutan: false, suaraTersedia: false } as never)
   )
-  assert.match(teks, /akar masalah \(RCA\)/)
+  assert.match(teks, /Root cause analysis \(RCA\)/)
   assert.ok(existsSync(join(__dirname, '../skills', RCA, 'SKILL.md')))
 })

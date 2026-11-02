@@ -40,8 +40,8 @@ export function pastikanUkuran(nilai: unknown): UkuranGambar {
   const teks = String(nilai).toLowerCase().replace(/\s|×/g, (c) => (c === '×' ? 'x' : ''))
   if ((UKURAN_GAMBAR as readonly string[]).includes(teks)) return teks as UkuranGambar
   throw new GambarError(
-    `ukuran "${nilai}" tidak didukung. Pilih salah satu: ${UKURAN_GAMBAR.join(', ')} — ` +
-      `tulis persis seperti itu (mis. "${UKURAN_BAWAAN}").`
+    `size "${nilai}" is not supported. Choose one of: ${UKURAN_GAMBAR.join(', ')} — ` +
+      `write it exactly like that (e.g. "${UKURAN_BAWAAN}").`
   )
 }
 
@@ -49,14 +49,14 @@ export function pastikanPrompt(nilai: unknown): string {
   const teks = typeof nilai === 'string' ? nilai.trim() : ''
   if (!teks) {
     throw new GambarError(
-      'argumen "prompt" wajib diisi: jelaskan gambar yang diinginkan dengan kalimat biasa ' +
-        '(objek, gaya, warna, latar).'
+      'the "prompt" argument is required: describe the wanted image in plain sentences ' +
+        '(object, style, colors, background).'
     )
   }
   if (teks.length > MAKS_PROMPT_GAMBAR) {
     throw new GambarError(
-      `prompt terlalu panjang (${teks.length} karakter, batas ${MAKS_PROMPT_GAMBAR}). ` +
-        'Ringkas jadi satu-dua kalimat inti.'
+      `the prompt is too long (${teks.length} characters, limit ${MAKS_PROMPT_GAMBAR}). ` +
+        'Shorten it to one or two core sentences.'
     )
   }
   return teks
@@ -66,7 +66,7 @@ export function pastikanJumlah(nilai: unknown): number {
   if (nilai === undefined || nilai === null || nilai === '') return 1
   const n = Number(nilai)
   if (!Number.isInteger(n) || n < 1 || n > MAKS_JUMLAH) {
-    throw new GambarError(`"jumlah" harus bilangan bulat 1–${MAKS_JUMLAH}.`)
+    throw new GambarError(`"jumlah" must be a whole number from 1 to ${MAKS_JUMLAH}.`)
   }
   return n
 }
@@ -81,8 +81,8 @@ export function pastikanJumlah(nilai: unknown): number {
 export function pastikanBerkasPng(path: string): void {
   if (!path.toLowerCase().endsWith('.png')) {
     throw new GambarError(
-      'berkas gambar harus berakhiran .png — gambar AIRA selalu berformat PNG, apa pun format ' +
-        'yang diminta, jadi nama lain akan berbohong tentang isinya.'
+      'the image file must end in .png — AIRA images are always PNG whatever format was ' +
+        'requested, so any other name would misstate what is inside.'
     )
   }
 }
@@ -119,10 +119,10 @@ export function dimensiPng(buf: Uint8Array): { lebar: number; tinggi: number } |
  * the lab" — huruf benar, tapi ada coretan yang bukan huruf).
  */
 export const PENANDA_AI =
-  'Sampaikan ke user bahwa gambar ini DIBUAT OLEH AIRA (gambar buatan AI), bukan foto asli dan ' +
-  'bukan logo resmi the company. Sebut pembuatnya "AIRA" saja — JANGAN menyebut nama model, gateway, atau ' +
-  'mesin di belakangnya. Jangan pernah menyebutnya foto, dokumentasi, atau aset resmi. Bila ada ' +
-  'tulisan di dalam gambar, ingatkan user memeriksanya — huruf di gambar AI sering salah.'
+  'Tell the user that this image was MADE BY AIRA (an AI-generated image), not a real photo and ' +
+  'not an official company logo. Name the maker "AIRA" only — DO NOT mention the model, gateway, or ' +
+  'engine behind it. Never call it a photo, documentation, or an official asset. If there is ' +
+  'text inside the image, remind the user to check it — letters in AI images are often wrong.'
 
 export function catatanGambar(input: {
   file: string
@@ -133,8 +133,8 @@ export function catatanGambar(input: {
 }): string {
   const mb = (input.bytes / 1048576).toFixed(2)
   return (
-    `Gambar tersimpan di ${input.file} (${input.lebar}×${input.tinggi} piksel, ${mb} MB` +
-    `${input.jumlah > 1 ? `, ${input.jumlah} berkas` : ''}). Sebutkan lokasi berkasnya ke user. ` +
+    `Image saved at ${input.file} (${input.lebar}×${input.tinggi} pixels, ${mb} MB` +
+    `${input.jumlah > 1 ? `, ${input.jumlah} files` : ''}). Tell the user where the file is. ` +
     PENANDA_AI
   )
 }
@@ -149,24 +149,24 @@ export function catatanGambar(input: {
 export function terjemahkanGalatGambar(status: number, isi: string): string {
   const t = isi.toLowerCase()
   if (status === 401 || status === 403) {
-    return 'Gateway menolak kunci API AIRA untuk model gambar. Perlu diperiksa tim IT.'
+    return 'The gateway rejected the AIRA API key for the image model. The IT team needs to check it.'
   }
   if (status === 404 || t.includes('model not found') || t.includes('not a valid model')) {
-    return 'Pembuat gambar AIRA sedang tidak tersedia. Coba lagi nanti atau hubungi tim IT.'
+    return 'The AIRA image maker is not available right now. Try again later or contact the IT team.'
   }
   if (status === 429 || t.includes('rate limit')) {
-    return 'Gateway sedang sibuk (batas permintaan). Coba lagi sebentar lagi.'
+    return 'The gateway is busy (rate limit). Try again in a moment.'
   }
   if (t.includes('content') && (t.includes('policy') || t.includes('filter') || t.includes('safety'))) {
-    return 'Permintaan gambar ditolak penyaring isi di gateway. Ubah kalimat permintaannya.'
+    return 'The image request was rejected by the gateway content filter. Reword the request.'
   }
   if (t.includes('invalid response object') || status >= 500) {
     return (
-      'Pembuat gambar AIRA sedang bermasalah (galat di server). Coba sekali lagi; ' +
-      'kalau tetap gagal, laporkan ke tim IT — bukan kesalahan isi permintaanmu.'
+      'The AIRA image maker is having trouble (server error). Try once more; ' +
+      'if it still fails, report it to the IT team — it is not a mistake in your request.'
     )
   }
-  return `Gateway menolak permintaan gambar (HTTP ${status}).`
+  return `The gateway rejected the image request (HTTP ${status}).`
 }
 
 /**
@@ -178,7 +178,7 @@ export function terjemahkanGalatGambar(status: number, isi: string): string {
  * kalimat di hasil tool terbaca tepat sebelum ia menulis jawaban.
  */
 export const TAWARKAN_ILUSTRASI =
-  'Deck ini belum memakai ilustrasi. TAWARKAN SEKALI ke user (satu kalimat di akhir jawaban): ' +
-  'apakah mau ditambahkan ilustrasi gambar buatan AIRA di beberapa slide? Sebutkan bahwa gambarnya ' +
-  'dibuat oleh AIRA dan menambah waktu sekitar 8 detik per gambar. Jangan membuat ulang presentasinya ' +
-  'sebelum user menjawab, dan jangan menawarkan berulang kali.'
+  'This deck does not use illustrations yet. OFFER ONCE to the user (one sentence at the end of the answer): ' +
+  'would they like AIRA-made illustrations added to a few slides? Mention that the images are ' +
+  'made by AIRA and add about 8 seconds per image. Do not rebuild the presentation ' +
+  'before the user answers, and do not offer repeatedly.'

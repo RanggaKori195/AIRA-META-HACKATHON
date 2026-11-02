@@ -337,9 +337,16 @@ const BASIS_DESC =
   'pertanyaan "berapa ORDER YANG MASUK".'
 
 const SCOPE_DESC =
-  'Cakupan data. "all" (default) = semua transaksi lab. "erp" = HANYA yang sudah masuk ERP ' +
-  '(basis order memakai flag bridging_status_to=SUCCESS, basis invoice memakai bridging_status_result=SUCCESS). ' +
-  '"not_erp" = yang belum/gagal masuk ERP. WAJIB pakai "erp" bila user menyebut ERP atau ERP.'
+  'Data scope. "all" (default) = every lab transaction. "erp" = ONLY transactions already posted to the ERP ' +
+  '(order basis uses the flag bridging_status_to=SUCCESS, invoice basis uses bridging_status_result=SUCCESS). ' +
+  '"not_erp" = transactions not yet posted to the ERP or whose posting failed. You MUST use "erp" when the user mentions the ERP.'
+
+/** Step-summary wording only: turns tool codes (`last_month`, `erp`) into readable English. */
+const per = (p: unknown): string => String(p).replace(/_/g, ' ')
+const scopeLabel = (s: unknown): string =>
+  s === 'erp' ? 'ERP' : s === 'not_erp' ? 'not in ERP' : String(s)
+const STATUS_LABEL: Record<string, string> = { berhenti: 'lost', melemah: 'declining', baru: 'new' }
+const SEGMEN_LABEL: Record<string, string> = { institusi: 'institutions', pasien_pribadi: 'private patients', semua: 'all' }
 
 const commonProps = {
   period: { type: 'string', description: PERIOD_DESC },
@@ -370,18 +377,18 @@ function guard(): void {
 export const salesTools: ToolDefinition[] = [
   {
     name: 'sales_summary',
-    label: 'Ringkasan Penjualan',
+    label: 'Sales Summary',
     description:
-      'Total penjualan pada suatu periode: nett, gross, diskon, jumlah pelanggan, jumlah jenis item, ' +
-      'serta TIGA hitungan yang berbeda — jumlahOrder (banyaknya order), barisItem (baris pemeriksaan), ' +
-      'dan jumlahInvoice. Untuk "berapa order/transaksi", pakai jumlahOrder. ' +
-      'Pakai untuk pertanyaan seperti "berapa sales hari ini / bulan ini". ' +
-      'Bisa dibatasi ke data yang sudah masuk ERP lewat parameter scope.',
+      'Total sales for a period: nett, gross, discount, number of customers, number of distinct items, ' +
+      'plus THREE different counts — jumlahOrder (number of orders), barisItem (test lines), ' +
+      'and jumlahInvoice. For "how many orders/transactions", use jumlahOrder. ' +
+      'Use for questions such as "how much are sales today / this month". ' +
+      'Can be limited to data already posted to the ERP via the scope parameter.',
     parameters: { type: 'object', properties: commonProps, required: ['period'] },
     tier: 'read',
     timeoutMs: 45_000,
     summarize: (a) =>
-      `Ringkasan penjualan: ${a.period ?? 'today'} (${a.basis ?? 'order'}${a.scope && a.scope !== 'all' ? `, ${a.scope}` : ''})`,
+      `Sales summary: ${per(a.period ?? 'today')} (${a.basis ?? 'order'}${a.scope && a.scope !== 'all' ? `, ${scopeLabel(a.scope)}` : ''})`,
     execute: async (args) => {
       guard()
       const range = rangeOf(args)
@@ -406,7 +413,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_compare',
-    label: 'Bandingkan Penjualan',
+    label: 'Compare Sales',
     description:
       'Membandingkan penjualan dua periode dan menghitung selisih serta persentasenya. ' +
       'Bila comparePeriod tidak diisi, pembandingnya adalah periode sepadan tepat sebelumnya. ' +
@@ -421,7 +428,7 @@ export const salesTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Banding penjualan: ${a.period ?? 'today'} vs ${a.comparePeriod ?? 'periode sebelumnya'}`,
+    summarize: (a) => `Comparing sales: ${per(a.period ?? 'today')} vs ${per(a.comparePeriod ?? 'the previous period')}`,
     execute: async (args) => {
       guard()
       const basis = basisOf(args)
@@ -478,7 +485,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_breakdown',
-    label: 'Rincian Penjualan',
+    label: 'Sales Breakdown',
     description:
       'Memecah penjualan menurut satu dimensi: item/jenis pemeriksaan, pelanggan, kategori layanan, cabang, ' +
       'penjamin, kota, dokter pengirim, tipe harga, atau metode pembayaran. Pakai untuk "item apa yang paling laku", ' +
@@ -513,7 +520,7 @@ export const salesTools: ToolDefinition[] = [
     tier: 'read',
     timeoutMs: 60_000,
     summarize: (a) =>
-      `Rincian penjualan per ${a.dimension} (${a.sort === 'bottom' ? 'terkecil' : 'terbesar'}) — ${a.period ?? 'today'}`,
+      `Sales breakdown by ${a.dimension} (${a.sort === 'bottom' ? 'lowest' : 'highest'}) — ${per(a.period ?? 'today')}`,
     execute: async (args) => {
       guard()
       const dimKey = String(args.dimension)
@@ -636,7 +643,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_trend',
-    label: 'Tren Penjualan',
+    label: 'Sales Trend',
     description:
       'Deret penjualan per hari/minggu/bulan dalam suatu periode. Pakai untuk melihat pola, tren naik-turun, ' +
       'atau menyiapkan bahan grafik.',
@@ -654,7 +661,7 @@ export const salesTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Tren penjualan ${a.period ?? 'today'} per ${a.granularity ?? 'day'}`,
+    summarize: (a) => `Sales trend ${per(a.period ?? 'today')} by ${a.granularity ?? 'day'}`,
     execute: async (args) => {
       guard()
       const range = rangeOf(args)
@@ -692,7 +699,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_movers',
-    label: 'Item Naik & Turun',
+    label: 'Rising & Falling Items',
     description:
       'Membandingkan penjualan PER ITEM antara dua periode, lalu menampilkan item yang paling naik dan ' +
       'paling turun beserta selisih rupiah dan persentasenya. Pakai untuk "item apa yang sedang naik", ' +
@@ -709,7 +716,7 @@ export const salesTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 90_000,
-    summarize: (a) => `Item naik & turun: ${a.period ?? 'today'} vs ${a.comparePeriod ?? 'periode sebelumnya'}`,
+    summarize: (a) => `Rising & falling items: ${per(a.period ?? 'today')} vs ${per(a.comparePeriod ?? 'the previous period')}`,
     execute: async (args) => {
       guard()
       const basis = basisOf(args)
@@ -795,7 +802,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_ytd',
-    label: 'YTD & Pertumbuhan',
+    label: 'YTD & Growth',
     description:
       'Membandingkan YEAR-TO-DATE dua tahun dan menghitung pertumbuhannya — mis. "YTD Juli 2026 vs 2025". ' +
       'Pakai untuk pertanyaan pertumbuhan tahunan: "sales tahun ini tumbuh atau tidak", "growth YTD", ' +
@@ -827,7 +834,7 @@ export const salesTools: ToolDefinition[] = [
     tier: 'read',
     timeoutMs: 90_000,
     summarize: (a) =>
-      `YTD ${a.throughMonth ?? 'bulan berjalan'} ${a.year ?? ''} vs ${a.compareYear ?? 'tahun sebelumnya'}`.replace(
+      `YTD ${a.throughMonth ?? 'current month'} ${a.year ?? ''} vs ${a.compareYear ?? 'the previous year'}`.replace(
         /\s+/g,
         ' '
       ),
@@ -958,7 +965,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_customers',
-    label: 'Pelanggan Berhenti & Baru',
+    label: 'Lost & New Customers',
     description:
       'Menilai PELANGGAN, bukan item: siapa yang BERHENTI order (dulu rutin, sekarang diam), ' +
       'siapa yang MELEMAH (masih order tapi turun jauh), dan siapa yang BARU. ' +
@@ -1014,7 +1021,7 @@ export const salesTools: ToolDefinition[] = [
     tier: 'read',
     timeoutMs: 90_000,
     summarize: (a) =>
-      `Pelanggan ${a.status ?? 'berhenti'} (${a.segmen ?? 'institusi'})`,
+      `Customers ${STATUS_LABEL[String(a.status ?? 'berhenti')] ?? a.status} (${SEGMEN_LABEL[String(a.segmen ?? 'institusi')] ?? a.segmen})`,
     execute: async (args) => {
       guard()
       const basis = basisOf(args)
@@ -1089,7 +1096,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_report',
-    label: 'Laporan Penjualan',
+    label: 'Sales Report',
     description:
       'Membuat LAPORAN PENJUALAN lengkap sebagai file Word (.docx), PDF (.pdf), ATAU Excel (.xlsx) '
       + '— tentukan lewat akhiran path — dalam satu langkah: ringkasan ' +
@@ -1122,7 +1129,7 @@ export const salesTools: ToolDefinition[] = [
     },
     tier: 'write',
     timeoutMs: 180_000,
-    summarize: (a) => `Buat laporan penjualan ${a.period ?? 'this_month'} → ${a.path}`,
+    summarize: (a) => `Create sales report ${per(a.period ?? 'this_month')} → ${a.path}`,
     execute: async (args, ctx) => {
       guard()
       const file = resolveInBoundary(String(args.path ?? ''), ctx.allowedDirs)
@@ -1218,8 +1225,8 @@ export const salesTools: ToolDefinition[] = [
           )
         ) as Record<string, any>
         ytd = {
-          label: String(y.ytdUtama?.label ?? 'YTD tahun ini'),
-          labelPembanding: String(y.ytdPembanding?.label ?? 'YTD tahun lalu'),
+          label: String(y.ytdUtama?.label ?? 'YTD this year'),
+          labelPembanding: String(y.ytdPembanding?.label ?? 'YTD last year'),
           nett: Number(y.ytdUtama?.nett ?? 0),
           nettPembanding: Number(y.ytdPembanding?.nett ?? 0),
           growthPersen: y.growthPersen === null || y.growthPersen === undefined ? null : Number(y.growthPersen),
@@ -1401,7 +1408,7 @@ export const salesTools: ToolDefinition[] = [
           // PEMBACA. Di lingkungan the company fontnya ada; di luar itu Word memilih
           // penggantinya sendiri. Itulah salah satu alasan PDF lebih cocok untuk
           // laporan yang dikirim keluar.
-          styles: { default: { document: { run: { font: 'company serif font' } } } },
+          styles: { default: { document: { run: { font: 'Segoe UI' } } } },
           sections: [{ children: isi }]
         })
         writeFileSync(file, await Packer.toBuffer(doc))
@@ -1439,7 +1446,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_projection',
-    label: 'Proyeksi Bulan Berjalan',
+    label: 'Current Month Projection',
     description:
       'Memproyeksikan penjualan bulan BERJALAN sampai tutup bulan, berdasarkan yang sudah ' +
       'terkumpul sampai hari ini dan pola penumpukan historis. Pakai untuk "kira-kira bulan ini ' +
@@ -1458,7 +1465,7 @@ export const salesTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: () => 'Proyeksi penjualan bulan berjalan',
+    summarize: () => 'Current month sales projection',
     execute: async (args) => {
       guard()
       const basis = basisOf(args)
@@ -1564,7 +1571,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_forecast',
-    label: 'Ramalan Penjualan',
+    label: 'Sales Forecast',
     description:
       'Meramalkan penjualan 1-3 BULAN KE DEPAN dari tren riwayat bulanan, lengkap dengan rentang ' +
       'ketidakpastian dan akurasi historis metodenya. Dengan dimensi "item", ia menjawab ' +
@@ -1596,7 +1603,7 @@ export const salesTools: ToolDefinition[] = [
     tier: 'read',
     timeoutMs: 90_000,
     summarize: (a) =>
-      `Ramalan penjualan ${a.horizon ?? 1} bulan ke depan${a.dimensi === 'item' ? ' (per item)' : ''}`,
+      `Sales forecast for the next ${a.horizon ?? 1} month(s)${a.dimensi === 'item' ? ' (per item)' : ''}`,
     execute: async (args) => {
       guard()
       const basis = basisOf(args)
@@ -1738,7 +1745,7 @@ export const salesTools: ToolDefinition[] = [
   },
   {
     name: 'sales_full_year',
-    label: 'Best Estimate Setahun',
+    label: 'Full-Year Best Estimate',
     description:
       'Best Estimate (BE) penjualan SATU TAHUN PENUH: aktual Januari s/d bulan lalu + proyeksi bulan ' +
       'berjalan + ramalan sisa bulan, DIJUMLAH tool lengkap dengan rentang, akurasi historis, dan ' +
@@ -1759,7 +1766,7 @@ export const salesTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 120_000,
-    summarize: (a) => `Best Estimate setahun ${a.tahun ?? ''}`.trim(),
+    summarize: (a) => ('Full-year Best Estimate ' + String(a.tahun ?? '')).trim(),
     execute: async (args, ctx) => {
       guard()
       const basis = basisOf(args)
@@ -1836,34 +1843,34 @@ export const salesTools: ToolDefinition[] = [
     // menjawab per order. Batas & alasannya di `sales/order-status.ts`: daftar-izin kolom, tanpa
     // data pasien/harga/pelanggan, wajib satu ID eksplisit.
     name: 'sales_order_status',
-    label: 'Cek Order ID',
+    label: 'Check Order ID',
     description:
-      'Cek status SATU transaksi berdasarkan Order ID: sudah masuk SalesRepository atau belum, diakui ' +
-      'atau dibatalkan, hasil/invoice sudah keluar atau belum, dan sudah ter-bridging ke ERP ' +
-      'atau belum. Pakai untuk "Order ID X sudah masuk?", "sudah invoice?", "sudah masuk ERP?". ' +
-      'Tidak memberi data pasien, jenis pemeriksaan, harga, nett, maupun pelanggan.',
+      'Check the status of ONE transaction by Order ID: whether it has reached SalesRepository, whether it is ' +
+      'recognized or cancelled, whether the result/invoice has been released, and whether it has been ' +
+      'posted (bridged) to the ERP. Use for "has Order ID X come in?", "is it invoiced?", "is it in the ERP?". ' +
+      'Does not return patient data, test type, price, nett, or customer.',
     parameters: {
       type: 'object',
       properties: {
         order_id: {
           type: 'string',
           description:
-            'Order ID yang ditanyakan user. WAJIB disalin dari kalimat user — jangan pernah mengarang atau menebak.'
+            "Order ID asked about by the user. MUST be copied exactly from the user's sentence — never invent or guess it."
         }
       },
       required: ['order_id']
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Cek Order ID ${a.order_id ?? ''}`.trim(),
+    summarize: (a) => `Check Order ID ${a.order_id ?? ''}`.trim(),
     execute: async (args) => {
       guard()
       const id = normalkanOrderId(args.order_id)
       if (!id) {
         throw new ToolError(
-          'order_id tidak sah. Salin Order ID persis dari kalimat user (huruf/angka, boleh titik), ' +
-            'contoh bentuk: angka 10 digit atau berawalan huruf. Satu ID per panggilan, tanpa tanda bintang/persen. ' +
-            'Kalau user belum menyebut Order ID, tanyakan dulu.'
+          "order_id is not valid. Copy the Order ID exactly from the user's sentence (letters/digits, dots allowed), " +
+            'example shapes: a 10-digit number or an ID starting with a letter. One ID per call, no asterisks/percent signs. ' +
+            'If the user has not given an Order ID, ask for it first.'
         )
       }
       // Berurutan, bukan Promise.all — pool sales `max: 1` (aturan koneksi serentak).

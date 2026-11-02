@@ -28,14 +28,14 @@ import {
   IconSpinner,
   IconStop
 } from '../components/Icons'
-import watermark from '../assets/orderId-logo.webp'
-import mark from '../assets/aira-mark.png'
+import watermark from '../assets/mascot/hello.png'
+import mark from '../assets/mascot/idle.png'
 
 /** Header percakapan menu data — mengingatkan sumber yang sedang dipakai. */
 const KEPALA_DATA: Partial<Record<ChatMode, { judul: string; ket: string }>> = {
-  sales: { judul: 'Tanya Data Sales', ket: 'Tanya apa saja soal penjualan — angkanya diambil langsung dari database, bukan perkiraan.' },
-  lab: { judul: 'Tanya TAT Sample', ket: 'Perjalanan sampel: backlog, tahap, TAT, dan RNS — data hasil ETL, identitas pasien tidak disajikan.' },
-  masterdata: { judul: 'Ask Master Data', ket: 'Pelanggan, item & harga, special price, PKS, dan dokter — dari master data the lab.' }
+  sales: { judul: 'Ask Sales Data', ket: 'Ask anything about sales — the numbers come straight from the database, not estimates.' },
+  lab: { judul: 'Ask Sample TAT', ket: 'Sample journey: backlog, stages, TAT and RNS — ETL data, patient identities are not shown.' },
+  masterdata: { judul: 'Ask Master Data', ket: 'Customers, items & prices, special prices, partnership agreements, and doctors — from the master data.' }
 }
 
 interface Props {
@@ -103,10 +103,10 @@ function PratinjauGambar({ path }: { path: string }): JSX.Element | null {
   return (
     <button
       className="tool-gambar"
-      title={`Buka gambar — ${path}`}
+      title={`Open image — ${path}`}
       onClick={() => void window.aira.openFile(path)}
     >
-      <img src={src} alt={path.split(/[\\/]/).pop() ?? 'gambar'} />
+      <img src={src} alt={path.split(/[\\/]/).pop() ?? 'image'} />
     </button>
   )
 }
@@ -124,14 +124,14 @@ function ToolChip({ activity }: { activity: ToolActivity }): JSX.Element {
         <span className="tool-file-actions">
           <button
             className="tool-file-btn"
-            title={`Buka file — ${activity.outputPath}`}
+            title={`Open file — ${activity.outputPath}`}
             onClick={() => void window.aira.openFile(activity.outputPath!)}
           >
             <IconFile size={12} /> {fileName}
           </button>
           <button
             className="tool-file-btn"
-            title="Tampilkan di folder"
+            title="Show in folder"
             onClick={() => void window.aira.revealFile(activity.outputPath!)}
           >
             <IconFolder size={12} />
@@ -238,7 +238,7 @@ export default function Chat({
   const submit = (): void => {
     const trimmed = text.trim()
     if ((!trimmed && attachments.length === 0) || streamingId) return
-    onSend(trimmed || 'Tolong analisis lampiran ini.')
+    onSend(trimmed || 'Please analyze this attachment.')
     setText('')
   }
 
@@ -273,14 +273,14 @@ export default function Chat({
         {messages.map((m) => (
           <div key={m.id} className={`msg ${m.role} ${m.dashboard || m.visual?.length ? 'msg-lebar' : ''}`}>
             <div className="role">
-              {m.role === 'user' ? 'Kamu' : 'AIRA'}
+              {m.role === 'user' ? 'You' : 'AIRA'}
               {m.role === 'assistant' && m.modelUsed && (
                 <span className="model-badge">{m.modelUsed}</span>
               )}
               {m.content.length > 0 && (
                 <button
                   className="msg-copy"
-                  title="Salin seluruh jawaban"
+                  title="Copy the whole answer"
                   onClick={() => {
                     window.aira.copyText(m.content)
                     setCopiedId(m.id)
@@ -289,11 +289,11 @@ export default function Chat({
                 >
                   {copiedId === m.id ? (
                     <>
-                      <IconCheck size={12} /> Disalin
+                      <IconCheck size={12} /> Copied
                     </>
                   ) : (
                     <>
-                      <IconCopy size={12} /> Salin
+                      <IconCopy size={12} /> Copy
                     </>
                   )}
                 </button>
@@ -322,7 +322,7 @@ export default function Chat({
               // bukan gelembung kosong berisi kursor berkedip.
               <div className="berpikir" role="status" aria-live="polite">
                 <img src={mark} alt="" className="berpikir-logo" />
-                <span className="berpikir-teks">AIRA sedang berpikir…</span>
+                <span className="berpikir-teks">AIRA is thinking…</span>
               </div>
             ) : (
               <div className="bubble">
@@ -334,7 +334,7 @@ export default function Chat({
             {/* Dashboard TAT & Master Data: bentuk kartu visual yang sama, diberi pita "Dashboard". */}
             {m.dashboard && m.dashboard.jenis !== 'sales' && (
               <div className="dashboard-umum">
-                <span className="dashboard-umum-pita">Dashboard perbandingan</span>
+                <span className="dashboard-umum-pita">Comparison dashboard</span>
                 <KartuVisual k={m.dashboard.kartu} />
               </div>
             )}
@@ -368,17 +368,17 @@ export default function Chat({
               <div className="msg-footer">
                 <button
                   className="msg-copy"
-                  title="Laporkan jawaban ini ke tim IT"
+                  title="Report this answer to the IT team"
                   disabled={sudahLapor.includes(m.id)}
                   onClick={() => setLaporTarget(m)}
                 >
                   {sudahLapor.includes(m.id) ? (
                     <>
-                      <IconCheck size={12} /> Dilaporkan
+                      <IconCheck size={12} /> Reported
                     </>
                   ) : (
                     <>
-                      <IconFlag size={12} /> Laporkan jawaban ini
+                      <IconFlag size={12} /> Report this answer
                     </>
                   )}
                 </button>
@@ -395,11 +395,11 @@ export default function Chat({
           <div className="msg">
             <div className="approval-card">
               <div className="approval-title">
-                <IconHand size={16} /> AIRA meminta izin
+                <IconHand size={16} /> AIRA is asking for permission
               </div>
               <div className="approval-detail">{pendingApproval.detail}</div>
               <div className="approval-tier">
-                Kategori: <code>{pendingApproval.activity.tier}</code> ·{' '}
+                Category: <code>{pendingApproval.activity.tier}</code> ·{' '}
                 <code>{pendingApproval.activity.label ?? pendingApproval.activity.name}</code>
               </div>
               <div className="approval-actions">
@@ -407,13 +407,13 @@ export default function Chat({
                   className="btn-send"
                   onClick={() => onApprove(pendingApproval.requestId, true)}
                 >
-                  Izinkan
+                  Allow
                 </button>
                 <button
                   className="btn-stop"
                   onClick={() => onApprove(pendingApproval.requestId, false)}
                 >
-                  Tolak
+                  Deny
                 </button>
               </div>
             </div>
@@ -425,7 +425,7 @@ export default function Chat({
               <div>{error}</div>
               {onRetry && (
                 <button type="button" className="btn-retry" onClick={onRetry}>
-                  Coba lagi
+                  Try again
                 </button>
               )}
             </div>
@@ -440,8 +440,8 @@ export default function Chat({
               ref={kotakRef}
               placeholder={
                 mode === 'sales'
-                  ? 'Tanyakan hal lain tentang data sales…'
-                  : 'Lanjutkan percakapan…  (seret file ke sini juga bisa)'
+                  ? 'Ask something else about the sales data…'
+                  : 'Continue the conversation…  (you can also drag files here)'
               }
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -455,7 +455,7 @@ export default function Chat({
             />
             <div className="row">
               <div className="row-left">
-                <button className="btn-attach" onClick={onAttach} title="Lampirkan file atau gambar">
+                <button className="btn-attach" onClick={onAttach} title="Attach a file or image">
                   <IconAttach />
                 </button>
                 {/* Hasil dikte DISISIPKAN, tidak dikirim — user mengoreksi dulu. */}
@@ -475,7 +475,7 @@ export default function Chat({
                   disabled={!text.trim() && attachments.length === 0}
                   onClick={submit}
                 >
-                  Kirim <IconSend size={14} />
+                  Send <IconSend size={14} />
                 </button>
               )}
             </div>
@@ -487,7 +487,7 @@ export default function Chat({
 
   if (!denganSamping || !dashboardTerakhir) return inti
 
-  const waktuDashboard = new Date(dashboardTerakhir.dibuat).toLocaleString('id-ID', {
+  const waktuDashboard = new Date(dashboardTerakhir.dibuat).toLocaleString('en-US', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -498,10 +498,10 @@ export default function Chat({
     statusSales === null
       ? null
       : statusSales.keadaan === 'terhubung'
-        ? { teks: 'Terhubung', kelas: 'ok' }
+        ? { teks: 'Connected', kelas: 'ok' }
         : statusSales.keadaan === 'gagal'
-          ? { teks: 'Tidak terhubung', kelas: 'gagal' }
-          : { teks: 'Belum diperiksa', kelas: 'belum' }
+          ? { teks: 'Not connected', kelas: 'gagal' }
+          : { teks: 'Not checked yet', kelas: 'belum' }
 
   return (
     <div className="chat-dengan-samping">
@@ -510,7 +510,7 @@ export default function Chat({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconBulb size={17} /> Saran Pertanyaan Lanjutan
+              <IconBulb size={17} /> Suggested Follow-up Questions
             </h4>
           </div>
           <div className="kategori-daftar">
@@ -525,11 +525,11 @@ export default function Chat({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconSparkleSolid size={17} /> Insight dari AIRA
+              <IconSparkleSolid size={17} /> Insights from AIRA
             </h4>
           </div>
           {dashboardTerakhir.insight.length === 0 ? (
-            <p className="panel-kosong">Belum ada insight untuk data ini.</p>
+            <p className="panel-kosong">No insights for this data yet.</p>
           ) : (
             <ul className="insight-daftar">
               {dashboardTerakhir.insight.map((k) => (
@@ -542,12 +542,12 @@ export default function Chat({
               ))}
             </ul>
           )}
-          <p className="insight-catatan">Disusun otomatis dari angka di dashboard — bukan tebakan.</p>
+          <p className="insight-catatan">Generated automatically from the dashboard numbers — not guesses.</p>
         </div>
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconDatabase size={17} /> Sumber Data
+              <IconDatabase size={17} /> Data Source
             </h4>
           </div>
           <div className="sales-sumber-baris">
@@ -562,7 +562,7 @@ export default function Chat({
           </div>
           <div className="sales-sumber-baris">
             <span>
-              <IconClock size={14} /> Dashboard disusun {waktuDashboard}
+              <IconClock size={14} /> Dashboard built {waktuDashboard}
             </span>
           </div>
         </div>

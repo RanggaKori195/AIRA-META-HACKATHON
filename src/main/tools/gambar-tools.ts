@@ -72,7 +72,7 @@ function simpan(file: string, png: Buffer[]): { daftar: string[]; bytes: number 
 export const gambarTools: ToolDefinition[] = [
   {
     name: 'buat_gambar',
-    label: 'Buat gambar',
+    label: 'Create image',
     description:
       'Membuat GAMBAR BARU (.png) dari deskripsi teks memakai pembuat gambar AIRA. Ke user, sebut ' +
       'pembuatnya "AIRA" saja — jangan menyebut nama model atau gateway. Pakai bila user minta dibuatkan gambar, ilustrasi, ikon, atau latar — bukan untuk ' +
@@ -101,7 +101,7 @@ export const gambarTools: ToolDefinition[] = [
     },
     tier: 'write',
     timeoutMs: 150_000,
-    summarize: (a) => `Buat gambar ${a.path}`,
+    summarize: (a) => `Create image ${a.path}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       siapkanTujuan(file)
@@ -136,7 +136,7 @@ export const gambarTools: ToolDefinition[] = [
   },
   {
     name: 'ubah_gambar',
-    label: 'Ubah gambar',
+    label: 'Edit image',
     description:
       'Mengubah gambar PNG yang SUDAH ADA sesuai instruksi teks (mis. ganti warna, ganti latar, ' +
       'tambah/hapus objek), lalu menyimpannya sebagai berkas BARU — berkas asal tidak disentuh. ' +
@@ -154,7 +154,7 @@ export const gambarTools: ToolDefinition[] = [
     },
     tier: 'write',
     timeoutMs: 150_000,
-    summarize: (a) => `Ubah gambar ${a.path_asal} -> ${a.path}`,
+    summarize: (a) => `Edit image ${a.path_asal} -> ${a.path}`,
     execute: async (args, ctx) => {
       const asal = resolveInBoundary(str(args, 'path_asal'), ctx.allowedDirs)
       if (!existsSync(asal)) throw new ToolError(`file "${asal}" tidak ditemukan`)

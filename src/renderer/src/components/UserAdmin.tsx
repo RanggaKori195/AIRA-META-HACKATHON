@@ -22,17 +22,17 @@ import DivisiPicker, { butuhDivisi, divisiValid } from './DivisiPicker'
 
 const ROLE_LABELS: Record<RoleId, string> = {
   super_admin: 'Super Admin',
-  direktur: 'Direktur',
+  direktur: 'Director',
   manager: 'Manager',
   spv: 'SPV',
   staff: 'Staff'
 }
 
 const MENU_LABELS: Record<MenuId, string> = {
-  sales: 'Tanya Data Sales',
+  sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
-  lab: 'Tanya TAT Sample',
-  onedrive: 'Tanya Microsoft 365'
+  lab: 'Ask Sample TAT',
+  onedrive: 'Ask Microsoft 365'
 }
 
 /**
@@ -43,12 +43,12 @@ const MENU_LABELS: Record<MenuId, string> = {
 const TERKUNCI = LOCKED_ROLES
 
 const STATUS_LABEL: Record<string, string> = {
-  sukses: 'Berhasil',
-  password_salah: 'Password salah',
-  user_tidak_ada: 'Username tidak terdaftar',
-  kedaluwarsa: 'Masa berlaku habis',
-  diblokir: 'Akun diblokir',
-  logout: 'Logout'
+  sukses: 'Success',
+  password_salah: 'Wrong password',
+  user_tidak_ada: 'Username not registered',
+  kedaluwarsa: 'Account expired',
+  diblokir: 'Account blocked',
+  logout: 'Sign-out'
 }
 
 /** Kelas warna per hasil login — supaya kegagalan menonjol saat daftar dibaca sekilas. */
@@ -62,7 +62,7 @@ const STATUS_KELAS: Record<string, string> = {
 }
 
 const waktuSingkat = (iso: string): string =>
-  new Date(iso).toLocaleString('id-ID', {
+  new Date(iso).toLocaleString('en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -155,8 +155,8 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
         })
       )
       setPesan(
-        `User "${baru.username.trim().toLowerCase()}" dibuat sebagai ${ROLE_LABELS[baru.role]}. ` +
-          'Sampaikan passwordnya langsung ke orangnya — jangan lewat chat AIRA.'
+        `User "${baru.username.trim().toLowerCase()}" created as ${ROLE_LABELS[baru.role]}. ` +
+          'Give the password to the person directly — not through AIRA chat.'
       )
       setBaru({ username: '', password: '', role: 'spv', divisi: [], expDate: '' })
       setTambahBuka(false)
@@ -170,8 +170,8 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
       setBanReason('')
       setPesan(
         banned
-          ? `${username} diblokir. Kalau ia sedang membuka AIRA, sesinya dicabut paling lama 5 menit lagi.`
-          : `Blokir ${username} dicabut.`
+          ? `${username} was blocked. If they have AIRA open, their session is revoked within 5 minutes.`
+          : `${username} was unblocked.`
       )
       void muat()
     })
@@ -181,14 +181,14 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
       await window.aira.resetUserPassword({ username, password: resetValue })
       setResetTarget(null)
       setResetValue('')
-      setPesan(`Password ${username} diganti. Sampaikan langsung ke orangnya, jangan lewat chat AIRA.`)
+      setPesan(`${username}'s password was changed. Give it to the person directly, not through AIRA chat.`)
     })
 
   const simpanDivisiUser = (username: string): Promise<void> =>
     jalankan(async () => {
       setUsers(await window.aira.setUserDivisions({ username, divisi: divisiPilih }))
       setDivisiTarget(null)
-      setPesan(`Divisi ${username} diperbarui.`)
+      setPesan(`${username}'s divisions were updated.`)
     })
 
   const namaDivisi = (kode: string): string =>
@@ -203,8 +203,8 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
       setUsers(await window.aira.setUserExpDate({ username, expDate: nilai === '' ? null : nilai }))
       setPesan(
         nilai === ''
-          ? `Masa berlaku ${username} dijadikan tanpa batas.`
-          : `Masa berlaku ${username} diubah ke ${nilai}.`
+          ? `${username}'s expiry was set to no limit.`
+          : `${username}'s expiry was changed to ${nilai}.`
       )
     })
 
@@ -221,7 +221,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
           <span>{error ?? pesan}</span>
           <button
             className="btn-mini"
-            title="Tutup"
+            title="Close"
             onClick={() => {
               setError(null)
               setPesan(null)
@@ -236,19 +236,19 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
       <section className="card akses-masuk">
         <div className="card-head">
           <div>
-            <h3>Akses Menu per Role &amp; Divisi</h3>
+            <h3>Menu Access by Role &amp; Division</h3>
             <p className="hint">
-              Satu centang = satu role di satu divisi. Direktur &amp; Super Admin selalu bisa membuka
-              semua menu.
+              One checkmark = one role in one division. Directors &amp; Super Admins can always open
+              every menu.
             </p>
           </div>
           <button className="btn-send btn-kecil" onClick={onBukaAkses}>
-            Kelola Akses Menu
+            Manage Menu Access
           </button>
         </div>
         <div className="akses-masuk-ringkas">
           {MENU_VALUES.map((m) => (
-            <span key={m} className="akses-masuk-item" title="User (selain Direktur & Super Admin) yang melihat menu ini">
+            <span key={m} className="akses-masuk-item" title="Users (other than Directors & Super Admins) who see this menu">
               {MENU_LABELS[m]} <strong>{jumlahDiMenu(m)}</strong>
             </span>
           ))}
@@ -265,10 +265,10 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
             onClick={() => setTambahBuka((v) => !v)}
           >
             {tambahBuka ? (
-              'Batal'
+              'Cancel'
             ) : (
               <>
-                <IconPlus size={14} /> Tambah User
+                <IconPlus size={14} /> Add User
               </>
             )}
           </button>
@@ -288,7 +288,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                 />
               </label>
               <label>
-                Password awal
+                Initial password
                 <input
                   type="password"
                   value={baru.password}
@@ -320,17 +320,17 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                   sementara tiga field lain satu baris — inputnya lalu turun
                   sendiri dan barisnya terlihat tidak sejajar. */}
               <label>
-                Berlaku sampai
+                Valid until
                 <input
                   type="date"
                   value={baru.expDate}
                   onChange={(e) => setBaru({ ...baru, expDate: e.target.value })}
                 />
-                <span className="hint">Kosongkan bila tanpa batas</span>
+                <span className="hint">Leave empty for no limit</span>
               </label>
             </div>
             <div className="form-divisi">
-              <strong>Divisi</strong>
+              <strong>Division</strong>
               <DivisiPicker
                 role={baru.role}
                 daftar={konfig.daftarDivisi}
@@ -340,15 +340,15 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
               />
             </div>
             <p className="hint">
-              Username 3–50 karakter: huruf kecil atau angka, boleh titik, garis bawah, dan strip.
-              Tanpa spasi.
+              Username 3–50 characters: lowercase letters or digits; dots, underscores and hyphens
+              allowed. No spaces.
               {baru.username.length > 0 && !usernameValid && (
-                <span className="teks-gagal"> Username ini belum memenuhi aturan di atas.</span>
+                <span className="teks-gagal"> This username does not meet the rules above.</span>
               )}
             </p>
             <div className="form-aksi">
               <button className="btn-send" disabled={!bisaSimpanBaru} onClick={() => void tambahUser()}>
-                Simpan User
+                Save User
               </button>
             </div>
           </div>
@@ -359,12 +359,12 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
             <thead>
               <tr>
                 <th>User</th>
-                <th>Divisi</th>
-                <th>Menu terlihat</th>
-                <th>Berlaku s/d</th>
-                <th>Login terakhir</th>
+                <th>Division</th>
+                <th>Visible menus</th>
+                <th>Valid until</th>
+                <th>Last sign-in</th>
                 <th>Status</th>
-                <th className="kolom-aksi">Aksi</th>
+                <th className="kolom-aksi">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -377,7 +377,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                         <strong>{u.username}</strong>
                         <span className="hint">
                           {ROLE_LABELS[u.role]}
-                          {diriSendiri && ' · kamu'}
+                          {diriSendiri && ' · you'}
                         </span>
                       </div>
                     </td>
@@ -391,11 +391,11 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                               </span>
                             ))
                           ) : (
-                            <span className="tag tag-peringatan">belum diisi</span>
+                            <span className="tag tag-peringatan">not set</span>
                           )}
                         </div>
                       ) : (
-                        <span className="hint">lintas divisi</span>
+                        <span className="hint">all divisions</span>
                       )}
                     </td>
                     <td>
@@ -411,8 +411,8 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                           ))}
                         </div>
                       ) : (
-                        <span className="tag tag-peringatan" title="Belum ada centangan untuk role dan divisi orang ini di matriks Akses Menu">
-                          tidak ada
+                        <span className="tag tag-peringatan" title="No checkmark for this person's role and division in the Menu Access matrix">
+                          none
                         </span>
                       )}
                     </td>
@@ -421,10 +421,10 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                         type="date"
                         value={u.expDate ?? ''}
                         disabled={busy}
-                        title="Kosongkan untuk tanpa batas"
+                        title="Leave empty for no limit"
                         onChange={(e) => void ubahExp(u.username, e.target.value)}
                       />
-                      {u.expDate === null && <div className="hint">tanpa batas</div>}
+                      {u.expDate === null && <div className="hint">no limit</div>}
                     </td>
                     <td>
                       {u.lastLoginAt ? (
@@ -435,16 +435,16 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                           </span>
                         </div>
                       ) : (
-                        <span className="hint">belum pernah</span>
+                        <span className="hint">never</span>
                       )}
                     </td>
                     <td>
                       {u.isBanned ? (
                         <span className="tag tag-gagal" title={u.bannedReason ?? ''}>
-                          Diblokir
+                          Blocked
                         </span>
                       ) : (
-                        <span className="tag tag-ok">Aktif</span>
+                        <span className="tag tag-ok">Active</span>
                       )}
                     </td>
                     <td className="kolom-aksi">
@@ -455,7 +455,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                             disabled={busy}
                             onClick={() => void terapkanBan(u.username, false, null)}
                           >
-                            Buka blokir
+                            Unblock
                           </button>
                         ) : (
                           <button
@@ -463,8 +463,8 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                             disabled={busy || diriSendiri}
                             title={
                               diriSendiri
-                                ? 'Tidak bisa memblokir akun sendiri'
-                                : 'Blokir user ini'
+                                ? 'You cannot block your own account'
+                                : 'Block this user'
                             }
                             onClick={() => {
                               setBanTarget(u.username)
@@ -472,7 +472,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                               setBanReason('')
                             }}
                           >
-                            Blokir
+                            Block
                           </button>
                         )}
                         <button
@@ -484,7 +484,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                             setResetValue('')
                           }}
                         >
-                          Ganti password
+                          Change password
                         </button>
                         {butuhDivisi(u.role) && (
                           <button
@@ -497,7 +497,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                               setResetTarget(null)
                             }}
                           >
-                            Divisi
+                            Division
                           </button>
                         )}
                       </div>
@@ -512,13 +512,13 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
         {banTarget && (
           <div className="form-panel">
             <label>
-              Alasan memblokir <strong>{banTarget}</strong>
-              <span className="hint">— kalimat ini yang dilihat user saat mencoba masuk</span>
+              Reason for blocking <strong>{banTarget}</strong>
+              <span className="hint">— this is the sentence the user sees when trying to sign in</span>
               <input
                 value={banReason}
                 autoFocus
                 maxLength={500}
-                placeholder="mis. sudah tidak di divisi ini"
+                placeholder="e.g. no longer in this division"
                 onChange={(e) => setBanReason(e.target.value)}
               />
             </label>
@@ -528,10 +528,10 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                 disabled={busy}
                 onClick={() => void terapkanBan(banTarget, true, banReason.trim() || null)}
               >
-                Blokir {banTarget}
+                Block {banTarget}
               </button>
               <button className="btn-teks" onClick={() => setBanTarget(null)}>
-                Batal
+                Cancel
               </button>
             </div>
           </div>
@@ -540,7 +540,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
         {resetTarget && (
           <div className="form-panel">
             <label>
-              Password baru untuk <strong>{resetTarget}</strong>
+              New password for <strong>{resetTarget}</strong>
               <input
                 type="password"
                 value={resetValue}
@@ -554,10 +554,10 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                 disabled={busy || resetValue.length < 5}
                 onClick={() => void terapkanReset(resetTarget)}
               >
-                Simpan
+                Save
               </button>
               <button className="btn-teks" onClick={() => setResetTarget(null)}>
-                Batal
+                Cancel
               </button>
             </div>
           </div>
@@ -566,7 +566,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
         {divisiTarget && (
           <div className="form-panel">
             <strong>
-              Divisi untuk {divisiTarget.username} ({ROLE_LABELS[divisiTarget.role]})
+              Division for {divisiTarget.username} ({ROLE_LABELS[divisiTarget.role]})
             </strong>
             <DivisiPicker
               role={divisiTarget.role}
@@ -581,10 +581,10 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
                 disabled={busy || !divisiValid(divisiTarget.role, divisiPilih)}
                 onClick={() => void simpanDivisiUser(divisiTarget.username)}
               >
-                Simpan
+                Save
               </button>
               <button className="btn-teks" onClick={() => setDivisiTarget(null)}>
-                Batal
+                Cancel
               </button>
             </div>
           </div>
@@ -594,23 +594,23 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
       {/* ------------------------------------------------ riwayat login */}
       <section className="card">
         <div className="card-head">
-          <h3>Riwayat Login</h3>
+          <h3>Sign-in History</h3>
           <button className="btn-teks" disabled={busy} onClick={() => void muat()}>
-            Muat ulang
+            Reload
           </button>
         </div>
         <p className="hint">
-          50 percobaan terakhir, termasuk yang gagal. Beberapa kali &ldquo;username tidak
-          terdaftar&rdquo; berturut-turut dari satu komputer berarti ada yang menebak-nebak nama akun.
+          The last 50 attempts, including failed ones. Several &ldquo;username not
+          registered&rdquo; results in a row from one computer mean someone is guessing account names.
         </p>
         <div className="table-scroll">
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Waktu</th>
+                <th>Time</th>
                 <th>Username</th>
-                <th>Hasil</th>
-                <th>Komputer</th>
+                <th>Result</th>
+                <th>Computer</th>
                 <th>IP</th>
               </tr>
             </thead>
@@ -634,7 +634,7 @@ export default function UserAdmin({ sesi, onBukaAkses }: Props): JSX.Element {
               {log.length === 0 && (
                 <tr>
                   <td colSpan={5} className="hint">
-                    Belum ada catatan.
+                    No records yet.
                   </td>
                 </tr>
               )}

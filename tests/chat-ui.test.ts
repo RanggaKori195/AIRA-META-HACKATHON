@@ -119,20 +119,20 @@ describe('cuplikan pesan terakhir', () => {
   test('pesan terhapus tidak pernah tampil kosong', () => {
     assert.equal(
       cuplikan(pesan({ isi: '', dihapusAt: '2026-09-16T07:01:00Z' }), 'andi', false),
-      '🚫 Pesan ini dihapus'
+      '🚫 This message was deleted'
     )
   })
 
   test('pesan sistem memakai teks yang SAMA dengan notifikasi', () => {
     assert.equal(
       cuplikan(pesan({ jenis: 'tambah', pengirim: 'budi', target: 'andi', isi: '' }), 'andi', true),
-      'budi menambahkan kamu'
+      'budi added you'
     )
   })
 
   test('di grup pengirim disebut; pesan sendiri jadi "Kamu:"', () => {
     assert.equal(cuplikan(pesan({ pengirim: 'budi', isi: 'oke' }), 'andi', true), 'budi: oke')
-    assert.equal(cuplikan(pesan({ pengirim: 'Andi', isi: 'siap' }), 'andi', true), 'Kamu: siap')
+    assert.equal(cuplikan(pesan({ pengirim: 'Andi', isi: 'siap' }), 'andi', true), 'You: siap')
     assert.equal(cuplikan(pesan({ pengirim: 'budi', isi: 'oke' }), 'andi', false), 'oke')
   })
 
@@ -172,17 +172,17 @@ describe('waktu & tanggal', () => {
     new Date(2026, 8, hari, jam, menit).toISOString()
 
   test('label tanggal', () => {
-    assert.equal(labelTanggal(lokal(16), sekarang), 'Hari ini')
-    assert.equal(labelTanggal(lokal(15), sekarang), 'Kemarin')
-    assert.equal(labelTanggal(lokal(13), sekarang), 'Minggu')
-    assert.equal(labelTanggal(lokal(1), sekarang), '1 Sep 2026')
+    assert.equal(labelTanggal(lokal(16), sekarang), 'Today')
+    assert.equal(labelTanggal(lokal(15), sekarang), 'Yesterday')
+    assert.equal(labelTanggal(lokal(13), sekarang), 'Sunday')
+    assert.equal(labelTanggal(lokal(1), sekarang), 'Sep 1, 2026')
   })
 
   test('waktu di daftar', () => {
     assert.equal(waktuDaftar(lokal(16), sekarang), '09:05')
-    assert.equal(waktuDaftar(lokal(15), sekarang), 'Kemarin')
-    assert.equal(waktuDaftar(lokal(14), sekarang), 'Sen')
-    assert.equal(waktuDaftar(lokal(1), sekarang), '01/09/26')
+    assert.equal(waktuDaftar(lokal(15), sekarang), 'Yesterday')
+    assert.equal(waktuDaftar(lokal(14), sekarang), 'Mon')
+    assert.equal(waktuDaftar(lokal(1), sekarang), '09/01/26')
   })
 
   test('pemisah tanggal muncul hanya saat hari berganti', () => {
@@ -196,10 +196,10 @@ describe('waktu & tanggal', () => {
 
   test('status orang', () => {
     assert.equal(statusOrang(rekan('budi', null, { online: true }), sekarang), 'online')
-    assert.equal(statusOrang(rekan('budi', null), sekarang), 'belum pernah terlihat online')
+    assert.equal(statusOrang(rekan('budi', null), sekarang), 'never seen online')
     assert.equal(
       statusOrang(rekan('budi', null, { lastSeen: lokal(16, 14, 2) }), sekarang),
-      'terakhir terlihat hari ini 14:02'
+      'last seen today 14:02'
     )
   })
 })
@@ -253,8 +253,8 @@ describe('tampilan Pesan tiga kolom (30 Sep 2026)', () => {
 
   test('labelTanggalPanjang menyebut hari relatif DAN tanggal lengkap', () => {
     const kini = new Date(2026, 8, 26, 12, 0)
-    assert.equal(labelTanggalPanjang(new Date(2026, 8, 26, 9).toISOString(), kini), 'Hari ini, 26 September 2026')
-    assert.equal(labelTanggalPanjang(new Date(2026, 8, 25, 9).toISOString(), kini), 'Kemarin, 25 September 2026')
+    assert.equal(labelTanggalPanjang(new Date(2026, 8, 26, 9).toISOString(), kini), 'Today, September 26, 2026')
+    assert.equal(labelTanggalPanjang(new Date(2026, 8, 25, 9).toISOString(), kini), 'Yesterday, September 25, 2026')
   })
 
   test('saringItem: belum/grup/favorit', () => {

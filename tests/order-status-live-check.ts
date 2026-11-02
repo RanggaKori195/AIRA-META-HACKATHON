@@ -77,11 +77,11 @@ async function main(): Promise<void> {
     ))[0]
 
   const kasus: Array<[string, string, (h: Record<string, any>) => boolean]> = [
-    ['semua hasil keluar', `bool_and(${DIAKUI}) AND bool_and(date_result IS NOT NULL)`, (h) => /SUDAH diakui sebagai sales/.test(h.ringkasan)],
-    ['belum ada hasil', `bool_and(${DIAKUI}) AND bool_and(date_result IS NULL)`, (h) => /BELUM keluar/.test(h.ringkasan)],
-    ['sebagian hasil', `bool_and(${DIAKUI}) AND bool_or(date_result IS NULL) AND bool_or(date_result IS NOT NULL)`, (h) => /baru keluar untuk/.test(h.ringkasan)],
-    ['semua dibatalkan', `bool_and(NOT ${DIAKUI})`, (h) => /DIBATALKAN/.test(h.ringkasan)],
-    ['bridging gagal', `bool_or(${DIAKUI} AND bridging_status_to = 'FAILED')`, (h) => /GAGAL di-bridging/.test(h.hasil?.[0]?.orderDiERP ?? '') && /Perhatian: .*GAGAL/.test(h.ringkasan)]
+    ['semua hasil keluar', `bool_and(${DIAKUI}) AND bool_and(date_result IS NOT NULL)`, (h) => /ALREADY recognized as sales/.test(h.ringkasan)],
+    ['belum ada hasil', `bool_and(${DIAKUI}) AND bool_and(date_result IS NULL)`, (h) => /NOT released yet/.test(h.ringkasan)],
+    ['sebagian hasil', `bool_and(${DIAKUI}) AND bool_or(date_result IS NULL) AND bool_or(date_result IS NOT NULL)`, (h) => /released for only/.test(h.ringkasan)],
+    ['semua dibatalkan', `bool_and(NOT ${DIAKUI})`, (h) => /CANCELLED/.test(h.ringkasan)],
+    ['bridging gagal', `bool_or(${DIAKUI} AND bridging_status_to = 'FAILED')`, (h) => /FAILED bridging/.test(h.hasil?.[0]?.orderDiERP ?? '') && /Attention: .*FAILED/.test(h.ringkasan)]
   ]
 
   for (const [label, where, sesuai] of kasus) {
@@ -98,7 +98,7 @@ async function main(): Promise<void> {
     cek(
       `${label}: hitungan identik dengan query terpisah`,
       h.jumlahPemeriksaan === p.diakui && h.pemeriksaanDibatalkan === p.batal &&
-        (p.diakui === 0 || h.hasilInvoice === `${p.hasil} dari ${p.diakui} pemeriksaan`),
+        (p.diakui === 0 || h.hasilInvoice === `${p.hasil} of ${p.diakui} tests`),
       `diakui ${h.jumlahPemeriksaan}/${p.diakui}, batal ${h.pemeriksaanDibatalkan}/${p.batal}, hasil ${h.hasilInvoice} vs ${p.hasil}`
     )
     const b = await bocor(id, JSON.stringify(hasil))

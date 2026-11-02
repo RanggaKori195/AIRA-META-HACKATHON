@@ -43,18 +43,18 @@ export function SpandukPembaruan(): JSX.Element | null {
   return (
     <div className="spanduk-update" role="status">
       <span>
-        <strong>AIRA {status.versiBaru}</strong> sudah terunduh dan siap dipasang.
-        {pesan ? ` ${pesan}` : ' AIRA akan ditutup sebentar lalu terbuka lagi.'}
+        <strong>AIRA {status.versiBaru}</strong> has been downloaded and is ready to install.
+        {pesan ? ` ${pesan}` : ' AIRA will close briefly and reopen.'}
       </span>
       <button className="btn-send" onClick={() => void pasang(setPesan)}>
-        Pasang sekarang
+        Install now
       </button>
       <button
         className="btn-teks"
-        title="Pembaruan tetap terpasang otomatis saat AIRA ditutup lewat tray"
+        title="The update still installs automatically when AIRA is quit from the tray"
         onClick={() => setTutup(status.versiBaru)}
       >
-        Nanti
+        Later
       </button>
     </div>
   )
@@ -62,30 +62,30 @@ export function SpandukPembaruan(): JSX.Element | null {
 
 const waktu = (iso: string | null): string =>
   iso
-    ? new Date(iso).toLocaleString('id-ID', {
+    ? new Date(iso).toLocaleString('en-US', {
         day: '2-digit',
         month: 'short',
         hour: '2-digit',
         minute: '2-digit'
       })
-    : 'belum pernah'
+    : 'never'
 
 function kalimat(s: StatusUpdate): string {
   switch (s.tahap) {
     case 'mati':
-      return s.pesan ?? 'Pembaruan otomatis tidak aktif.'
+      return s.pesan ?? 'Automatic updates are off.'
     case 'diam':
-      return 'Menunggu pemeriksaan pertama.'
+      return 'Waiting for the first check.'
     case 'memeriksa':
-      return 'Memeriksa versi baru…'
+      return 'Checking for a new version…'
     case 'mengunduh':
-      return `Mengunduh AIRA ${s.versiBaru ?? ''}… ${s.persen ?? 0}%`
+      return `Downloading AIRA ${s.versiBaru ?? ''}… ${s.persen ?? 0}%`
     case 'siap':
-      return `AIRA ${s.versiBaru} siap dipasang.`
+      return `AIRA ${s.versiBaru} is ready to install.`
     case 'terbaru':
-      return 'AIRA sudah versi terbaru.'
+      return 'AIRA is up to date.'
     case 'galat':
-      return s.pesan ?? 'Pemeriksaan pembaruan gagal.'
+      return s.pesan ?? 'The update check failed.'
   }
 }
 
@@ -98,8 +98,8 @@ export function PanelPembaruan(): JSX.Element {
   if (!status) {
     return (
       <section className="card">
-        <h3>Versi &amp; pembaruan</h3>
-        <p className="hint">Status pembaruan tidak terbaca.</p>
+        <h3>Version &amp; updates</h3>
+        <p className="hint">The update status could not be read.</p>
       </section>
     )
   }
@@ -107,22 +107,22 @@ export function PanelPembaruan(): JSX.Element {
   const sibuk = status.tahap === 'memeriksa' || status.tahap === 'mengunduh'
   return (
     <section className="card">
-      <h3>Versi &amp; pembaruan</h3>
+      <h3>Version &amp; updates</h3>
       <p>
-        Versi terpasang: <strong>{status.versiSekarang}</strong>
+        Installed version: <strong>{status.versiSekarang}</strong>
       </p>
       <p className={status.tahap === 'galat' ? 'error' : 'hint'}>{kalimat(status)}</p>
       {status.tahap === 'mengunduh' && (
-        <div className="mon-isi" aria-label="Kemajuan unduhan">
+        <div className="mon-isi" aria-label="Download progress">
           <i style={{ width: `${status.persen ?? 0}%` }} />
         </div>
       )}
-      <p className="hint">Terakhir tersambung ke server update: {waktu(status.terakhirCek)}</p>
+      <p className="hint">Last connected to the update server: {waktu(status.terakhirCek)}</p>
       {pesan && <p className="hint">{pesan}</p>}
       <div className="fb-aksi">
         {status.tahap === 'siap' ? (
           <button className="btn-send" onClick={() => void pasang(setPesan)}>
-            Pasang sekarang
+            Install now
           </button>
         ) : (
           <button
@@ -137,14 +137,14 @@ export function PanelPembaruan(): JSX.Element {
                 .finally(() => setBusy(false))
             }}
           >
-            {busy || sibuk ? 'Memeriksa…' : 'Cek pembaruan sekarang'}
+            {busy || sibuk ? 'Checking…' : 'Check for updates now'}
           </button>
         )}
       </div>
       <p className="hint">
-        AIRA memeriksa versi baru saat dibuka dan setiap 4 jam, lalu mengunduhnya di latar
-        belakang. Pembaruan tidak pernah dipasang di tengah pekerjaan: kamu yang menekan Pasang,
-        atau ia terpasang otomatis saat AIRA ditutup lewat tray.
+        AIRA checks for a new version when it opens and every 4 hours, then downloads it in the
+        background. Updates are never installed mid-task: you press Install, or it installs
+        automatically when AIRA is quit from the tray.
       </p>
     </section>
   )

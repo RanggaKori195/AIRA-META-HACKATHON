@@ -8,7 +8,7 @@
 
 import type { ChatMode, PolaJadwal } from './ipc'
 
-export const NAMA_HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+export const NAMA_HARI = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 const JAM = /^([01]\d|2[0-3]):([0-5]\d)$/
 const TANGGAL = /^(\d{4})-(\d{2})-(\d{2})$/
@@ -92,19 +92,19 @@ export function kejadianDalam(pola: PolaJadwal, dari: Date, sampai: Date, maks =
   return hasil
 }
 
-/** Kalimat pola untuk layar, mis. "Tiap Senin & Kamis, 08:00". */
+/** Kalimat pola untuk layar, mis. "Every Monday & Thursday, 08:00". */
 export function uraianPola(pola: PolaJadwal): string {
   switch (pola.jenis) {
     case 'sekali':
-      return `Sekali, ${pola.tanggal.split('-').reverse().join('/')} ${pola.jam}`
+      return 'Once, ' + pola.tanggal.split('-').reverse().join('/') + ' ' + pola.jam
     case 'harian':
-      return `Tiap hari, ${pola.jam}`
+      return 'Every day, ' + pola.jam
     case 'hari_kerja':
-      return `Tiap hari kerja (Sen–Jum), ${pola.jam}`
+      return 'Every weekday (Mon–Fri), ' + pola.jam
     case 'mingguan':
-      return `Tiap ${pola.hari.map((h) => NAMA_HARI[h]).join(' & ')}, ${pola.jam}`
+      return 'Every ' + pola.hari.map((h) => NAMA_HARI[h]).join(' & ') + ', ' + pola.jam
     case 'bulanan':
-      return `Tiap tanggal ${pola.tanggal}${pola.tanggal > 28 ? ' (atau hari terakhir bulan)' : ''}, ${pola.jam}`
+      return 'Every month on day ' + pola.tanggal + (pola.tanggal > 28 ? ' (or the last day of the month)' : '') + ', ' + pola.jam
   }
 }
 
@@ -169,8 +169,28 @@ export function tafsirkanKalimat(teks: string, sekarang: Date): TafsiranJadwal {
     }
     buang(mJam[0] ? new RegExp(mJam[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') : /$^/)
   }
+  // English: "at 8", "at 7:30", "at 4 pm", "9am".
+  const mJamEn = adaJam
+    ? null
+    : /\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b|\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i.exec(asli)
+  if (mJamEn) {
+    let h = Number(mJamEn[1] ?? mJamEn[4])
+    const mnt = Number(mJamEn[2] ?? mJamEn[5] ?? 0)
+    const ap = (mJamEn[3] ?? mJamEn[6])?.toLowerCase()
+    if (ap === 'pm' && h < 12) h += 12
+    if (ap === 'am' && h === 12) h = 0
+    if (h <= 23 && mnt <= 59) {
+      jam = `${dua(h)}:${dua(mnt)}`
+      adaJam = true
+    }
+    buang(new RegExp(mJamEn[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'))
+  }
   if (!adaJam) {
     const bagian: Array<[RegExp, string]> = [
+      [/\bmorning\b/i, '08:00'],
+      [/\b(noon|midday)\b/i, '12:00'],
+      [/\bafternoon\b/i, '16:00'],
+      [/\b(evening|night)\b/i, '19:00'],
       [/\bpagi\b/i, '08:00'],
       [/\bsiang\b/i, '12:00'],
       [/\bsore\b/i, '16:00'],
@@ -194,12 +214,49 @@ export function tafsirkanKalimat(teks: string, sekarang: Date): TafsiranJadwal {
   const reDaftarHari =
     /\b(?:setiap|tiap)\s+(?:hari\s+)?((?:minggu|ahad|senin|selasa|rabu|kamis|jumat|jum'at|sabtu)(?:\s*(?:,|dan|&)\s*(?:minggu|ahad|senin|selasa|rabu|kamis|jumat|jum'at|sabtu))*)\b/i
   const mDaftar = reDaftarHari.exec(asli)
+  // English: "every Monday", "every Monday and Thursday", "on the 1st of every month". "last week" is not a day.
+  const HARI_EN = 'sunday|monday|tuesday|wednesday|thursday|friday|saturday'
+  const reDaftarHariEn = new RegExp(`\\bevery\\s+((?:${HARI_EN})(?:\\s*(?:,|and|&)\\s*(?:${HARI_EN}))*)\\b`, 'i')
+  const mDaftarEn = reDaftarHariEn.exec(asli)
+  const mTglEn =
+    /\b(?:on\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\s+of\s+(?:every|each)\s+month\b|\bevery\s+month\s+on\s+the\s+(\d{1,2})(?:st|nd|rd|th)?\b/i.exec(
+      asli
+    )
+  const tglEn = mTglEn ? Number(mTglEn[1] ?? mTglEn[2]) : 0
   const hariDisebut = mDaftar
     ? [...mDaftar[1].toLowerCase().matchAll(/minggu|ahad|senin|selasa|rabu|kamis|jumat|jum'at|sabtu/g)].map(
         (m) => HARI_KATA[m[0]]
       )
     : []
-  if (mTgl && Number(mTgl[1]) >= 1 && Number(mTgl[1]) <= 31) {
+  if (mTglEn && tglEn >= 1 && tglEn <= 31) {
+    pola = { jenis: 'bulanan', tanggal: tglEn, jam }
+    buang(new RegExp(mTglEn[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'))
+  } else if (/\bend\s+of\s+(?:the\s+|every\s+|each\s+)?month\b/i.test(asli)) {
+    pola = { jenis: 'bulanan', tanggal: 31, jam }
+    buang(/\b(?:at\s+the\s+|on\s+the\s+)?end\s+of\s+(?:the\s+|every\s+|each\s+)?month\b/i)
+  } else if (/\b(?:start|beginning)\s+of\s+(?:the\s+|every\s+|each\s+)?month\b|\b(?:every|each)\s+month\b|\bmonthly\b/i.test(asli)) {
+    pola = { jenis: 'bulanan', tanggal: 1, jam }
+    buang(/\b(?:at\s+the\s+)?(?:(?:start|beginning)\s+of\s+(?:the\s+|every\s+|each\s+)?month|(?:every|each)\s+month|monthly)\b/i)
+  } else if (/\b(?:every\s+)?weekdays?\b|\bmonday\s+(?:to|through|-)\s+friday\b/i.test(asli)) {
+    pola = { jenis: 'hari_kerja', jam }
+    buang(/\b(?:every\s+)?(?:weekdays?|monday\s+(?:to|through|-)\s+friday)\b/i)
+  } else if (mDaftarEn) {
+    const nama = HARI_EN.split('|')
+    const hari = [...new Set([...mDaftarEn[1].toLowerCase().matchAll(new RegExp(HARI_EN, 'g'))].map((m) => nama.indexOf(m[0])))]
+    pola = { jenis: 'mingguan', hari: hari.sort((a, b) => a - b), jam }
+    buang(reDaftarHariEn)
+  } else if (/\b(?:every|each)\s+week\b|\bweekly\b/i.test(asli)) {
+    pola = { jenis: 'mingguan', hari: [1], jam }
+    buang(/\b(?:every|each)\s+week\b|\bweekly\b/i)
+  } else if (/\b(?:every|each)\s+(?:day|morning|afternoon|evening|night)\b|\bdaily\b/i.test(asli)) {
+    pola = { jenis: 'harian', jam }
+    buang(/\b(?:every|each)\s+day\b|\bdaily\b/i)
+  } else if (/\btomorrow\b|\btoday\b/i.test(asli)) {
+    const tambah = /\bday\s+after\s+tomorrow\b/i.test(asli) ? 2 : /\btomorrow\b/i.test(asli) ? 1 : 0
+    const d = new Date(sekarang.getFullYear(), sekarang.getMonth(), sekarang.getDate() + tambah)
+    pola = { jenis: 'sekali', tanggal: isoTanggal(d), jam }
+    buang(/\b(?:the\s+day\s+after\s+tomorrow|tomorrow|today)\b/i)
+  } else if (mTgl && Number(mTgl[1]) >= 1 && Number(mTgl[1]) <= 31) {
     pola = { jenis: 'bulanan', tanggal: Number(mTgl[1]), jam }
     buang(/\b(?:setiap|tiap)\s+tanggal\s+\d{1,2}(?:\s+(?:setiap|tiap)\s+bulan)?\b/i)
   } else if (/\bakhir\s+bulan\b/i.test(asli)) {
@@ -235,6 +292,10 @@ export function tafsirkanKalimat(teks: string, sekarang: Date): TafsiranJadwal {
   buang(/\b(?:tolong\s+)?(?:buat(?:kan)?\s+)?(?:pengingat|reminder)\b/i)
   buang(/\b(?:tolong\s+)?ingatkan\s+(?:saya|aku|kami)?\s*(?:untuk|agar|supaya)?\b/i)
   buang(/\b(?:tolong\s+)?(?:jadwalkan|jadwal)\b/i)
+  buang(/\b(?:please\s+)?(?:set\s+(?:up\s+)?a\s+)?reminder\b/i)
+  buang(/\b(?:please\s+)?remind\s+(?:me|us)?\s*(?:to|about)?\b/i)
+  buang(/\b(?:please\s+)?schedule\b/i)
+  buang(/\b(?:every|each)\s+(?:morning|afternoon|evening|night)\b/gi)
   const prompt = sisa
     .replace(/\s+/g, ' ')
     .replace(/^[\s,.:;-]+|[\s,.:;-]+$/g, '')
@@ -243,9 +304,9 @@ export function tafsirkanKalimat(teks: string, sekarang: Date): TafsiranJadwal {
     .trim()
 
   let mode: ChatMode = 'general'
-  if (/\b(backlog|sampel|sample|tat|rns|orderId\s*id)\b/i.test(k)) mode = 'lab'
-  else if (/\b(masterdata|master\s+data|special\s+price|pks|harga\s+item)\b/i.test(k)) mode = 'masterdata'
-  else if (/\b(sales|penjualan|omzet|invoice|order)\b/i.test(k)) mode = 'sales'
+  if (/\b(backlog|sampel|samples?|tat|rns|orderId\s*id|order\s*id)\b/i.test(k)) mode = 'lab'
+  else if (/\b(masterdata|master\s+data|special\s+price|pks|harga\s+item|list\s+price)\b/i.test(k)) mode = 'masterdata'
+  else if (/\b(sales|penjualan|omzet|invoice|order|orders|revenue|customers?)\b/i.test(k)) mode = 'sales'
   else if (/\b(onedrive|sharepoint)\b/i.test(k)) mode = 'onedrive'
 
   const isi = prompt || asli

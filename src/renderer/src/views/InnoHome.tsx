@@ -51,52 +51,52 @@ interface Kelompok {
  */
 const KELOMPOK: Kelompok[] = [
   {
-    judul: 'Pelanggan & PKS',
-    ket: 'Data pelanggan terdaftar, special price, dan perjanjian kerja sama (PKS).',
+    judul: 'Customers & PKS',
+    ket: 'Registered customers, special prices, and cooperation agreements (PKS).',
     ikon: <IconUsers size={24} />,
     warna: 'hijau',
     contoh: [
-      'Apakah RS Brawijaya sudah terdaftar?',
-      'Tolong carikan special price RSUP Dr. Kariadi',
-      'Apakah RSUD Dr. Soebandi sudah ada PKS?'
+      'Is RS Brawijaya registered yet?',
+      'Please find the special price for RSUP Dr. Kariadi',
+      'Does RSUD Dr. Soebandi already have a PKS?'
     ]
   },
   {
-    judul: 'Harga Pemeriksaan',
-    ket: 'Harga K1 (B2B/Corporate) & K2 (B2C), dan harga khusus per pelanggan.',
+    judul: 'Test Prices',
+    ket: 'K1 (B2B/Corporate) & K2 (B2C) prices, and special prices per customer.',
     ikon: <IconRupiah />,
     warna: 'biru',
     contoh: [
-      'Berapa harga pemeriksaan TB-IGRA Quantiferon Gold?',
-      'Siapa saja yang dapat harga khusus untuk MammaPrint?',
-      'Berapa harga B2B dan B2C untuk HPV DNA?'
+      'What is the price of the TB-IGRA Quantiferon Gold test?',
+      'Who gets a special price for MammaPrint?',
+      'What are the B2B and B2C prices for HPV DNA?'
     ]
   },
   {
-    judul: 'Jenis & Kelompok Item',
-    ket: 'Item pemeriksaan per jenis, lab, grup, dan kelompok harga.',
+    judul: 'Item Types & Groups',
+    ket: 'Test items by type, lab, group, and price group.',
     ikon: <IconLayers size={24} />,
     warna: 'ungu',
     contoh: [
-      'Pemeriksaan paket apa saja yang terdaftar?',
-      'Item Patologi Anatomi apa saja yang ada?',
-      'Keluarkan item pemeriksaan C Coret',
-      'Pemeriksaan apa saja di grup Hematologi?'
+      'Which package tests are registered?',
+      'Which Anatomical Pathology items exist?',
+      'List the C Coret test items',
+      'Which tests are in the Hematology group?'
     ]
   },
   {
-    judul: 'Isi Paket',
-    ket: 'Rincian isi paket pemeriksaan dan item di dalamnya.',
+    judul: 'Package Contents',
+    ket: 'Breakdown of a test package and the items inside it.',
     ikon: <IconList size={24} />,
     warna: 'oranye',
-    contoh: ['Paket MCU itu isinya apa saja?', 'Berapa item di dalam paket itu, dan mana yang non lab?']
+    contoh: ['What is in the MCU package?', 'How many items are in that package, and which are non-lab?']
   },
   {
-    judul: 'Dokter',
-    ket: 'Dokter/klinisi yang terdaftar di master, dicari per nama atau kode.',
+    judul: 'Doctors',
+    ket: 'Doctors/clinicians registered in the master data, searched by name or code.',
     ikon: <IconUser size={24} />,
     warna: 'merah',
-    contoh: ['Apakah dr. Citra Dewi terdaftar?', 'Berapa dokter yang terdaftar?']
+    contoh: ['Is dr. Citra Dewi registered?', 'How many doctors are registered?']
   }
 ]
 
@@ -104,13 +104,13 @@ const KELOMPOK: Kelompok[] = [
  * "Jenis data" DITEMPELKAN ke kalimat saat dikirim — terlihat utuh di gelembung
  * chat. Membantu model memilih tool yang tepat tanpa filter tersembunyi.
  */
-const JENIS_DATA = ['pelanggan', 'item & harga', 'special price', 'PKS', 'dokter', 'isi paket']
+const JENIS_DATA = ['customers', 'items & prices', 'special price', 'PKS', 'doctors', 'package contents']
 
 const TIPS = [
-  'Gunakan nama RS, item, atau dokter yang jelas dan spesifik',
-  'Sebutkan jenis data yang dibutuhkan (harga, PKS, item, dll)',
-  'Harga yang disajikan hanya K1 (B2B/Corporate) dan K2 (B2C)',
-  'Gunakan bahasa yang natural dan sederhana'
+  'Use a clear, specific hospital, item, or doctor name',
+  'State the type of data you need (price, PKS, item, etc.)',
+  'Only K1 (B2B/Corporate) and K2 (B2C) prices are shown',
+  'Use natural, simple wording'
 ]
 
 function IconRupiah(): JSX.Element {
@@ -132,13 +132,13 @@ function IconChevron(): JSX.Element {
 
 function sejak(ms: number): string {
   const menit = Math.max(0, Math.round((Date.now() - ms) / 60_000))
-  if (menit < 1) return 'baru saja'
-  if (menit < 60) return `${menit} menit yang lalu`
+  if (menit < 1) return 'just now'
+  if (menit < 60) return menit + ' min ago'
   const jam = Math.round(menit / 60)
-  if (jam < 24) return `${jam} jam yang lalu`
+  if (jam < 24) return jam + ' h ago'
   const hari = Math.round(jam / 24)
-  if (hari < 30) return `${hari} hari yang lalu`
-  return new Date(ms).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+  if (hari < 30) return hari + ' d ago'
+  return new Date(ms).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan }: Props): JSX.Element {
@@ -159,7 +159,7 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
   const submit = (): void => {
     const trimmed = text.trim()
     if (!trimmed) return
-    onSubmit(jenis && !trimmed.toLowerCase().includes(jenis.toLowerCase()) ? `${trimmed} (jenis data: ${jenis})` : trimmed)
+    onSubmit(jenis && !trimmed.toLowerCase().includes(jenis.toLowerCase()) ? trimmed + ' (data type: ' + jenis + ')' : trimmed)
     setText('')
   }
 
@@ -169,12 +169,12 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
     status === null
       ? null
       : !status.terkonfigurasi
-        ? { teks: 'Belum dikonfigurasi', kelas: 'gagal', judul: 'Koneksi Master Data tidak tertanam di aplikasi ini.' }
+        ? { teks: 'Not configured', kelas: 'gagal', judul: 'The Master Data connection is not built into this app.' }
         : status.keadaan === 'terhubung'
-          ? { teks: 'Terhubung', kelas: 'ok', judul: `Query terakhir berhasil, ${sejak(status.waktu!)}.` }
+          ? { teks: 'Connected', kelas: 'ok', judul: 'Last query succeeded, ' + sejak(status.waktu!) + '.' }
           : status.keadaan === 'gagal'
-            ? { teks: 'Tidak terhubung', kelas: 'gagal', judul: `Koneksi terakhir gagal, ${sejak(status.waktu!)}. Periksa VPN/jaringan the company.` }
-            : { teks: 'Belum diperiksa', kelas: 'belum', judul: 'Belum ada pertanyaan Master Data sejak AIRA dibuka — status terlihat sesudah pertanyaan pertama.' }
+            ? { teks: 'Not connected', kelas: 'gagal', judul: 'Last connection failed, ' + sejak(status.waktu!) + '. Check your VPN/network.' }
+            : { teks: 'Not checked yet', kelas: 'belum', judul: 'No Master Data questions since AIRA was opened — the status appears after the first question.' }
 
   return (
     <div className="sales-baru">
@@ -185,7 +185,7 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
           </span>
           <div className="sales-kepala-teks">
             <h1 className="inno-judul">Ask Master Data</h1>
-            <p>Pelanggan terdaftar, item &amp; harga, special price, PKS, dan dokter — langsung dari master data the lab.</p>
+            <p>Registered customers, items &amp; prices, special prices, PKS, and doctors — straight from the lab master data.</p>
           </div>
           {/* Hiasan: tumpukan database + kartu data, meniru mockup. */}
           <svg className="sales-seni inno-seni" viewBox="0 0 260 130" aria-hidden="true">
@@ -204,7 +204,7 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
             <path d="M226 14l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#6cc28a" />
           </svg>
           <div className="sales-titik3" onClick={(e) => e.stopPropagation()}>
-            <button className="btn-mini" title="Pilihan" onClick={() => setMenu((x) => !x)}>
+            <button className="btn-mini" title="Options" onClick={() => setMenu((x) => !x)}>
               <IconMore size={16} />
             </button>
             {menu && (
@@ -215,7 +215,7 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
                     onPanduan()
                   }}
                 >
-                  Panduan menu ini
+                  Guide for this menu
                 </button>
               </div>
             )}
@@ -224,7 +224,7 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
 
         <div className="task-box sales-kotak">
           <textarea
-            placeholder="Contoh: tolong carikan special price RS Kariadi"
+            placeholder="Example: please find the special price for RS Kariadi"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
@@ -237,13 +237,13 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
           />
           <div className="row">
             <div className="row-left">
-              <span className="gambar-pilih sales-sumber" title="Menu ini hanya membaca master data Master Data">
-                <IconDatabase size={16} /> Sumber: Master Data (master data)
+              <span className="gambar-pilih sales-sumber" title="This menu only reads the Master Data">
+                <IconDatabase size={16} /> Source: Master Data
               </span>
-              <label className="gambar-pilih" title="Jenis data ditempelkan ke pertanyaanmu saat dikirim">
+              <label className="gambar-pilih" title="The data type is appended to your question when sent">
                 <IconFileText size={16} />
                 <select value={jenis} onChange={(e) => setJenis(e.target.value)}>
-                  <option value="">Jenis data</option>
+                  <option value="">Data type</option>
                   {JENIS_DATA.map((j) => (
                     <option key={j} value={j}>
                       {j.charAt(0).toUpperCase() + j.slice(1)}
@@ -256,7 +256,7 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
               {/* Hasil dikte DISISIPKAN ke kotak teks, tidak dikirim otomatis. */}
               <TombolDikte onTeks={(t) => setText((s) => (s.trim() ? `${s.trim()} ${t}` : t))} />
               <button className="btn-send sales-tanya" disabled={!text.trim()} onClick={submit}>
-                Tanya <IconArrowRight size={15} />
+                Ask <IconArrowRight size={15} />
               </button>
             </div>
           </div>
@@ -264,11 +264,11 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
 
         <div className="beranda-kepala">
           <h3>
-            <IconZap size={17} /> Contoh pertanyaan populer
+            <IconZap size={17} /> Popular example questions
           </h3>
-          <span>Klik salah satu untuk langsung bertanya</span>
+          <span>Click one to ask right away</span>
           <button className="beranda-tautan" onClick={() => setSemua((x) => !x)}>
-            {semua ? 'Ringkas contoh' : 'Lihat semua contoh'} <IconArrowRight size={14} />
+            {semua ? 'Collapse examples' : 'Show all examples'} <IconArrowRight size={14} />
           </button>
         </div>
         <div className="inno-kategori">
@@ -298,25 +298,25 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconInfo size={17} /> Tentang Menu Ini
+              <IconInfo size={17} /> About This Menu
             </h4>
           </div>
           <p className="panel-kosong">
-            AIRA memakai master data Master Data untuk menjawab pertanyaan tentang pelanggan, item &amp; harga,
-            special price, PKS, isi paket, dan dokter. Data diambil langsung dari master data the lab. Menu ini tidak
-            membaca data transaksi — untuk angka penjualan, pakai Tanya Data Sales.
+            AIRA uses the Master Data to answer questions about customers, items &amp; prices,
+            special prices, PKS, package contents, and doctors. Data is taken straight from the lab master data. This menu does not
+            read transaction data — for sales figures, use Ask Sales Data.
           </p>
         </div>
 
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconDatabase size={17} /> Sumber Data
+              <IconDatabase size={17} /> Data Source
             </h4>
           </div>
           <div className="sales-sumber-baris">
             <span>
-              <IconDatabase size={14} /> Master Data (master data)
+              <IconDatabase size={14} /> Master Data
             </span>
             {labelStatus && (
               <span className={`status-koneksi ${labelStatus.kelas}`} title={labelStatus.judul}>
@@ -329,7 +329,7 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconBook size={17} /> Tips Menggunakan
+              <IconBook size={17} /> Usage Tips
             </h4>
           </div>
           <ul className="sales-tips">
@@ -347,16 +347,16 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconHistory size={17} /> Pertanyaan Terakhir
+              <IconHistory size={17} /> Recent Questions
             </h4>
             {riwayat.length > 5 && (
               <button className="beranda-tautan" onClick={() => setSemuaRiwayat((x) => !x)}>
-                {semuaRiwayat ? 'Lebih sedikit' : 'Lihat semua'}
+                {semuaRiwayat ? 'Show less' : 'View all'}
               </button>
             )}
           </div>
           {riwayat.length === 0 ? (
-            <p className="panel-kosong">Pertanyaan yang kamu ajukan di menu ini akan muncul di sini.</p>
+            <p className="panel-kosong">Questions you ask in this menu will appear here.</p>
           ) : (
             <ul className="sales-riwayat">
               {riwayat.slice(0, semuaRiwayat ? 15 : 5).map((s) => (

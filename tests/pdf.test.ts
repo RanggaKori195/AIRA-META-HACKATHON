@@ -154,16 +154,17 @@ describe('laporan penjualan ke Markdown', () => {
 })
 
 describe('font korporat di dokumen cetak', () => {
-  test('halaman memakai company serif font dengan cadangan yang waras', () => {
+  test('halaman memakai font sistem (Segoe UI), tanpa font perusahaan', () => {
     const h = halamanHtml('<p>x</p>')
-    assert.match(h, /font-family: 'company serif font'/)
+    assert.match(h, /font-family: 'Segoe UI'/)
+    assert.doesNotMatch(h, /the company/)
     // Cadangan WAJIB font antarmuka, bukan serif generik: dokumen yang jatuh ke
     // Times New Roman terlihat rusak, bukan sekadar berbeda.
     assert.match(h, /'Segoe UI'/)
   })
 
   test('aturan @font-face disisipkan bila berkas fontnya ada', () => {
-    const h = halamanHtml('<p>x</p>', { fontFace: "@font-face { font-family: 'company serif font'; }" })
+    const h = halamanHtml('<p>x</p>', { fontFace: "@font-face { font-family: 'X'; }" })
     assert.match(h, /@font-face/)
   })
 
@@ -187,7 +188,7 @@ describe('font korporat di dokumen cetak', () => {
   test('kaki halaman tanpa font tetap sah — hanya tanpa @font-face', () => {
     const kaki = kakiHalaman('Laporan', null)
     assert.doesNotMatch(kaki, /@font-face/)
-    assert.match(kaki, /Halaman/)
+    assert.match(kaki, /Page/)
   })
 
   test('kode tetap monospace, tidak ikut jadi serif', () => {

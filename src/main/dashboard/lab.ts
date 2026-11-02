@@ -18,11 +18,11 @@ import { backlog, ringkasanRns, tahapTakTerpakai, tat, tatBulanan, tatRingkas, t
 import { tahapDari } from '../lab/rules'
 import { gabungTat, geserHari, insightLab, kalimatSelisihHari, periodeBanding, saranLab, type BarisTatBanding } from './rules-lab-inno'
 
-const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
-const teksHari = (n: number | null): string => (n === null ? '—' : `${n.toLocaleString('id-ID', { maximumFractionDigits: 1 })} hari`)
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const teksHari = (n: number | null): string => (n === null ? '—' : `${n.toLocaleString('en-US', { maximumFractionDigits: 1 })} days`)
 const hariSel = (v: number | null): Sel => ({ nilai: v, satuan: 'hari' })
-const tgl = (iso: string): string => `${+iso.slice(8, 10)} ${BULAN[+iso.slice(5, 7) - 1]} ${iso.slice(0, 4)}`
-const rentangTeks = (r: { dari: string; sampai: string }): string => `${tgl(r.dari)} – ${tgl(r.sampai)}`
+const tgl = (iso: string): string => `${+iso.slice(8, 10)} ${MONTHS[+iso.slice(5, 7) - 1]} ${iso.slice(0, 4)}`
+const rentangTeks = (r: { dari: string; sampai: string }): string => tgl(r.dari) + ' – ' + tgl(r.sampai)
 
 export async function kumpulkanDashboardLab(dasar: Record<string, unknown>): Promise<DashboardUmum> {
   const t0 = Date.now()
@@ -42,7 +42,7 @@ export async function kumpulkanDashboardLab(dasar: Record<string, unknown>): Pro
       return await kerja()
     } catch (err) {
       gagal.push(nama)
-      logger().warn({ nama, err: String(err).slice(0, 200) }, 'dashboard lab: panel gagal')
+      logger().warn({ nama, err: String(err).slice(0, 200) }, 'dashboard lab: panel failed')
       return cadangan
     }
   }
@@ -50,48 +50,48 @@ export async function kumpulkanDashboardLab(dasar: Record<string, unknown>): Pro
   // KPI inti — gagal di sini = dashboard gagal (tidak ada yang bisa dibandingkan).
   const rKini = await tatRingkas(fKini, tahap)
   const rLalu = await tatRingkas(fLalu, tahap)
-  const belumKini = await coba('sampel belum selesai', () => tahapTakTerpakai(fKini, tahap), null as number | null)
-  const vKini = await coba('order masuk', () => volumeOrder(fKini), null as { order: number; baris: number } | null)
-  const vLalu = vKini ? await coba('order masuk pembanding', () => volumeOrder(fLalu), null as { order: number; baris: number } | null) : null
+  const belumKini = await coba('samples not finished', () => tahapTakTerpakai(fKini, tahap), null as number | null)
+  const vKini = await coba('incoming orders', () => volumeOrder(fKini), null as { order: number; baris: number } | null)
+  const vLalu = vKini ? await coba('incoming orders (comparison)', () => volumeOrder(fLalu), null as { order: number; baris: number } | null) : null
   const rnsKini = await coba('RNS', () => ringkasanRns(fKini), null)
-  const rnsLalu = rnsKini ? await coba('RNS pembanding', () => ringkasanRns(fLalu), null) : null
+  const rnsLalu = rnsKini ? await coba('RNS (comparison)', () => ringkasanRns(fLalu), null) : null
 
-  const katKini = await coba('TAT per kategori', () => tat(fKini, tahap, 'category', 12), [])
-  const katLalu = katKini.length ? await coba('TAT per kategori pembanding', () => tat(fLalu, tahap, 'category', 50), []) : []
+  const katKini = await coba('TAT by category', () => tat(fKini, tahap, 'category', 12), [])
+  const katLalu = katKini.length ? await coba('TAT by category (comparison)', () => tat(fLalu, tahap, 'category', 50), []) : []
   const perKategori: BarisTatBanding[] = gabungTat(katKini, katLalu)
 
   const awalTren = `${geserHari(`${p.kini.sampai.slice(0, 8)}01`, -155).slice(0, 8)}01`
-  const tren = await coba('tren 6 bulan', () => tatBulanan({ ...saring, dari: awalTren, sampai: p.kini.sampai }, tahap), [])
-  const bl = await coba('backlog saat ini', () => backlog(saring, 1), null)
-  const segar = await coba('kesegaran data', () => terakhirDiperbarui(), null)
+  const tren = await coba('6-month trend', () => tatBulanan({ ...saring, dari: awalTren, sampai: p.kini.sampai }, tahap), [])
+  const bl = await coba('current backlog', () => backlog(saring, 1), null)
+  const segar = await coba('data freshness', () => terakhirDiperbarui(), null)
 
-  const filter = [saring.category && `Kategori: ${saring.category}`, saring.test && `Pemeriksaan: ${saring.test}`, saring.account && `Pelanggan: ${saring.account}`].filter(Boolean)
+  const filter = [saring.category && `Category: ${saring.category}`, saring.test && `Test: ${saring.test}`, saring.account && `Customer: ${saring.account}`].filter(Boolean)
   const kartu: KartuVisual = {
     tool: 'dashboard_lab',
-    judul: 'Ringkasan Perbandingan TAT Sampel',
-    sub: [`${rentangTeks(p.kini)} vs ${rentangTeks(p.lalu)}`, ...filter, segar ? `Data ETL diperbarui ${segar}` : null].filter(Boolean).join(' · '),
+    judul: 'Sample TAT Comparison Summary',
+    sub: [`${rentangTeks(p.kini)} vs ${rentangTeks(p.lalu)}`, ...filter, segar ? `ETL data updated ${segar}` : null].filter(Boolean).join(' · '),
     panel: [
       {
         jenis: 'kpi',
         item: [
-          { label: 'Median TAT total', nilai: rKini.median, satuan: 'hari', catatan: `pembanding ${teksHari(rLalu.median)} · ${kalimatSelisihHari(rKini.median, rLalu.median)}` },
-          { label: 'p90 TAT', nilai: rKini.p90, satuan: 'hari', catatan: `pembanding ${teksHari(rLalu.p90)} · ${kalimatSelisihHari(rKini.p90, rLalu.p90)}` },
-          { label: 'Sampel selesai', nilai: rKini.n, satuan: 'angka', catatan: `pembanding ${rLalu.n.toLocaleString('id-ID')}` },
-          ...(vKini ? [{ label: 'Order masuk', nilai: vKini.order, satuan: 'angka' as const, catatan: vLalu ? `pembanding ${vLalu.order.toLocaleString('id-ID')}` : undefined }] : [])
+          { label: 'Total median TAT', nilai: rKini.median, satuan: 'hari', catatan: `comparison ${teksHari(rLalu.median)} · ${kalimatSelisihHari(rKini.median, rLalu.median)}` },
+          { label: 'p90 TAT', nilai: rKini.p90, satuan: 'hari', catatan: `comparison ${teksHari(rLalu.p90)} · ${kalimatSelisihHari(rKini.p90, rLalu.p90)}` },
+          { label: 'Samples completed', nilai: rKini.n, satuan: 'angka', catatan: `comparison ${rLalu.n.toLocaleString('en-US')}` },
+          ...(vKini ? [{ label: 'Incoming orders', nilai: vKini.order, satuan: 'angka' as const, catatan: vLalu ? `comparison ${vLalu.order.toLocaleString('en-US')}` : undefined }] : [])
         ]
       },
       ...(tren.length
         ? [
             {
               jenis: 'deret' as const,
-              judul: 'Median TAT total per bulan order (hari)',
+              judul: 'Total median TAT by order month (days)',
               satuan: 'hari' as const,
               namaSeri: 'Median TAT',
               titik: tren
                 .filter((t) => t.median !== null)
                 // ⚠️ TANPA `perkiraan`: penanda itu membuat grafik menggambar SELURUH garis putus-putus
                 // (tertangkap dari screenshot) — seolah semua bulan ramalan. Bulan berjalan disebut di catatan.
-                .map((t) => ({ label: `${BULAN[+t.bulan.slice(5, 7) - 1]} ${t.bulan.slice(0, 4)}`, nilai: t.median as number }))
+                .map((t) => ({ label: `${MONTHS[+t.bulan.slice(5, 7) - 1]} ${t.bulan.slice(0, 4)}`, nilai: t.median as number }))
             }
           ]
         : []),
@@ -99,8 +99,8 @@ export async function kumpulkanDashboardLab(dasar: Record<string, unknown>): Pro
         ? [
             {
               jenis: 'tabel' as const,
-              judul: 'TAT per kategori — periode ini vs pembanding',
-              kolom: [{ label: 'Kategori' }, { label: 'Sampel', kanan: true }, { label: 'Median kini', kanan: true }, { label: 'Median pembanding', kanan: true }, { label: 'Selisih' }],
+              judul: 'TAT by category — this period vs comparison',
+              kolom: [{ label: 'Category' }, { label: 'Samples', kanan: true }, { label: 'Current median', kanan: true }, { label: 'Comparison median', kanan: true }, { label: 'Difference' }],
               baris: perKategori.map((k): Sel[] => [k.kategori, { nilai: k.nKini, satuan: 'angka' }, hariSel(k.medianKini), hariSel(k.medianLalu), kalimatSelisihHari(k.medianKini, k.medianLalu)])
             }
           ]
@@ -109,11 +109,11 @@ export async function kumpulkanDashboardLab(dasar: Record<string, unknown>): Pro
         ? [
             {
               jenis: 'tabel' as const,
-              judul: 'RNS (sampel diambil ulang)',
-              kolom: [{ label: '' }, { label: 'Periode ini', kanan: true }, { label: 'Pembanding', kanan: true }],
+              judul: 'RNS (recollected samples)',
+              kolom: [{ label: '' }, { label: 'This period', kanan: true }, { label: 'Comparison', kanan: true }],
               baris: [
                 ['Total RNS', { nilai: rnsKini.total, satuan: 'angka' as const }, { nilai: rnsLalu?.total ?? null, satuan: 'angka' as const }],
-                ['Masih menunggu pengganti', { nilai: rnsKini.masihMenunggu, satuan: 'angka' as const }, { nilai: rnsLalu?.masihMenunggu ?? null, satuan: 'angka' as const }]
+                ['Still waiting for replacement', { nilai: rnsKini.masihMenunggu, satuan: 'angka' as const }, { nilai: rnsLalu?.masihMenunggu ?? null, satuan: 'angka' as const }]
               ] as Sel[][]
             }
           ]
@@ -122,8 +122,8 @@ export async function kumpulkanDashboardLab(dasar: Record<string, unknown>): Pro
         ? [
             {
               jenis: 'tabel' as const,
-              judul: `Backlog SAAT INI per status — ${bl.totalOrder.toLocaleString('id-ID')} order (keadaan sekarang, tidak dibandingkan)`,
-              kolom: [{ label: 'Status' }, { label: 'Order', kanan: true }, { label: 'Umur median', kanan: true }, { label: 'Tertua', kanan: true }],
+              judul: `CURRENT backlog by status — ${bl.totalOrder.toLocaleString('en-US')} orders (current state, not compared)`,
+              kolom: [{ label: 'Status' }, { label: 'Orders', kanan: true }, { label: 'Median age', kanan: true }, { label: 'Oldest', kanan: true }],
               baris: bl.perStatus.map((s): Sel[] => [s.sample_status, { nilai: s.order, satuan: 'angka' }, hariSel(s.umur_median), hariSel(s.umur_tertua)])
             }
           ]
@@ -131,11 +131,11 @@ export async function kumpulkanDashboardLab(dasar: Record<string, unknown>): Pro
     ],
     catatan: [
       p.cara,
-      'Periode dihitung dari tanggal ORDER dibuat. TAT = sampel diterima lab sampai hasil keluar.',
-      `Hanya sampel yang SUDAH selesai yang masuk TAT${belumKini ? ` (${belumKini.toLocaleString('id-ID')} baris periode ini belum selesai/tidak bisa dihitung)` : ''} — untuk periode berjalan mediannya cenderung lebih rendah karena sampel lama yang belum selesai belum ikut.`,
-      'Backlog adalah keadaan sekarang: data pelacakan tidak menyimpan riwayat status, jadi backlog periode lalu tidak bisa dihitung ulang.',
-      `Titik ${BULAN[+p.kini.sampai.slice(5, 7) - 1]} ${p.kini.sampai.slice(0, 4)} di grafik tren memakai data s/d ${tgl(p.kini.sampai)} — bulannya belum tentu selesai.`,
-      ...(gagal.length ? [`Panel yang gagal diambil: ${gagal.join(', ')}.`] : [])
+      'The period is based on the date the ORDER was created. TAT = from the lab receiving the sample until the result is out.',
+      `Only samples that are ALREADY finished count toward TAT${belumKini ? ` (${belumKini.toLocaleString('en-US')} rows in this period are not finished or cannot be calculated)` : ''} — for a running period the median tends to be lower because older unfinished samples are not included yet.`,
+      'Backlog is the current state: tracking data does not keep status history, so the backlog of the previous period cannot be recalculated.',
+      `The ${MONTHS[+p.kini.sampai.slice(5, 7) - 1]} ${p.kini.sampai.slice(0, 4)} point on the trend chart uses data up to ${tgl(p.kini.sampai)} — that month may not be over yet.`,
+      ...(gagal.length ? ['Panels that failed to load: ' + gagal.join(', ') + '.'] : [])
     ]
   }
 
@@ -160,6 +160,6 @@ export async function kumpulkanDashboardLab(dasar: Record<string, unknown>): Pro
     }),
     saran: saranLab(),
     gagal,
-    sumber: 'Pelacakan sampel (ETL)'
+    sumber: 'Sample tracking (ETL)'
   }
 }

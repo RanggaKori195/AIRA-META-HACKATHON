@@ -85,7 +85,7 @@ const CATATAN_PENANDA =
 export const onedriveTools: ToolDefinition[] = [
   {
     name: 'onedrive_cari',
-    label: 'Cari di OneDrive',
+    label: 'Search OneDrive',
     description:
       'Mencari berkas di OneDrive user berdasarkan kata di nama berkas atau isinya. ' +
       'Pakai untuk "cari file tentang X di OneDrive", "ada dokumen apa soal Y". ' +
@@ -103,7 +103,7 @@ export const onedriveTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Cari di OneDrive: ${a.kata}`,
+    summarize: (a) => `Search OneDrive: ${a.kata}`,
     execute: async (args) => {
       const kata = teks(args, 'kata')
       if (!kata) throw new ToolError('kata pencarian wajib diisi dan harus berasal dari kalimat user')
@@ -144,7 +144,7 @@ export const onedriveTools: ToolDefinition[] = [
 
   {
     name: 'onedrive_daftar',
-    label: 'Daftar Isi OneDrive',
+    label: 'List OneDrive Contents',
     description:
       'Menampilkan isi sebuah folder di OneDrive, daftar berkas yang DI-SHARE orang lain, atau ' +
       'isi sebuah folder lewat PENANDA-nya — termasuk folder yang di-share orang lain, yang HANYA ' +
@@ -178,10 +178,10 @@ export const onedriveTools: ToolDefinition[] = [
     timeoutMs: 60_000,
     summarize: (a) =>
       a.penanda
-        ? `Isi folder: ${namaPenanda(a.penanda)}`
+        ? `Folder contents: ${namaPenanda(a.penanda)}`
         : a.share === true
-          ? 'Daftar berkas yang di-share'
-          : `Isi folder OneDrive: ${a.folder ?? '(utama)'}`,
+          ? 'List of shared files'
+          : `OneDrive folder contents: ${a.folder ?? '(root)'}`,
     execute: async (args) => {
       const batas = angka(args, 'batas', 30, 100)
       const penanda = teks(args, 'penanda')
@@ -239,7 +239,7 @@ export const onedriveTools: ToolDefinition[] = [
 
   {
     name: 'onedrive_ambil',
-    label: 'Ambil Berkas OneDrive',
+    label: 'Fetch OneDrive File',
     description:
       'Mengunduh satu berkas dari OneDrive ke komputer supaya isinya bisa dibaca. Pakai PENANDA ' +
       'berkas dari hasil onedrive_cari atau onedrive_daftar — itu satu-satunya cara untuk berkas ' +
@@ -265,7 +265,7 @@ export const onedriveTools: ToolDefinition[] = [
     tier: 'read',
     timeoutMs: 180_000,
     summarize: (a) =>
-      `Ambil berkas OneDrive: ${a.penanda ? namaPenanda(a.penanda) : (a.jalur ?? '(belum disebut)')}`,
+      `Fetch OneDrive file: ${a.penanda ? namaPenanda(a.penanda) : (a.jalur ?? '(not specified)')}`,
     execute: async (args) => {
       const penanda = teks(args, 'penanda')
       const jalur = teks(args, 'jalur')
@@ -318,7 +318,7 @@ export const onedriveTools: ToolDefinition[] = [
 
   {
     name: 'onedrive_simpan',
-    label: 'Simpan ke OneDrive',
+    label: 'Save to OneDrive',
     description:
       'Menyimpan berkas yang ada di komputer ke OneDrive user — misalnya laporan, Excel, atau ' +
       'presentasi yang baru saja dibuat AIRA. Pakai setelah berkasnya jadi, bila user memintanya ' +
@@ -348,7 +348,7 @@ export const onedriveTools: ToolDefinition[] = [
     // murah daripada berkas yang muncul entah dari mana di folder tim.
     tier: 'write',
     timeoutMs: 180_000,
-    summarize: (a) => `Simpan ke OneDrive: ${a.nama ?? a.jalurLokal}`,
+    summarize: (a) => 'Save to OneDrive: ' + String(a.nama ?? a.jalurLokal),
     execute: async (args) => {
       const lokal = teks(args, 'jalurLokal')
       if (!lokal) throw new ToolError('jalurLokal wajib diisi')
@@ -378,7 +378,7 @@ export const onedriveTools: ToolDefinition[] = [
 
   {
     name: 'onedrive_index',
-    label: 'Folder OneDrive yang Diingat',
+    label: 'Remembered OneDrive Folders',
     description:
       'Mengatur folder OneDrive mana yang isinya ikut DIINGAT AIRA supaya bisa dicari lewat ' +
       'pencarian semantik (rag_search) tanpa dibuka satu-satu. ' +
@@ -408,16 +408,16 @@ export const onedriveTools: ToolDefinition[] = [
     timeoutMs: 600_000,
     summarize: (a) => {
       const aksi = String(a.aksi ?? 'lihat')
-      if (aksi === 'lihat') return 'Lihat folder OneDrive yang diingat AIRA'
-      if (aksi === 'segarkan') return 'Segarkan ingatan folder OneDrive'
-      return `${aksi === 'tambah' ? 'Tambah' : 'Hapus'} folder yang diingat: ${a.folder ?? '(seluruh OneDrive)'}`
+      if (aksi === 'lihat') return 'View the OneDrive folders AIRA remembers'
+      if (aksi === 'segarkan') return 'Refresh remembered OneDrive folders'
+      return `${aksi === 'tambah' ? 'Add' : 'Remove'} remembered folder: ${a.folder ?? '(entire OneDrive)'}`
     },
     execute: async (args) => {
       const aksi = teks(args, 'aksi') ?? 'lihat'
       const cfg = loadConfig()
       const daftar = cfg.onedriveFolders ?? []
       const catatanBiaya =
-        'Setiap berkas yang diingat dikirim ke layanan embedding di gateway the company yang dipakai ' +
+        'Setiap berkas yang diingat dikirim ke layanan embedding di gateway AI yang dipakai ' +
         'bersama aplikasi lain. Karena itu penyalinan dibatasi per sekali jalan dan sisanya ' +
         'menyusul otomatis — bukan kegagalan.'
 
@@ -514,7 +514,7 @@ export const onedriveTools: ToolDefinition[] = [
     parameters: { type: 'object', properties: {} },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: () => 'Cek akun Microsoft 365',
+    summarize: () => 'Check Microsoft 365 account',
     execute: async () => {
       const pernah = m365SudahLogin()
       const id = await m365Identitas()

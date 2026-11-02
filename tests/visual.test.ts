@@ -24,20 +24,20 @@ describe('kartu visual: aman terhadap hasil apa pun', () => {
 describe('kartu visual: angka SAMA dengan hasil tool', () => {
   test('summary -> KPI nett/order/pelanggan persis dari hasil', () => {
     const k = visualDariHasil('sales_summary', J({ periode: 'hari ini', rentang: '2026-09-29 s/d 2026-09-29', basis: 'invoice', nett: 123456789, gross: 150000000, diskon: 26543211, jumlahOrder: 88, barisItem: 120, jumlahInvoice: 80, pelanggan: 40, jenis_item: 55 }))!
-    assert.equal(k.judul, 'Ringkasan Penjualan')
+    assert.equal(k.judul, 'Sales Summary')
     const kpi = k.panel[0]
     assert.ok(kpi.jenis === 'kpi')
     assert.deepEqual(kpi.item.map((i) => i.nilai), [123456789, 88, 40, 55])
-    assert.match(k.sub!, /Hari ini \(2026-09-29 s\/d 2026-09-29\) · basis invoice/)
+    assert.match(k.sub!, /Today \(2026-09-29 to 2026-09-29\) · basis: invoice/)
   })
 
   test('breakdown -> batang & tabel memakai persen kontribusi dari tool (tidak dihitung ulang)', () => {
     const k = visualDariHasil('sales_breakdown', J({ periode: 'bulan ini', dimensi: 'provinsi pelanggan', urutan: 'terbesar ke bawah', totalNettPeriode: 1000, persenTercakupDaftarIni: 90.5, baris: [{ kategori: 'DKI JAKARTA', jumlahOrder: 5, nett: 600, persen: 60 }, { kategori: '(pelanggan tidak ada di master)', jumlahOrder: 2, nett: 305, persen: 30.5 }] }))!
     const batang = k.panel[0]
     assert.ok(batang.jenis === 'batang')
-    assert.deepEqual(batang.baris.map((b) => [b.label, b.nilai, b.catatan]), [['DKI JAKARTA', 600, '60%'], ['(pelanggan tidak ada di master)', 305, '30,5%']])
-    assert.ok(k.catatan.some((c) => /90,5% dari total nett/.test(c)))
-    assert.ok(k.catatan.some((c) => /belum terdaftar di master/.test(c)))
+    assert.deepEqual(batang.baris.map((b) => [b.label, b.nilai, b.catatan]), [['DKI JAKARTA', 600, '60%'], ['(pelanggan tidak ada di master)', 305, '30.5%']])
+    assert.ok(k.catatan.some((c) => /90\.5% of the period's total nett/.test(c)))
+    assert.ok(k.catatan.some((c) => /not registered in the master data/.test(c)))
   })
 
   test('compare -> pertumbuhan dari persenPerubahan tool; pembanding dipotong disebut', () => {
@@ -45,23 +45,23 @@ describe('kartu visual: angka SAMA dengan hasil tool', () => {
     const kpi = k.panel[0]
     assert.ok(kpi.jenis === 'kpi')
     assert.equal(kpi.item[3].nilai, 10)
-    assert.equal(kpi.item[1].label, 'Bulan lalu')
-    assert.ok(k.catatan[0].includes('dipotong'))
+    assert.equal(kpi.item[1].label, 'Last month')
+    assert.ok(k.catatan[0].includes('trimmed'))
   })
 
   test('forecast -> deret bertanda perkiraan dengan rentang bawah/atas', () => {
     const k = visualDariHasil('sales_forecast', J({ basis: 'invoice', riwayatBulan: 24, bulanTerakhirLengkap: '2026-08', nettBulanTerakhir: 9e9, akurasiHistorisPersen: 6.9, ramalan: [{ bulan: '2026-10', nett: 9.5e9, rentangBawah: 8.8e9, rentangAtas: 10.2e9 }] }))!
     const d = k.panel[1]
     assert.ok(d.jenis === 'deret')
-    assert.deepEqual(d.titik[0], { label: 'Okt 2026', nilai: 9.5e9, bawah: 8.8e9, atas: 10.2e9, perkiraan: true })
-    assert.ok(k.catatan.some((c) => /perkiraan/.test(c)))
+    assert.deepEqual(d.titik[0], { label: 'Oct 2026', nilai: 9.5e9, bawah: 8.8e9, atas: 10.2e9, perkiraan: true })
+    assert.ok(k.catatan.some((c) => /estimate/.test(c)))
   })
 
   test('projection selalu diberi label PERKIRAAN', () => {
     const k = visualDariHasil('sales_projection', J({ bulanBerjalan: '2026-09', sampaiTanggal: '2026-09-29', hariKe: 29, hariDalamBulan: 30, basis: 'invoice', nettSejauhIni: 7e9, jumlahOrderSejauhIni: 6000, proyeksiNettTutupBulan: 7.6e9, dasarProyeksi: 'kurva historis', harapanMenurutTren: 9e9, selisihTerhadapTrenPersen: -15.5 }))!
     const kpi = k.panel[0]
     assert.ok(kpi.jenis === 'kpi')
-    assert.equal(kpi.item[1].catatan, 'PERKIRAAN')
+    assert.equal(kpi.item[1].catatan, 'ESTIMATE')
     assert.equal(kpi.item[3].arah, 'turun')
   })
 
@@ -76,7 +76,7 @@ describe('kartu visual: angka SAMA dengan hasil tool', () => {
   test('label deret per granularitas', () => {
     assert.equal(labelDeret('2026-09-17', 'day'), '17 Sep')
     assert.equal(labelDeret('2026-09-01', 'month'), 'Sep 2026')
-    assert.equal(labelDeret('2026-09-14', 'week'), 'mg 14 Sep')
+    assert.equal(labelDeret('2026-09-14', 'week'), 'wk 14 Sep')
   })
 })
 
@@ -102,7 +102,7 @@ describe('kartu visual: TAT Sample (lab)', () => {
 
   test('backlog: KPI order/baris, per status, kesegaran ETL disebut; tidak ada kolom pasien', () => {
     const k = visualDariHasil('lab_backlog', J({ totalBaris: 12, totalOrder: 10, perStatus: [{ sample_status: 'Lab Received', baris: 8, order: 7, umur_median: 2.5, umur_tertua: 9 }], daftarTerlama: [{ order_id: 'K1', test: 'HPV', category: 'MB', account: 'RS A', sample_status: 'Lab Received', is_rns: true, umur_hari: 9 }], catatanKesegaran: segar }))!
-    assert.match(k.sub!, /diperbarui 2026-09-29 06:00/)
+    assert.match(k.sub!, /updated 2026-09-29 06:00/)
     const kpi = k.panel[0]
     assert.ok(kpi.jenis === 'kpi')
     assert.deepEqual(kpi.item.map((i) => i.nilai), [10, 12, 1, 9])
@@ -114,7 +114,7 @@ describe('kartu visual: TAT Sample (lab)', () => {
     const b = k.panel[0]
     assert.ok(b.jenis === 'batang')
     assert.equal(b.baris[0].nilai, 2.5)
-    assert.ok(k.catatan.some((c) => /7 baris tidak bisa dihitung.*BUKAN nol/.test(c)))
+    assert.ok(k.catatan.some((c) => /7 lines could not be calculated.*NOT zero/.test(c)))
     assert.ok(!k.catatan.some((c) => /Jangan menyajikannya/.test(c)), 'instruksi untuk model tidak boleh tampil ke user')
   })
 
@@ -129,7 +129,7 @@ describe('kartu visual: TAT Sample (lab)', () => {
 
   test('lacak: tidak ditemukan -> kartu jujur, bukan kosong', () => {
     const k = visualDariHasil('lab_lacak', J({ ditemukan: false, order_id: 'X9', catatanKesegaran: segar }))!
-    assert.ok(k.catatan.some((c) => /Patologi Anatomi mulai Januari 2026/.test(c)))
+    assert.ok(k.catatan.some((c) => /Anatomical Pathology from January 2026/.test(c)))
   })
 })
 
@@ -157,7 +157,7 @@ describe('kartu visual: Master Data (30 Sep 2026)', () => {
       ],
       adaLagi: false
     }))!
-    assert.match(k.sub!, /lab: Patologi Anatomi/)
+    assert.match(k.sub!, /lab: Anatomical Pathology/)
     const batang = k.panel[2]
     assert.ok(batang.jenis === 'batang')
     assert.deepEqual(batang.baris.map((b) => b.nilai), [850000, 1200000])
@@ -166,7 +166,7 @@ describe('kartu visual: Master Data (30 Sep 2026)', () => {
     assert.doesNotMatch(tabel, /\|Lab\|/)
     assert.match(tabel, /B2B \(K1\)\|B2C \(K2\)/)
     assert.doesNotMatch(tabel, /BPJS|K3/)
-    assert.ok(k.catatan.some((c) => /1 item belum punya harga reguler.*bukan nol/.test(c)))
+    assert.ok(k.catatan.some((c) => /1 item has no regular price.*not zero/.test(c)))
   })
 
   test('special price: diskon dari tool TANPA arah (bukan kenaikan), masa berlaku apa adanya', () => {
@@ -176,7 +176,7 @@ describe('kartu visual: Master Data (30 Sep 2026)', () => {
       jumlahItemPunyaHargaKhusus: 40,
       jumlahAktifHariIni: 30,
       ditampilkan: 25,
-      hargaKhusus: [{ item: 'HbA1c', kategoriHarga: 'Special Price', hargaReguler: 200000, hargaKhusus: 150000, diskonPersen: 25, status: 'aktif', masaBerlaku: 'tanpa batas akhir' }]
+      hargaKhusus: [{ item: 'HbA1c', kategoriHarga: 'Special Price', hargaReguler: 200000, hargaKhusus: 150000, diskonPersen: 25, status: 'aktif', masaBerlaku: 'no end date' }]
     }))!
     assert.equal(k.judul, 'Special Price — RSUP Dr. Kariadi')
     const kpi = k.panel[0]
@@ -185,8 +185,8 @@ describe('kartu visual: Master Data (30 Sep 2026)', () => {
     const t = k.panel[1]
     assert.ok(t.jenis === 'tabel')
     assert.deepEqual(t.baris[0][4], { nilai: 25, satuan: 'persen' })
-    assert.equal(t.baris[0][5], 'tanpa batas akhir')
-    assert.ok(k.catatan.some((c) => /1 dari 30/.test(c)))
+    assert.equal(t.baris[0][5], 'no end date')
+    assert.ok(k.catatan.some((c) => /1 of 30/.test(c)))
   })
 
   test('item special price: terendah = baris pertama dari tool (tidak diurutkan ulang)', () => {
@@ -201,13 +201,13 @@ describe('kartu visual: Master Data (30 Sep 2026)', () => {
     const kpi = k.panel[0]
     assert.ok(kpi.jenis === 'kpi')
     assert.deepEqual(kpi.item.map((i) => i.nilai), [2, 25000000, 27000000])
-    assert.ok(k.catatan.some((c) => /tidak ada di master pelanggan aktif/.test(c)))
+    assert.ok(k.catatan.some((c) => /not in the active customer master/.test(c)))
   })
 
   test('PKS kosong: dikatakan, tanpa tabel kosong', () => {
     const k = visualDariHasil('inno_pks', J({ pelanggan: { kode: 'C9', nama: 'RSUD X' }, adaPKS: false, jumlah: 0, pks: [] }))!
     assert.equal(k.panel.length, 1)
-    assert.ok(k.catatan.some((c) => /Tidak ada PKS berstatus disetujui/.test(c)))
+    assert.ok(k.catatan.some((c) => /No PKS with approved status/.test(c)))
   })
 
   test('dokter: tidak ada kolom email/telepon', () => {
@@ -220,9 +220,9 @@ describe('kartu visual: Master Data (30 Sep 2026)', () => {
     const kpi = k.panel[0]
     assert.ok(kpi.jenis === 'kpi')
     assert.deepEqual(kpi.item.map((i) => i.nilai), [60, 55, 5])
-    assert.ok(k.catatan.some((c) => /1 dari 60 isi paket/.test(c)))
+    assert.ok(k.catatan.some((c) => /1 of 60 package contents/.test(c)))
     const pilih = visualDariHasil('inno_item_package', J({ paketDicari: 'mcu', ditemukan: false, perluDipilih: true, kandidat: [{ kode: 'P1', nama: 'MCU A' }, { kode: 'P2', nama: 'MCU B' }] }))!
-    assert.match(pilih.judul, /pilih salah satu/)
+    assert.match(pilih.judul, /pick one/)
     assert.equal(visualDariHasil('inno_item_package', J({ paketDicari: 'zzz', ditemukan: false })), null)
   })
 })

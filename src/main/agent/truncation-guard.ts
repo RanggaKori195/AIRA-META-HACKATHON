@@ -28,7 +28,7 @@
 
 /** Kata yang menandakan klaim "ada yang tidak terbaca". */
 const KATA_POTONG =
-  /\b(terpotong|dipotong|memotong|terpangkas|dipangkas|terpangkas|truncated|tidak terbaca|belum terbaca|tidak lengkap|sebagian hilang|dilewati)\b/i
+  /\b(terpotong|dipotong|memotong|terpangkas|dipangkas|terpangkas|truncated|tidak terbaca|belum terbaca|tidak lengkap|sebagian hilang|dilewati|cut off|could not be read|couldn't be read|was not read|were not read|incomplete|skipped|omitted)\b/i
 
 /**
  * Penanda bahwa kalimat itu bicara tentang PROSES MEMBACA, bukan tentang isi
@@ -39,7 +39,7 @@ const KATA_POTONG =
  * boleh ikut hilang dari ringkasan.
  */
 const KONTEKS_BACA =
-  /\b(dokumen|file|berkas|isi|teks|bagian|halaman|context|konteks|sistem|dibaca|pembacaan|karakter|baris)\b/i
+  /\b(dokumen|file|berkas|isi|teks|bagian|halaman|context|konteks|sistem|dibaca|pembacaan|karakter|baris|document|text|section|sections|page|pages|content|characters|lines|reading)\b/i
 
 /** Kalimat/baris yang mengaku ada bagian dokumen yang tidak terbaca. */
 export function adalahKlaimPemotongan(kalimat: string): boolean {

@@ -40,11 +40,11 @@ export function divisiValid(role: RoleId, dipilih: readonly string[]): boolean {
 export function keteranganDivisi(role: RoleId): string {
   switch (DIVISI_PER_ROLE[role]) {
     case 'tanpa':
-      return 'Melihat lintas divisi — tidak perlu dipilihkan divisi.'
+      return 'Sees across divisions — no division needs to be chosen.'
     case 'satu':
-      return 'Pilih tepat satu divisi.'
+      return 'Choose exactly one division.'
     case 'banyak':
-      return 'Pilih minimal satu, boleh lebih dari satu.'
+      return 'Choose at least one; more than one is allowed.'
   }
 }
 
@@ -95,7 +95,7 @@ export default function DivisiPicker({
             {d.nama}
           </label>
         ))}
-        {aktif.length === 0 && <span className="hint">Belum ada divisi aktif.</span>}
+        {aktif.length === 0 && <span className="hint">No active divisions yet.</span>}
       </div>
     </>
   )

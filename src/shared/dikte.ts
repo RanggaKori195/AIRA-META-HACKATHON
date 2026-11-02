@@ -14,6 +14,6 @@
  * Tinggal di `shared` karena renderer tidak boleh mengimpor dari `main`.
  */
 export const PENJELASAN_DIKTE =
-  'Transkripsi mesin sering salah pada nama khusus seperti ERP, the lab, ' +
-  'the lab, dan nama pelanggan — dan pertanyaan yang salah dengar menghasilkan ' +
-  'angka yang salah. Klik untuk menutup.'
+  'Machine transcription often gets special names wrong, such as ERP system names, ' +
+  'Order IDs, and customer names — and a misheard question produces a wrong ' +
+  'number. Click to dismiss.'

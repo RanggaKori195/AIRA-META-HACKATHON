@@ -30,21 +30,21 @@ describe('panduan hanya menyebut menu yang boleh dibuka user', () => {
   test('user tanpa izin menu apa pun tidak diajari menu data', () => {
     const teks = semuaTeks(susunPanduan(keadaan({ izinMenu: [] })))
     for (const larangan of [
-      'Tanya Data Sales',
+      'Ask Sales Data',
       'Ask Master Data',
-      'Tanya TAT Sample',
-      'Tanya Microsoft 365'
+      'Ask Sample TAT',
+      'Ask Microsoft 365'
     ]) {
       assert.ok(!teks.includes(larangan), `menu "${larangan}" bocor ke panduan user tanpa izin`)
     }
     // Tapi ia TETAP diberi jalan keluar, bukan dibiarkan bingung.
-    assert.match(teks, /Masukan & Usulan/)
+    assert.match(teks, /Feedback menu/)
   })
 
   test('user hanya berizin sales tidak melihat menu lain', () => {
     const teks = semuaTeks(susunPanduan(keadaan({ izinMenu: ['sales'] })))
-    assert.ok(teks.includes('Tanya Data Sales'))
-    assert.ok(!teks.includes('Tanya TAT Sample'))
+    assert.ok(teks.includes('Ask Sales Data'))
+    assert.ok(!teks.includes('Ask Sample TAT'))
     assert.ok(!teks.includes('Ask Master Data'))
   })
 
@@ -70,25 +70,25 @@ describe('panduan mengikuti saklar fitur, bukan angan-angan', () => {
   // sebaliknya tanpa ada yang menyadarinya.
   test('M365_LANJUTAN mati: email & kalender dinyatakan BELUM aktif', () => {
     const teks = semuaTeks(susunPanduan(keadaan({ m365Lanjutan: false })))
-    assert.match(teks, /Email Outlook dan kalender BELUM aktif/)
+    assert.match(teks, /Outlook email and calendar are NOT active yet/)
     assert.ok(
-      !/AIRA (bisa|dapat) membaca email/i.test(teks),
+      !/AIRA (can|is able to) read (your )?email/i.test(teks),
       'panduan menjanjikan pembacaan email padahal saklarnya mati'
     )
   })
 
   test('M365_LANJUTAN hidup: email jadi draf saja, tidak pernah terkirim', () => {
     const teks = semuaTeks(susunPanduan(keadaan({ m365Lanjutan: true })))
-    assert.match(teks, /hanya dibuat sebagai DRAF/)
-    assert.match(teks, /Tidak ada jalur mengirim email/)
-    assert.ok(!/BELUM aktif/.test(teks))
+    assert.match(teks, /only created as DRAFTS/)
+    assert.match(teks, /no way to send email/)
+    assert.ok(!/NOT active yet/.test(teks))
   })
 
   test('dikte suara: isinya berbeda saat model suara tidak terpasang', () => {
     const ada = semuaTeks(susunPanduan(keadaan({ suaraTersedia: true })))
     const tiada = semuaTeks(susunPanduan(keadaan({ suaraTersedia: false })))
-    assert.match(ada, /Tombol mikrofon/)
-    assert.match(tiada, /tidak aktif di laptop ini/)
+    assert.match(ada, /microphone button/)
+    assert.match(tiada, /Voice input is not available in this build/)
   })
 })
 
@@ -138,7 +138,7 @@ describe('panduan menyatakan batasnya, bukan hanya kemampuannya', () => {
     // Kemampuan tanpa batas adalah setengah kebenaran. Untuk menu sales, batas
     // "hanya agregat" adalah bagian yang paling penting justru bagi manajemen.
     const teks = semuaTeks(susunPanduan(keadaan({ izinMenu: ['sales'] })))
-    assert.match(teks, /BATAS: Hanya angka AGREGAT/)
+    assert.match(teks, /LIMIT: AGGREGATE figures only/)
   })
 
   test('tidak ada klaim integrasi yang memang tidak ada', () => {
@@ -159,16 +159,16 @@ describe('panduan chat rekan jujur soal batasnya', () => {
   const teks = semuaTeks(susunPanduan(keadaan()))
 
   test('menyatakan BUKAN saluran rahasia', () => {
-    assert.match(teks, /BUKAN saluran rahasia/)
+    assert.match(teks, /NOT a secret channel/)
   })
 
   test('menyatakan tidak ada aplikasi HP & pesan tidak sampai saat AIRA mati', () => {
-    assert.match(teks, /tidak ada aplikasi HP/)
-    assert.match(teks, /pesan untukmu tidak akan sampai/)
+    assert.match(teks, /there is no mobile app/)
+    assert.match(teks, /messages for you will not arrive/)
   })
 
   test('pertanyaan soal grup menemukan bagian chat', () => {
-    assert.equal(cariBagian(susunPanduan(keadaan()), 'gimana cara bikin grup chat', 1)[0].id, 'suara-chat')
+    assert.equal(cariBagian(susunPanduan(keadaan()), 'how do I create a group chat', 1)[0].id, 'suara-chat')
   })
 })
 
@@ -176,12 +176,12 @@ describe('pencarian bagian panduan', () => {
   const bagian = susunPanduan(keadaan())
 
   test('pertanyaan nyata menemukan bagian yang benar', () => {
-    assert.equal(cariBagian(bagian, 'apakah kamu bisa buat ppt?', 1)[0].id, 'laporan')
-    assert.equal(cariBagian(bagian, 'cara baca file excel', 1)[0].id, 'dokumen')
+    assert.equal(cariBagian(bagian, 'can you make a ppt?', 1)[0].id, 'reports')
+    assert.equal(cariBagian(bagian, 'how to read an excel file', 1)[0].id, 'files')
     // "kenapa menu saya tidak muncul" mendarat di bagian "Kalau ada yang salah",
     // bukan di "Menu yang kamu punya" — dan itu memang jawaban yang benar:
     // yang dibutuhkan orang ini adalah CARA MELAPOR, bukan daftar menu.
-    assert.equal(cariBagian(bagian, 'kenapa menu saya tidak muncul', 1)[0].id, 'masalah')
+    assert.equal(cariBagian(bagian, 'my menu is not showing', 1)[0].id, 'masalah')
   })
 
   test('query kosong atau tak dikenal TIDAK mengembalikan kosong', () => {
@@ -242,16 +242,16 @@ describe('panduan jujur soal monitoring pemakaian', () => {
   const teks = semuaTeks(susunPanduan(keadaan()))
 
   test('menyatakan pemakaian dicatat & apa yang tidak ikut', () => {
-    assert.match(teks, /Pemakaian AIRA DICATAT/)
-    assert.match(teks, /Jawaban AIRA dan isi berkas TIDAK ikut dicatat/)
+    assert.match(teks, /AIRA usage is LOGGED/)
+    assert.match(teks, /AIRA's answers and file contents are NOT logged/)
   })
 
   test('masa simpan disebut dari konstanta kode, bukan angka ketikan', () => {
-    assert.ok(teks.includes(`sesudah ${RETENSI_PROMPT_HARI} hari`))
+    assert.ok(teks.includes(`after ${RETENSI_PROMPT_HARI} days`))
   })
 
   test('pertanyaan "apakah saya dipantau" menemukan bagiannya', () => {
-    assert.equal(cariBagian(susunPanduan(keadaan()), 'apakah pemakaian saya dicatat', 1)[0].id, 'ingatan')
+    assert.equal(cariBagian(susunPanduan(keadaan()), 'is my usage logged', 1)[0].id, 'ingatan')
   })
 })
 
@@ -266,11 +266,11 @@ describe('panduan pemantau proaktif (20 Okt 2026)', () => {
 
   test('hanya pemicu menu milik user yang disebut (aturan 61)', () => {
     const sales = bagianKeTeks(bagianPemantau(['sales'])!)
-    assert.ok(sales.includes('data Sales'))
-    assert.ok(!sales.includes('TAT Sample') && !sales.includes('sampel lab'), sales)
+    assert.ok(sales.includes('Sales data'))
+    assert.ok(!sales.includes('Sample TAT') && !sales.includes('lab samples'), sales)
     const lab = bagianKeTeks(bagianPemantau(['lab'])!)
-    assert.ok(lab.includes('TAT Sample'))
-    assert.ok(!lab.includes('data Sales') && !lab.includes('Sales kemarin'), lab)
+    assert.ok(lab.includes('Sample TAT'))
+    assert.ok(!lab.includes('Sales data') && !lab.includes('Sales yesterday'), lab)
   })
 
   test('angka di panduan = konstanta (kalimat aturan dibangkitkan kode)', () => {
@@ -280,19 +280,19 @@ describe('panduan pemantau proaktif (20 Okt 2026)', () => {
 
   test('menyatakan batasnya: hanya selama AIRA menyala, toast tanpa rincian Rupiah', () => {
     const teks = bagianKeTeks(bagianPemantau(SEMUA_MENU)!)
-    assert.match(teks, /selama AIRA menyala di laptop ini/i)
-    assert.match(teks, /jumlah & persen/)
-    assert.match(teks, /tidak dipantau/i)
+    assert.match(teks, /while AIRA is running on this laptop/i)
+    assert.match(teks, /counts & percentages/)
+    assert.match(teks, /not monitored/i)
   })
 
   test('pertanyaan tentang data macet menemukan bagian pemantau', () => {
-    assert.equal(cariBagian(susunPanduan(keadaan()), 'notifikasi data belum diperbarui', 1)[0].id, 'pemantau')
+    assert.equal(cariBagian(susunPanduan(keadaan()), 'alert when data is not updated', 1)[0].id, 'pemantau')
   })
 
   test('regresi: bagian baru tidak merebut pertanyaan soal monitoring pemakaian', () => {
     // Review Focus 5: "pemantau" (data) dan "monitoring pemakaian" (orang) mudah tertukar.
-    assert.equal(cariBagian(susunPanduan(keadaan()), 'apakah pemakaian saya dicatat', 1)[0].id, 'ingatan')
+    assert.equal(cariBagian(susunPanduan(keadaan()), 'is my usage logged', 1)[0].id, 'ingatan')
     const teks = bagianKeTeks(bagianPemantau(SEMUA_MENU)!)
-    assert.ok(!/pemakaian|dicatat/i.test(teks), 'bagian pemantau tidak memakai kosakata monitoring pemakaian')
+    assert.ok(!/usage|logged/i.test(teks), 'the monitor section must not use the usage-monitoring vocabulary')
   })
 })

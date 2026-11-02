@@ -1,5 +1,6 @@
 import type {
   ChatTurn,
+  CompletionDetail,
   LLMProvider,
   StreamCallbacks,
   StreamOptions,
@@ -10,6 +11,67 @@ import { LLMError } from './provider'
 import { logger } from '../logger'
 import { isContextOverflow, ringkasPesanError } from '../agent/context-limit'
 
+
+/** Closing instruction that replaces tool_choice "required" where the API only accepts "auto". */
+export const FORCE_TOOL_NUDGE =
+  'You must call one of the available tools now to answer. Do not answer from memory and do not refuse.'
+
+/** Closing instruction when a turn is sent without tools (a greeting in a data menu). */
+export const NO_TOOLS_NUDGE =
+  'This message is a greeting or small talk: no tools are available or needed for it. Reply directly and ' +
+  'briefly — who you are and what you can help with in this menu. Do not mention or promise to fetch, pull ' +
+  'or look up data, and do not state any numbers.'
+
+/**
+ * Request body (without streaming fields). The Meta Model API accepts only tool_choice "auto" (measured
+ * 2 Nov 2026: "required"/"none" → HTTP 400), so there "required" becomes a closing system instruction —
+ * measured to produce a tool call — and "none" sends no tools. Other endpoints get tool_choice as asked.
+ */
+export function chatRequestBody(
+  messages: ChatTurn[],
+  options: Pick<StreamOptions, 'model' | 'tools' | 'toolChoice'>,
+  endpoint: string
+): Record<string, unknown> {
+  const body: Record<string, unknown> = { model: options.model, messages }
+  if (!options.tools?.length) return body
+  if (options.toolChoice === 'none') {
+    // The mode prompt still says "use the tools"; without this the model announces a fetch it cannot do.
+    body.messages = [...messages, { role: 'system', content: NO_TOOLS_NUDGE }]
+    return body
+  }
+  body.tools = options.tools
+  const autoOnly = /\/\/api\.meta\.ai(\/|$)/.test(endpoint)
+  if (!autoOnly) {
+    body.tool_choice = options.toolChoice ?? 'auto'
+    return body
+  }
+  body.tool_choice = 'auto'
+  if (options.toolChoice === 'required') {
+    body.messages = [...messages, { role: 'system', content: FORCE_TOOL_NUDGE }]
+  }
+  return body
+}
+
+/**
+ * Reads a non-streaming chat/completions body. Pure and never throws: a body that lacks a field gives
+ * empty text / undefined, so the caller decides what an empty or length-cut reply means.
+ */
+export function interpretCompletion(body: unknown): CompletionDetail & { contentChars: number } {
+  const b = body as {
+    choices?: Array<{ message?: { content?: unknown }; finish_reason?: unknown }>
+    usage?: { completion_tokens_details?: { reasoning_tokens?: unknown } }
+  } | null
+  const choice = b?.choices?.[0]
+  const content = choice?.message?.content
+  const text = typeof content === 'string' ? content : ''
+  const reasoning = b?.usage?.completion_tokens_details?.reasoning_tokens
+  return {
+    text,
+    finishReason: typeof choice?.finish_reason === 'string' ? choice.finish_reason : undefined,
+    reasoningTokens: typeof reasoning === 'number' ? reasoning : undefined,
+    contentChars: text.length
+  }
+}
 
 // Provider untuk endpoint OpenAI-compatible (vLLM, Ollama, LM Studio, gateway internal).
 // Reasoning model (Qwen3 via vLLM) mengirim delta di field `reasoning_content`;
@@ -43,14 +105,36 @@ export class OpenAICompatProvider implements LLMProvider {
     }
   }
 
-  async complete(messages: ChatTurn[], model: string, maxTokens = 4000): Promise<string> {
+  async completeDetail(messages: ChatTurn[], model: string, maxTokens = 4000): Promise<CompletionDetail> {
     const res = await this.fetchOrThrow(`${this.endpoint}/v1/chat/completions`, {
       method: 'POST',
       headers: this.headers(),
       body: JSON.stringify({ model, messages, max_tokens: maxTokens })
     })
-    const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> }
-    return body.choices?.[0]?.message?.content ?? ''
+    const { text, finishReason, reasoningTokens, contentChars } = interpretCompletion(await res.json())
+    // Muse spends hidden reasoning tokens first, so a capped call can end with `length`. Always logged:
+    // "cut by the output limit" must be distinguishable from "the model stopped on its own".
+    const info = { model, finishReason, reasoningTokens, contentChars, maxTokens }
+    if (finishReason === 'length') logger().warn(info, 'complete: output limit reached')
+    else logger().info(info, 'complete')
+    return { text, finishReason, reasoningTokens }
+  }
+
+  /**
+   * Plain text of a one-shot completion. An EMPTY reply cut by the output limit is an error (the caller
+   * would otherwise treat "nothing" as a finished answer); a non-empty cut reply is returned as it is —
+   * use `completeDetail` where the cut must be shown to the user.
+   */
+  async complete(messages: ChatTurn[], model: string, maxTokens = 4000): Promise<string> {
+    const d = await this.completeDetail(messages, model, maxTokens)
+    if (d.finishReason === 'length' && d.text.trim() === '') {
+      throw new LLMError(
+        'LLM_TRUNCATED',
+        `the output limit (${maxTokens} tokens) was reached before the model wrote any text` +
+          (d.reasoningTokens !== undefined ? ` (${d.reasoningTokens} tokens went to hidden reasoning)` : '')
+      )
+    }
+    return d.text
   }
 
   async rerank(query: string, documents: string[], model: string): Promise<number[]> {
@@ -95,14 +179,9 @@ export class OpenAICompatProvider implements LLMProvider {
     callbacks: StreamCallbacks
   ): Promise<StreamResult> {
     const body: Record<string, unknown> = {
-      model: options.model,
-      messages,
+      ...chatRequestBody(messages, options, this.endpoint),
       stream: true,
       stream_options: { include_usage: true }
-    }
-    if (options.tools?.length) {
-      body.tools = options.tools
-      body.tool_choice = options.toolChoice ?? 'auto'
     }
 
     const res = await this.fetchOrThrow(`${this.endpoint}/v1/chat/completions`, {

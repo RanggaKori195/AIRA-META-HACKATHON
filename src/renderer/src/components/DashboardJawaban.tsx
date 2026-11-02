@@ -10,14 +10,14 @@ import { IconCalendar, IconChart, IconDatabase, IconFileText, IconTable, IconTre
 // sama). Tombol aksi mengirim PERTANYAAN yang terlihat di chat, bukan perintah
 // tersembunyi.
 
-const angka = (n: number): string => Math.round(n).toLocaleString('id-ID')
-const rp = (n: number): string => `Rp ${angka(n)}`
+const angka = (n: number): string => Math.round(n).toLocaleString('en-US')
+const rp = (n: number): string => `IDR ${angka(n)}`
 
-/** Singkatan sumbu grafik: M = miliar, jt = juta (kebiasaan laporan Indonesia). */
+/** Chart axis abbreviations: B = billion, M = million. */
 function rpSingkat(n: number): string {
-  if (Math.abs(n) >= 1e9) return `Rp ${(n / 1e9).toLocaleString('id-ID', { maximumFractionDigits: 1 })} M`
-  if (Math.abs(n) >= 1e6) return `Rp ${(n / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 0 })} jt`
-  return `Rp ${angka(n)}`
+  if (Math.abs(n) >= 1e9) return `IDR ${(n / 1e9).toLocaleString('en-US', { maximumFractionDigits: 1 })}B`
+  if (Math.abs(n) >= 1e6) return `IDR ${(n / 1e6).toLocaleString('en-US', { maximumFractionDigits: 0 })}M`
+  return `IDR ${angka(n)}`
 }
 
 function Persen({ p }: { p: number | null }): JSX.Element {
@@ -25,7 +25,7 @@ function Persen({ p }: { p: number | null }): JSX.Element {
   const kelas = p > 0 ? 'naik' : p < 0 ? 'turun' : ''
   return (
     <span className={`db-persen ${kelas}`}>
-      {p > 0 ? '↑' : p < 0 ? '↓' : ''} {Math.abs(p).toLocaleString('id-ID', { maximumFractionDigits: 1 })}%
+      {p > 0 ? '↑' : p < 0 ? '↓' : ''} {Math.abs(p).toLocaleString('en-US', { maximumFractionDigits: 1 })}%
     </span>
   )
 }
@@ -49,7 +49,7 @@ function Grafik({ tren, garis }: { tren: Dashboard['tren']; garis: boolean }): J
   const y = (v: number): number => atas + (T - atas - bawah) * (1 - v / puncak)
   const titik = tren.map((t, i) => ({ x: kiri + lebarKolom * i + lebarKolom / 2, y: y(t.nett) }))
   return (
-    <svg className="db-grafik" viewBox={`0 0 ${L} ${T}`} role="img" aria-label="Tren penjualan per bulan">
+    <svg className="db-grafik" viewBox={`0 0 ${L} ${T}`} role="img" aria-label="Monthly sales trend">
       {Array.from({ length: 6 }, (_, i) => {
         const v = langkah * i
         return (
@@ -77,7 +77,7 @@ function Grafik({ tren, garis }: { tren: Dashboard['tren']; garis: boolean }): J
             >
               <title>
                 {t.bulan}: {rp(t.nett)}
-                {t.sebagian ? ' (bulan berjalan)' : ''}
+                {t.sebagian ? ' (current month)' : ''}
               </title>
             </rect>
           )
@@ -119,7 +119,7 @@ function TabelBanding({
     <section className="db-kartu">
       <h4>{judul}</h4>
       {baris.length === 0 ? (
-        <p className="db-kosong">Tidak ada data pada periode ini.</p>
+        <p className="db-kosong">No data in this period.</p>
       ) : (
         <table className="db-tabel">
           <thead>
@@ -149,7 +149,7 @@ function TabelBanding({
         </table>
       )}
       {baris.some((r) => r.lalu === null) && (
-        <p className="db-catatan">— = tidak ada di 50 teratas {labelLalu}, jadi persennya tidak dihitung (bukan berarti nol).</p>
+        <p className="db-catatan">— = not in the top 50 of {labelLalu}, so the percentage is not calculated (it does not mean zero).</p>
       )}
     </section>
   )
@@ -174,10 +174,10 @@ export function DashboardJawaban({
       <section className="db-kartu db-ringkas">
         <div className="db-kepala">
           <div>
-            <h3>Ringkasan Perbandingan Sales</h3>
+            <h3>Sales Comparison Summary</h3>
             <p>
-              <strong>Periode:</strong> {kapital(d.labelKini)} ({d.rentangKini}) vs {d.labelLalu} ({d.rentangLalu}) ·
-              basis {d.basis === 'order' ? 'order masuk' : 'invoice (tanggal hasil)'}
+              <strong>Period:</strong> {kapital(d.labelKini)} ({d.rentangKini}) vs {d.labelLalu} ({d.rentangLalu}) ·
+              basis: {d.basis === 'order' ? 'incoming orders' : 'invoice (result date)'}
             </p>
             {d.catatanPeriode && <p className="db-catatan">{d.catatanPeriode}</p>}
             {d.filter.length > 0 && (
@@ -189,7 +189,7 @@ export function DashboardJawaban({
             )}
           </div>
           <span className="gambar-pilih db-sumber">
-            <IconDatabase size={14} /> Sumber: SalesRepository
+            <IconDatabase size={14} /> Source: SalesRepository
           </span>
         </div>
         <div className="db-kpi">
@@ -219,7 +219,7 @@ export function DashboardJawaban({
           <div className="db-kpi-kartu">
             <span className="tile-ikon ungu db-persen-ikon">%</span>
             <span>
-              <small>Selisih</small>
+              <small>Difference</small>
               <strong>
                 {naik ? '' : kpi.selisih < 0 ? '−' : ''}
                 {rp(Math.abs(kpi.selisih))}
@@ -231,15 +231,15 @@ export function DashboardJawaban({
               <IconTrend size={22} />
             </span>
             <span>
-              <small>Pertumbuhan</small>
+              <small>Growth</small>
               <strong>
                 {kpi.persen === null
                   ? '—'
-                  : `${kpi.persen > 0 ? '+' : ''}${kpi.persen.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%`}
+                  : `${kpi.persen > 0 ? '+' : ''}${kpi.persen.toLocaleString('en-US', { maximumFractionDigits: 1 })}%`}
               </strong>
               {kpi.orderKini !== null && (
                 <em>
-                  {angka(kpi.orderKini)} order{kpi.pelangganKini !== null ? ` · ${angka(kpi.pelangganKini)} pelanggan` : ''}
+                  {angka(kpi.orderKini)} orders{kpi.pelangganKini !== null ? ` · ${angka(kpi.pelangganKini)} customers` : ''}
                 </em>
               )}
             </span>
@@ -250,23 +250,23 @@ export function DashboardJawaban({
       <div className="db-baris">
         <section className="db-kartu">
           <div className="db-kartu-kepala">
-            <h4>Tren Sales {d.tren.length} Bulan Terakhir</h4>
+            <h4>Sales Trend, Last {d.tren.length} Months</h4>
             <span className="db-legenda">
-              <i className="kotak" /> Sales (Rp) <i className="garis" /> Tren
+              <i className="kotak" /> Sales (IDR) <i className="garis" /> Trend
             </span>
           </div>
           {d.tren.length === 0 ? (
-            <p className="db-kosong">Tren tidak tersedia.</p>
+            <p className="db-kosong">Trend not available.</p>
           ) : (
             <>
               <Grafik tren={d.tren} garis={garis} />
-              {d.tren.some((t) => t.sebagian) && <p className="db-catatan">* bulan berjalan, belum genap.</p>}
+              {d.tren.some((t) => t.sebagian) && <p className="db-catatan">* current month, not complete yet.</p>}
             </>
           )}
         </section>
         <TabelBanding
-          judul="Perbandingan per Kategori Layanan"
-          kolom="Kategori"
+          judul="Comparison by Service Category"
+          kolom="Category"
           baris={d.kategori}
           labelKini={d.labelKini}
           labelLalu={d.labelLalu}
@@ -275,16 +275,16 @@ export function DashboardJawaban({
 
       <div className="db-baris">
         <TabelBanding
-          judul={`Top ${d.pelanggan.length || 10} Pelanggan Berdasarkan Sales ${kapital(d.labelKini)}`}
-          kolom="Pelanggan"
+          judul={'Top ' + (d.pelanggan.length || 10) + ' Customers by Sales ' + kapital(d.labelKini)}
+          kolom="Customer"
           baris={d.pelanggan}
           labelKini={d.labelKini}
           labelLalu={d.labelLalu}
           bernomor
         />
         <TabelBanding
-          judul="Perbandingan per Wilayah (Provinsi)"
-          kolom="Wilayah"
+          judul="Comparison by Region (Province)"
+          kolom="Region"
           baris={d.wilayah}
           labelKini={d.labelKini}
           labelLalu={d.labelLalu}
@@ -292,21 +292,21 @@ export function DashboardJawaban({
       </div>
 
       {d.gagal.length > 0 && (
-        <p className="db-catatan db-gagal">Panel yang gagal diambil: {d.gagal.join(', ')}. Angka lain tetap sah.</p>
+        <p className="db-catatan db-gagal">Panels that failed to load: {d.gagal.join(', ')}. The other figures remain valid.</p>
       )}
 
       <div className="db-aksi">
         <button onClick={() => setGaris((x) => !x)}>
-          <IconChart size={15} /> {garis ? 'Tampilkan grafik batang' : 'Tampilkan grafik garis'}
+          <IconChart size={15} /> {garis ? 'Show bar chart' : 'Show line chart'}
         </button>
-        <button onClick={() => onIsi(`Bandingkan sales ${d.labelKini} dengan ${d.labelLalu} di provinsi `)}>
-          <IconDatabase size={15} /> Filter per wilayah
+        <button onClick={() => onIsi(`Compare sales for ${d.labelKini} with ${d.labelLalu} in the province of `)}>
+          <IconDatabase size={15} /> Filter by region
         </button>
-        <button onClick={() => onTanya(`Buatkan laporan penjualan ${d.labelKini} versi Excel`)}>
-          <IconTable size={15} /> Export ke Excel
+        <button onClick={() => onTanya(`Create a sales report for ${d.labelKini} as an Excel file`)}>
+          <IconTable size={15} /> Export to Excel
         </button>
-        <button onClick={() => onTanya(`Buatkan laporan penjualan ${d.labelKini} versi PDF`)}>
-          <IconFileText size={15} /> Simpan sebagai laporan
+        <button onClick={() => onTanya(`Create a sales report for ${d.labelKini} as a PDF file`)}>
+          <IconFileText size={15} /> Save as report
         </button>
       </div>
     </div>

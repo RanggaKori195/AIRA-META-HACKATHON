@@ -3,7 +3,7 @@ name: root-cause-analysis
 description: Analisa akar masalah (RCA) untuk insiden operasional — alat lab mati, sampel tertukar/ditolak, TAT molor, sistem/LIS down, keluhan pelanggan. Kronologi, 5 Whys berbasis bukti, Fishbone 6M, tingkat keparahan SEV-1–4, dan tindakan korektif & preventif (CAPA) ber-PIC dan bertenggat. Pakai saat user minta RCA, akar masalah, 5 why, fishbone, atau menelusuri penyebab sebuah kejadian.
 ---
 
-# Root Cause Analysis (RCA) — the lab
+# Root Cause Analysis (RCA) — AI Lab Assistant
 
 Tujuan RCA: menemukan **celah SISTEM** yang membiarkan kejadian terjadi, lalu menutupnya supaya
 tidak terulang. Bukan mencari siapa yang salah.
@@ -103,7 +103,7 @@ walau kosong ("Tidak ada — semua data di atas berasal dari keterangan user/too
 ## Keluaran
 
 - Tulis laporannya di jawaban dengan judul bagian persis seperti langkah 1–9.
-- Tawarkan menjadikannya dokumen: Word (`write_word`) atau PDF (`write_pdf`) bertema the company, dengan
+- Tawarkan menjadikannya dokumen: Word (`write_word`) atau PDF (`write_pdf`) bertema perusahaan, dengan
   judul "Laporan RCA — [kejadian] — [tanggal]". Buat berkasnya hanya bila user setuju atau memang
   memintanya sejak awal. Di menu data (mis. Tanya TAT Sample) tool dokumen tidak tersedia —
   sarankan menyalin laporannya ke Task Baru untuk dijadikan berkas, jangan mengaku sudah membuatnya.

@@ -1,3 +1,4 @@
+import { RAG_DISABLED } from '../hackathon/flags'
 import type { ToolDefinition } from './types'
 import { fsTools } from './fs-tools'
 import { docTools } from './doc-tools'
@@ -35,7 +36,7 @@ for (const tool of gambarTools) registry.set(tool.name, tool)
 // Baru, dan PNG-nya dipakai bersama write_ppt/write_word.
 for (const tool of diagramTools) registry.set(tool.name, tool)
 for (const tool of webTools) registry.set(tool.name, tool)
-for (const tool of ragTools) registry.set(tool.name, tool)
+if (!RAG_DISABLED) for (const tool of ragTools) registry.set(tool.name, tool)
 // Masuk kelompok "core" (lihat `groupOf`): pertanyaan tentang percakapan
 // sebelumnya bisa muncul di tengah topik apa pun, jadi tool ini harus selalu
 // ikut terkirim — bukan hanya saat kata pemicu tertentu terdeteksi.

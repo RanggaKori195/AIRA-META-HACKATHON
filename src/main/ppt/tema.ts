@@ -20,15 +20,15 @@ export const SLIDE = { lebar: 10, tinggi: 5.625 } as const
  */
 export const WARNA = {
   /** Judul slide isi & sampul (slideLayout1 & 2). */
-  judul: '027733',
+  judul: '1F4E9C',
   /** Judul pembatas bagian (slideLayout4). */
-  bagian: '187C3B',
+  bagian: '1565C0',
   /** Aksen terang untuk penanda poin & garis (dari slide1 template). */
-  aksen: '209038',
+  aksen: '2F7BE5',
   teks: '212121',
   redup: '595959',
-  garis: 'D6E3D8',
-  kartu: 'F4F8F4',
+  garis: 'D6E2F3',
+  kartu: 'F3F7FD',
   putih: 'FFFFFF'
 } as const
 
@@ -47,9 +47,9 @@ export const WARNA = {
  * Kalau ternyata laptop the company tidak memasang font ini, cukup ubah DI SINI.
  */
 export const FONT = {
-  judul: 'company sans font',
-  isi: 'company sans font',
-  bagian: 'company display font'
+  judul: 'Segoe UI Semibold',
+  isi: 'Segoe UI',
+  bagian: 'Segoe UI Semibold'
 } as const
 
 /** Semua nama font yang mungkin dirujuk deck — dipakai `coba-ppt.ts`. */
@@ -126,7 +126,7 @@ export function ukuranJudul(
 export const MAKS_JUDUL = 90
 
 /** Palet seri grafik — hijau template dulu, baru warna pendamping. */
-export const PALET_GRAFIK = ['027733', '209038', '78909C', 'FFAB40', '0097A7', '187C3B']
+export const PALET_GRAFIK = ['1F4E9C', '2F7BE5', '78909C', 'FFAB40', '0097A7', '1565C0']
 
 /**
  * Tiga blok teks sampul, DISUSUN dari bawah ke atas.

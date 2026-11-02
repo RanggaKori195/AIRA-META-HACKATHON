@@ -87,10 +87,11 @@ app.whenReady().then(async () => {
     const isi = readFileSync(keluar).toString('latin1')
     const font = [...new Set((isi.match(/\/BaseFont\s*\/[A-Za-z0-9+\-,._]+/g) || [])
       .map((x) => x.split('+').pop()))]
-    cek('font company serif font tertanam di PDF', font.some((f) => f.includes('CompanySerif')), font.join(', '))
+    // Hackathon build: system font Segoe UI, no company font.
+    cek('font Segoe UI tertanam di PDF', font.some((f) => f.includes('SegoeUI')), font.join(', '))
     cek(
-      'tidak ada font cadangan yang menyelinap',
-      !font.some((f) => /SegoeUI|Times|Arial/i.test(f)),
+      'tidak ada font perusahaan atau serif cadangan',
+      !font.some((f) => /the company|Times/i.test(f)),
       font.join(', ')
     )
     console.log(`\nBerkas contoh: ${keluar}`)

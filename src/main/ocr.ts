@@ -35,6 +35,15 @@ export function cleanOcrOutput(raw: string): string {
   return text.trim()
 }
 
+/** Added to a page whose OCR text ended at the model's output limit, so it is never shown as complete. */
+export const OCR_INCOMPLETE_NOTE = "[page text may be incomplete: the model's output limit was reached]"
+
+/** `text` as read, plus the incompleteness note when the model stopped because of the output limit. */
+export function tandaiBilaTerpotong(text: string, finishReason: string | undefined): string {
+  if (finishReason !== 'length') return text
+  return text.trim() ? `${text}\n\n${OCR_INCOMPLETE_NOTE}` : OCR_INCOMPLETE_NOTE
+}
+
 export async function pdfPageImages(
   filePath: string,
   first: number,
@@ -55,7 +64,7 @@ async function ocrImage(dataUrl: string): Promise<string> {
   const provider = buildProvider()
   if (!provider) throw new Error('LLM belum di-setup')
   const model = loadConfig().parserModelId
-  const text = await provider.complete(
+  const { text, finishReason } = await provider.completeDetail(
     [
       {
         role: 'user',
@@ -68,7 +77,7 @@ async function ocrImage(dataUrl: string): Promise<string> {
     model,
     3000
   )
-  return cleanOcrOutput(text)
+  return tandaiBilaTerpotong(cleanOcrOutput(text), finishReason)
 }
 
 /** OCR halaman-per-halaman supaya payload tetap kecil dan hasil per halaman jelas. */

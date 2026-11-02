@@ -116,7 +116,7 @@ export function terjemahkanGalatEntra(teks: string): string | null {
     return 'Redirect URI tidak cocok. Tambahkan http://localhost DAN http://127.0.0.1 pada platform "Mobile and desktop applications".'
   }
   if (teks.includes('AADSTS65001')) {
-    return 'Izin belum di-consent. Klik "Grant admin consent for the company" di API permissions.'
+    return 'Izin belum di-consent. Klik "Grant admin consent" di API permissions.'
   }
   if (teks.includes('AADSTS700016') || teks.includes('unauthorized_client')) {
     return 'Client ID tidak dikenal di tenant ini.'

@@ -7,7 +7,7 @@ import { logger } from '../logger'
 import { catatAktivitas } from '../monitoring/service'
 import type { SesiUser } from '../auth/service'
 import type { ItemGaleri } from '../../shared/ipc'
-import { buatGambar, siapkanUnggahan, ubahGambar } from './omni'
+import { MODEL_GAMBAR, buatGambar, siapkanUnggahan, ubahGambar } from './omni'
 import { GambarError, pastikanJumlah, pastikanPrompt, pastikanUkuran } from './rules'
 
 /*
@@ -129,7 +129,7 @@ function catatPemakaian(
     sesi,
     mulai,
     mode: 'general',
-    model: 'old-image-model',
+    model: MODEL_GAMBAR,
     // Bukan sesi chat — ditandai supaya di panel monitoring terbaca asalnya.
     sesiId: 'layar-gambar',
     teks: prompt,

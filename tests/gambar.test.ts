@@ -43,7 +43,7 @@ describe('ukuran gambar', () => {
 
   test('ukuran asing DITOLAK dengan daftar pilihan (§55)', () => {
     assert.throws(() => pastikanUkuran('800x600'), (e: GambarError) => {
-      assert.match(e.message, /tidak didukung/)
+      assert.match(e.message, /is not supported/)
       assert.match(e.message, /512x512/)
       return true
     })
@@ -52,17 +52,17 @@ describe('ukuran gambar', () => {
 
 describe('prompt & jumlah', () => {
   test('prompt kosong ditolak dengan arahan cara mengisinya', () => {
-    assert.throws(() => pastikanPrompt('  '), /wajib diisi/)
+    assert.throws(() => pastikanPrompt('  '), /is required/)
   })
   test('prompt terlalu panjang ditolak sambil menyebut batasnya', () => {
-    assert.throws(() => pastikanPrompt('a'.repeat(MAKS_PROMPT_GAMBAR + 1)), /batas 1.000|batas 1000/)
+    assert.throws(() => pastikanPrompt('a'.repeat(MAKS_PROMPT_GAMBAR + 1)), /limit 1,?000/)
   })
   test('jumlah dibatasi 1..MAKS_JUMLAH', () => {
     assert.equal(pastikanJumlah(undefined), 1)
     assert.equal(pastikanJumlah(3), 3)
-    assert.throws(() => pastikanJumlah(0), /1–/)
-    assert.throws(() => pastikanJumlah(MAKS_JUMLAH + 1), /1–/)
-    assert.throws(() => pastikanJumlah(1.5), /1–/)
+    assert.throws(() => pastikanJumlah(0), /1 to/)
+    assert.throws(() => pastikanJumlah(MAKS_JUMLAH + 1), /1 to/)
+    assert.throws(() => pastikanJumlah(1.5), /1 to/)
   })
 })
 
@@ -72,7 +72,7 @@ describe('berkas hasil wajib .png (gateway selalu PNG)', () => {
   })
   for (const nama of ['gambar.jpg', 'gambar.jpeg', 'gambar.webp', 'gambar']) {
     test(`${nama} ditolak`, () => {
-      assert.throws(() => pastikanBerkasPng(nama), /harus berakhiran \.png/)
+      assert.throws(() => pastikanBerkasPng(nama), /must end in \.png/)
     })
   }
 })
@@ -98,19 +98,19 @@ describe('catatan hasil selalu menyatakan gambar buatan AI', () => {
     assert.ok(c.includes(PENANDA_AI))
   })
   test('penanda melarang menyebutnya foto atau aset resmi', () => {
-    assert.match(PENANDA_AI, /DIBUAT OLEH AIRA/)
-    assert.match(PENANDA_AI, /bukan foto asli/)
-    assert.match(PENANDA_AI, /bukan logo resmi/i)
+    assert.match(PENANDA_AI, /MADE BY AIRA/)
+    assert.match(PENANDA_AI, /not a real photo/)
+    assert.match(PENANDA_AI, /not an official company logo/i)
   })
 })
 
 describe('galat gateway diterjemahkan jadi jalan keluar (§55)', () => {
   const kasus: Array<[number, string, RegExp]> = [
-    [500, 'litellm.InternalServerError: Invalid response object', /Coba sekali lagi/],
-    [401, 'invalid api key', /kunci API/],
-    [404, 'model not found', /tidak tersedia/],
-    [429, 'rate limit exceeded', /sibuk/],
-    [400, 'content policy violation', /penyaring isi/],
+    [500, 'litellm.InternalServerError: Invalid response object', /Try once more/],
+    [401, 'invalid api key', /API key/],
+    [404, 'model not found', /not available/],
+    [429, 'rate limit exceeded', /busy/],
+    [400, 'content policy violation', /content filter/],
     [418, 'aneh', /HTTP 418/]
   ]
   for (const [status, isi, pola] of kasus) {
@@ -127,10 +127,10 @@ describe('ilustrasi presentasi', () => {
   })
 
   test('deck tanpa ilustrasi WAJIB menawarkan, bukan memutuskan sendiri', () => {
-    assert.match(TAWARKAN_ILUSTRASI, /TAWARKAN SEKALI/)
-    assert.match(TAWARKAN_ILUSTRASI, /dibuat oleh AIRA/)
-    assert.match(TAWARKAN_ILUSTRASI, /[Jj]angan membuat ulang/)
-    assert.match(TAWARKAN_ILUSTRASI, /jangan menawarkan berulang/)
+    assert.match(TAWARKAN_ILUSTRASI, /OFFER ONCE/)
+    assert.match(TAWARKAN_ILUSTRASI, /made by AIRA/)
+    assert.match(TAWARKAN_ILUSTRASI, /[Dd]o not rebuild/)
+    assert.match(TAWARKAN_ILUSTRASI, /do not offer repeatedly/)
   })
 
   test('layout "gambar" terdaftar di daftar layout PPT', async () => {
@@ -161,7 +161,7 @@ describe('merek: yang dilihat user selalu "AIRA", tidak pernah nama model', () =
   })
 
   test('penanda menyuruh model menyebut "AIRA" saja', () => {
-    assert.match(PENANDA_AI, /JANGAN menyebut nama model/)
+    assert.match(PENANDA_AI, /DO NOT mention the model/)
   })
 
   test('teks layar (di luar komentar) tidak menyebut nama model', async () => {

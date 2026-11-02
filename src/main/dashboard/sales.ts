@@ -14,6 +14,7 @@
 
 import { getTool } from '../tools/registry'
 import { logger } from '../logger'
+import { labelData, labelPeriode } from '../sales/display-en'
 import type { BarisBanding, DashboardSales } from '../../shared/dashboard'
 import {
   awalBulanMundur,
@@ -29,19 +30,19 @@ const WARIS = ['basis', 'scope', 'source', 'branch', 'province', 'city'] as cons
 
 async function jalankan(nama: string, args: Record<string, unknown>): Promise<Record<string, any>> {
   const tool = getTool(nama)
-  if (!tool) throw new Error(`tool ${nama} tidak terdaftar`)
+  if (!tool) throw new Error('tool ' + nama + ' is not registered')
   // Tool sales tidak memakai folder akses; konteks kosong cukup.
   return JSON.parse(await tool.execute(args, { allowedDirs: [] })) as Record<string, any>
 }
 
 function barisDari(hasil: Record<string, any>): Array<{ nama: string; nett: number }> {
   return (Array.isArray(hasil.baris) ? hasil.baris : []).map((r: any) => ({
-    nama: String(r.kategori ?? '(tidak diisi)'),
+    nama: labelData(r.kategori ?? '(not filled in)'),
     nett: Number(r.nett ?? 0)
   }))
 }
 
-const NAMA_BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+const NAMA_BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 /**
  * @param dasar argumen tool sales PERTAMA yang dipanggil model di giliran ini —
@@ -67,14 +68,14 @@ export async function kumpulkanDashboardSales(dasar: Record<string, unknown>): P
   const lalu = cmp.periodePembanding ?? {}
   const rKini = bacaRentang(String(kini.rentang ?? ''))
   const rLalu = bacaRentang(String(lalu.rentang ?? ''))
-  if (!rKini || !rLalu) throw new Error('rentang periode tidak terbaca dari sales_compare')
+  if (!rKini || !rLalu) throw new Error('period range could not be read from sales_compare')
 
   const filter: string[] = []
-  if (Array.isArray(cmp.filterProvinsi)) filter.push(`Provinsi: ${cmp.filterProvinsi.join(', ')}`)
-  if (Array.isArray(cmp.filterKota)) filter.push(`Kota: ${cmp.filterKota.join(', ')}`)
-  if (warisan.source) filter.push(`Kategori: ${String(warisan.source)}`)
-  if (warisan.branch) filter.push(`Cabang: ${String(warisan.branch)}`)
-  if (cmp.cakupan && cmp.cakupan !== 'all') filter.push(cmp.cakupan === 'erp' ? 'Hanya yang sudah masuk ERP' : 'Yang belum masuk ERP')
+  if (Array.isArray(cmp.filterProvinsi)) filter.push(`Province: ${cmp.filterProvinsi.join(', ')}`)
+  if (Array.isArray(cmp.filterKota)) filter.push(`City: ${cmp.filterKota.join(', ')}`)
+  if (warisan.source) filter.push(`Category: ${String(warisan.source)}`)
+  if (warisan.branch) filter.push(`Branch: ${String(warisan.branch)}`)
+  if (cmp.cakupan && cmp.cakupan !== 'all') filter.push(cmp.cakupan === 'erp' ? 'Only orders already in the ERP' : 'Orders not yet in the ERP')
 
   const custom = (r: { from: string; to: string }): Record<string, unknown> => ({ period: 'custom', from: r.from, to: r.to, ...warisan })
 
@@ -98,8 +99,8 @@ export async function kumpulkanDashboardSales(dasar: Record<string, unknown>): P
       }
     })
   } catch (err) {
-    gagal.push('tren 6 bulan')
-    logger().warn({ err: String(err).slice(0, 200) }, 'dashboard: tren gagal')
+    gagal.push('6-month trend')
+    logger().warn({ err: String(err).slice(0, 200) }, 'dashboard: trend failed')
   }
 
   // 3–5. Per kategori layanan, pelanggan, wilayah — periode kini & pembanding.
@@ -115,25 +116,25 @@ export async function kumpulkanDashboardSales(dasar: Record<string, unknown>): P
       return gabungBanding(barisDari(a), barisDari(b))
     } catch (err) {
       gagal.push(nama)
-      logger().warn({ dimension, err: String(err).slice(0, 200) }, 'dashboard: rincian gagal')
+      logger().warn({ dimension, err: String(err).slice(0, 200) }, 'dashboard: breakdown failed')
       return []
     }
   }
-  const kategori = await banding('per kategori layanan', 'source', 8, 50)
-  const pelanggan = await banding('top 10 pelanggan', 'customer', 10, 50)
-  const wilayah = await banding('per wilayah', 'province', 8, 50)
+  const kategori = await banding('by service category', 'source', 8, 50)
+  const pelanggan = await banding('top 10 customers', 'customer', 10, 50)
+  const wilayah = await banding('by region', 'province', 8, 50)
 
   const inti: Omit<DashboardSales, 'insight' | 'saran'> = {
     jenis: 'sales',
     versi: 1,
     dibuat: Date.now(),
     basis: String(cmp.basis ?? 'invoice'),
-    labelKini: String(kini.label ?? ''),
-    labelLalu: String(lalu.label ?? '').split(' (')[0],
-    rentangKini: `${rKini.from} s/d ${rKini.to}`,
-    rentangLalu: `${rLalu.from} s/d ${rLalu.to}`,
+    labelKini: labelPeriode(String(kini.label ?? '')),
+    labelLalu: labelPeriode(String(lalu.label ?? '').split(' (')[0]),
+    rentangKini: `${rKini.from} to ${rKini.to}`,
+    rentangLalu: `${rLalu.from} to ${rLalu.to}`,
     catatanPeriode: cmp.catatanPerbandingan
-      ? `Periode berjalan belum genap — pembanding dipotong ke jumlah hari yang sama (${rLalu.from} s/d ${rLalu.to}).`
+      ? `The current period is not complete — the comparison is trimmed to the same number of days (${rLalu.from} to ${rLalu.to}).`
       : null,
     filter,
     kpi: {

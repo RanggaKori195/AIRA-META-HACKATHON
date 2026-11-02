@@ -1,3 +1,4 @@
+import { RAG_DISABLED } from '../hackathon/flags'
 import { ToolError, type ToolDefinition } from './types'
 import { cariPesan, pesanTerbaru, type CalonRiwayat } from '../db'
 import { cuplikSekitar, ekspresiFts, kataPencarian } from '../riwayat/rules'
@@ -44,7 +45,7 @@ const tanggalIndo = (ms: number): string =>
 export const riwayatTools: ToolDefinition[] = [
   {
     name: 'search_history',
-    label: 'Cari Riwayat Chat',
+    label: 'Search Chat History',
     description:
       'Mencari percakapan LAMA milik user sendiri di aplikasi ini — apa yang pernah ia tanyakan ' +
       'dan apa yang pernah AIRA jawab. Pakai tool ini setiap kali user menyinggung percakapan ' +
@@ -66,7 +67,7 @@ export const riwayatTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Cari riwayat: "${a.query}"`,
+    summarize: (a) => `Search history: "${a.query}"`,
     execute: async (args) => {
       const query = args.query
       if (typeof query !== 'string' || !query.trim()) {
@@ -112,7 +113,7 @@ export const riwayatTools: ToolDefinition[] = [
       let caraUrut = 'peringkat kata kunci (bm25)'
       try {
         const provider = buildProvider()
-        if (provider) {
+        if (provider && !RAG_DISABLED) {
           const skor = await provider.rerank(
             query,
             kandidat.map((k) => cuplikSekitar(k.teks, kata, 900)),

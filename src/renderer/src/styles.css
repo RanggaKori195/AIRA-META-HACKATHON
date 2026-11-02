@@ -1,5 +1,5 @@
 /*
- * company serif font — font korporat, dipakai di seluruh antarmuka AIRA.
+ * Interface font: Segoe UI (system font).
  *
  * Bobot statis (bukan berkas variabel) dipakai dengan sengaja: hasilnya
  * deterministik. Berkas variabel memang lebih kecil, tapi bila sumbu bobotnya
@@ -12,56 +12,13 @@
  * aplikasi yang berkedip; fontnya lokal, jadi jeda muatnya hanya beberapa
  * milidetik.
  */
-@font-face {
-  font-family: 'company serif font';
-  src: url('./assets/fonts/CompanySerif-Light.woff2') format('woff2');
-  font-weight: 300;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'company serif font';
-  src: url('./assets/fonts/CompanySerif-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'company serif font';
-  src: url('./assets/fonts/CompanySerif-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'company serif font';
-  src: url('./assets/fonts/CompanySerif-SemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'company serif font';
-  src: url('./assets/fonts/CompanySerif-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'company serif font';
-  src: url('./assets/fonts/CompanySerif-ExtraBold.woff2') format('woff2');
-  font-weight: 800;
-  font-style: normal;
-  font-display: block;
-}
-
 /*
  * Satu tempat untuk seluruh aplikasi. Ganti di sini, bukan di puluhan aturan.
  * Segoe UI tetap jadi cadangan bila berkas fontnya gagal dimuat — antarmuka
  * yang jatuh ke Times New Roman terlihat rusak, bukan sekadar berbeda.
  */
 :root {
-  --font-utama: 'company serif font', 'Segoe UI', system-ui, serif;
+  --font-utama: 'Segoe UI', system-ui, sans-serif;
   --font-mono: Consolas, 'Cascadia Mono', monospace;
 }
 
@@ -2351,7 +2308,7 @@ button {
  *
  * Lebar bacaan dibatasi ~68 karakter (`max-width` pada paragraf), bukan selebar
  * jendela: baris yang terlalu panjang membuat mata kehilangan awal baris
- * berikutnya. Huruf company serif font lebih lebar dari sans, jadi batasnya digeser
+ * berikutnya. Huruf serif lama lebih lebar dari sans, jadi batasnya digeser
  * sedikit dibanding angka baku.
  * ======================================================================== */
 
@@ -4067,7 +4024,7 @@ button {
   background: #fff;
 }
 
-/* ---------- layar Gambar (galeri old-image-model) ---------- */
+/* ---------- layar Gambar (galeri gambar) ---------- */
 .menu-alat {
   display: flex;
   flex-direction: column;

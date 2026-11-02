@@ -50,69 +50,69 @@ interface Kelompok {
 
 const KELOMPOK: Kelompok[] = [
   {
-    judul: 'Yang Belum Keluar',
-    ket: 'Sampel yang hasilnya belum keluar beserta status dan backlog.',
+    judul: 'Not Yet Released',
+    ket: 'Samples whose results are not out yet, with status and backlog.',
     ikon: <IconClock size={26} />,
     warna: 'merah',
     contoh: [
-      'Sample apa saja yang belum keluar hasilnya?',
-      'Berapa backlog Molekuler bulan ini?',
-      'Ada sampel yang sudah divalidasi analis tapi hasilnya belum keluar?',
-      'Sampel mana yang paling lama menggantung di lab?'
+      'Which samples do not have results yet?',
+      'What is the Molecular backlog this month?',
+      'Are there samples validated by the analyst whose results are not out yet?',
+      'Which samples have been stuck in the lab the longest?'
     ]
   },
   {
-    judul: 'Lacak Satu Order',
-    ket: 'Telusuri perjalanan satu sampel dari penerimaan hingga hasil. Butuh Order ID.',
+    judul: 'Track One Order',
+    ket: 'Trace one sample from receipt to result. Requires an Order ID.',
     ikon: <IconSearch size={26} />,
     warna: 'biru',
     isi: true,
     contoh: [
-      'Order ID … tahapnya sedang di mana?',
-      'Sudah sampai mana sampel untuk Order ID …?',
-      'Berapa lama sampel dengan Order ID … sudah diproses?'
+      'Which stage is Order ID … at?',
+      'How far along is the sample for Order ID …?',
+      'How long has the sample with Order ID … been in process?'
     ]
   },
   {
-    judul: 'RNS (Sampel Diambil Ulang)',
-    ket: 'Sampel yang harus diambil ulang dan penggantinya.',
+    judul: 'RNS (Recollected Samples)',
+    ket: 'Samples that had to be recollected and their replacements.',
     ikon: <IconFileText size={26} />,
     warna: 'ungu',
     contoh: [
-      'Sample apa saja yang RNS terbanyak?',
-      'Berapa RNS yang sampel penggantinya belum datang?',
-      'Pemeriksaan mana yang rasio RNS-nya paling tinggi?'
+      'Which tests have the most RNS?',
+      'How many RNS are still waiting for the replacement sample?',
+      'Which tests have the highest RNS ratio?'
     ]
   },
   {
     judul: 'TAT',
-    ket: 'Waktu penyelesaian di tiap kategori dan tahap pemeriksaan.',
+    ket: 'Turnaround time per category and test stage.',
     ikon: <IconTrend size={26} />,
     warna: 'hijau',
     contoh: [
-      'Berapa TAT rata-rata per kategori bulan ini?',
-      'Pemeriksaan mana yang TAT-nya paling lama?',
-      'Berapa lama tahap preparasi untuk Histologi?'
+      'What is the average TAT per category this month?',
+      'Which tests have the longest TAT?',
+      'How long does the preparation stage take for Histology?'
     ]
   },
   {
-    judul: 'Analisis Bottleneck',
-    ket: 'Temukan tahap dan pemeriksaan yang paling menghambat alur sampel.',
+    judul: 'Bottleneck Analysis',
+    ket: 'Find the stages and tests that slow the sample flow the most.',
     ikon: <IconBars />,
     warna: 'oranye',
     contoh: [
-      'Di tahap mana sampel paling banyak tertahan saat ini?',
-      'Pemeriksaan apa yang p90 TAT-nya paling lama?',
-      'Berapa jumlah sampel per tahap saat ini?'
+      'At which stage are the most samples held up right now?',
+      'Which tests have the longest p90 TAT?',
+      'How many samples are at each stage right now?'
     ]
   }
 ]
 
 const TIPS = [
-  'Untuk melacak, tulis Order ID lengkap',
-  'Sebutkan periode, kategori, pemeriksaan, atau nama pelanggan',
-  'Data berasal dari ETL (bukan real-time) — waktu pembaruannya selalu disebut',
-  'Gunakan bahasa yang natural dan sederhana'
+  'To track a sample, write the full Order ID',
+  'Mention the period, category, test, or customer name',
+  'Data comes from an ETL (not real-time) — the update time is always stated',
+  'Use natural, simple wording'
 ]
 
 function IconBars(): JSX.Element {
@@ -133,13 +133,13 @@ function IconChevron(): JSX.Element {
 
 function sejak(ms: number): string {
   const menit = Math.max(0, Math.round((Date.now() - ms) / 60_000))
-  if (menit < 1) return 'baru saja'
-  if (menit < 60) return `${menit} menit yang lalu`
+  if (menit < 1) return 'just now'
+  if (menit < 60) return menit + ' min ago'
   const jam = Math.round(menit / 60)
-  if (jam < 24) return `${jam} jam yang lalu`
+  if (jam < 24) return jam + ' h ago'
   const hari = Math.round(jam / 24)
-  if (hari < 30) return `${hari} hari yang lalu`
-  return new Date(ms).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+  if (hari < 30) return hari + ' d ago'
+  return new Date(ms).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export default function LabHome({
@@ -198,12 +198,12 @@ export default function LabHome({
     status === null
       ? null
       : !status.terkonfigurasi
-        ? { teks: 'Belum dikonfigurasi', kelas: 'gagal', judul: 'Koneksi database tidak tertanam di aplikasi ini.' }
+        ? { teks: 'Not configured', kelas: 'gagal', judul: 'The database connection is not built into this app.' }
         : status.keadaan === 'terhubung'
-          ? { teks: 'Terhubung', kelas: 'ok', judul: `Query terakhir berhasil, ${sejak(status.waktu!)}.` }
+          ? { teks: 'Connected', kelas: 'ok', judul: 'Last query succeeded, ' + sejak(status.waktu!) + '.' }
           : status.keadaan === 'gagal'
-            ? { teks: 'Tidak terhubung', kelas: 'gagal', judul: `Koneksi terakhir gagal, ${sejak(status.waktu!)}. Periksa VPN/jaringan the company.` }
-            : { teks: 'Belum diperiksa', kelas: 'belum', judul: 'Belum ada query sejak AIRA dibuka.' }
+            ? { teks: 'Not connected', kelas: 'gagal', judul: 'Last connection failed, ' + sejak(status.waktu!) + '. Check your VPN/network.' }
+            : { teks: 'Not checked yet', kelas: 'belum', judul: 'No queries since AIRA was opened.' }
 
   return (
     <div className="sales-baru">
@@ -213,8 +213,8 @@ export default function LabHome({
             <IconTabung />
           </span>
           <div className="sales-kepala-teks">
-            <h1 className="inno-judul">Tanya TAT Sample</h1>
-            <p>Perjalanan sampel dari order sampai hasil keluar — backlog, tahap, TAT, dan RNS. Identitas pasien tidak disajikan.</p>
+            <h1 className="inno-judul">Ask Sample TAT</h1>
+            <p>A sample's journey from order to result — backlog, stage, TAT, and RNS. Patient identity is not shown.</p>
           </div>
           {/* Hiasan: mikroskop, rak tabung, kartu centang — meniru mockup. */}
           <svg className="sales-seni inno-seni" viewBox="0 0 260 130" aria-hidden="true">
@@ -238,7 +238,7 @@ export default function LabHome({
             <rect x="202" y="76" width="44" height="5" rx="2.5" fill="#e5f4ea" />
           </svg>
           <div className="sales-titik3" onClick={(e) => e.stopPropagation()}>
-            <button className="btn-mini" title="Pilihan" onClick={() => setMenu((x) => !x)}>
+            <button className="btn-mini" title="Options" onClick={() => setMenu((x) => !x)}>
               <IconMore size={16} />
             </button>
             {menu && (
@@ -249,7 +249,7 @@ export default function LabHome({
                     onPanduan()
                   }}
                 >
-                  Panduan menu ini
+                  Guide for this menu
                 </button>
               </div>
             )}
@@ -259,7 +259,7 @@ export default function LabHome({
         <div className="task-box sales-kotak">
           <textarea
             ref={kotak}
-            placeholder="Contoh: sample apa saja yang belum keluar hasilnya?"
+            placeholder="Example: which samples do not have results yet?"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
@@ -274,23 +274,23 @@ export default function LabHome({
             <div className="row-left">
               {/* Hasil dikte DISISIPKAN ke kotak teks, tidak dikirim otomatis. */}
               <TombolDikte onTeks={(t) => setText((s) => (s.trim() ? `${s.trim()} ${t}` : t))} />
-              <span className="gambar-pilih sales-sumber" title="Tabel hasil ETL t_sample_tracker — Patologi Anatomi, mulai Januari 2026">
-                Sumber: pelacakan sampel (Patologi Anatomi)
+              <span className="gambar-pilih sales-sumber" title="ETL result table t_sample_tracker — Anatomical Pathology, from January 2026">
+                Source: sample tracking (Anatomical Pathology)
               </span>
             </div>
             <button className="btn-send sales-tanya" disabled={!text.trim()} onClick={submit}>
-              <IconSend size={15} /> Tanya <IconArrowRight size={15} />
+              <IconSend size={15} /> Ask <IconArrowRight size={15} />
             </button>
           </div>
         </div>
 
         <div className="beranda-kepala">
           <h3>
-            <IconZap size={17} /> Contoh pertanyaan populer
+            <IconZap size={17} /> Popular example questions
           </h3>
-          <span>Klik salah satu untuk langsung bertanya</span>
+          <span>Click one to ask right away</span>
           <button className="beranda-tautan" onClick={() => setSemua((x) => !x)}>
-            {semua ? 'Ringkas contoh' : 'Lihat semua contoh'} <IconArrowRight size={14} />
+            {semua ? 'Collapse examples' : 'Show all examples'} <IconArrowRight size={14} />
           </button>
         </div>
         <div className="inno-kategori">
@@ -308,7 +308,7 @@ export default function LabHome({
                   <button
                     key={q}
                     onClick={() => (k.isi ? isiKotak(q) : onSubmit(q))}
-                    title={k.isi ? 'Isi ke kotak — lengkapi Order ID-nya' : q}
+                    title={k.isi ? 'Fills the box — complete the Order ID' : q}
                   >
                     <span>{q}</span>
                     <IconChevron />
@@ -324,24 +324,24 @@ export default function LabHome({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconInfo size={17} /> Tentang Menu Ini
+              <IconInfo size={17} /> About This Menu
             </h4>
           </div>
           <p className="panel-kosong">
-            AIRA membantu menanyakan perjalanan sampel dari order sampai hasil keluar — backlog, tahap, TAT, dan RNS.
-            Datanya hasil ETL tabel pelacakan sampel (Patologi Anatomi, mulai Januari 2026), bukan real-time. Identitas
-            pasien tidak disajikan.
+            AIRA helps you ask about a sample's journey from order to result — backlog, stage, TAT, and RNS.
+            The data comes from the ETL of the sample tracking table (Anatomical Pathology, from January 2026), not
+            real-time. Patient identity is not shown.
           </p>
         </div>
 
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconDbKecil /> Sumber Data
+              <IconDbKecil /> Data Source
             </h4>
           </div>
           <div className="sales-sumber-baris">
-            <span>Pelacakan sampel (Patologi Anatomi)</span>
+            <span>Sample tracking (Anatomical Pathology)</span>
             {labelStatus && (
               <span className={`status-koneksi ${labelStatus.kelas}`} title={labelStatus.judul}>
                 <i /> {labelStatus.teks}
@@ -353,7 +353,7 @@ export default function LabHome({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconInfo size={17} /> Tips Menggunakan
+              <IconInfo size={17} /> Usage Tips
             </h4>
           </div>
           <ul className="sales-tips">
@@ -369,16 +369,16 @@ export default function LabHome({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconHistory size={17} /> Pertanyaan Terakhir
+              <IconHistory size={17} /> Recent Questions
             </h4>
             {riwayat.length > 5 && (
               <button className="beranda-tautan" onClick={() => setSemuaRiwayat((x) => !x)}>
-                {semuaRiwayat ? 'Lebih sedikit' : 'Lihat semua'}
+                {semuaRiwayat ? 'Show less' : 'View all'}
               </button>
             )}
           </div>
           {riwayat.length === 0 ? (
-            <p className="panel-kosong">Pertanyaan yang kamu ajukan di menu ini akan muncul di sini.</p>
+            <p className="panel-kosong">Questions you ask in this menu will appear here.</p>
           ) : (
             <ul className="sales-riwayat">
               {riwayat.slice(0, semuaRiwayat ? 15 : 5).map((s) => (

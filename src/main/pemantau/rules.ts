@@ -11,7 +11,6 @@
 // orangnya). Umur data & jendela sampel justru memakai jam DATABASE (lihat sql.ts).
 
 import type { AksiPemantau, PemicuId } from '../../shared/ipc'
-import { NAMA_HARI } from '../../shared/jadwal-pola'
 import { rupiah } from '../sales/report'
 
 /** Jam kerja pemantau: tidak ada query di luar [JAM_MULAI, JAM_SELESAI). */
@@ -87,15 +86,15 @@ const SENIN_SABTU = [1, 2, 3, 4, 5, 6] as const
  * pertama Sabtu bisa baru masuk pukul 17.20), jadi Sabtu pagi akan selalu "macet".
  */
 export const PEMICU: readonly DefinisiPemicu[] = [
-  { id: 'data_sales', menu: 'sales', judul: 'Data Sales berhenti diperbarui', hari: SENIN_JUMAT },
-  { id: 'data_tat', menu: 'lab', judul: 'Data TAT Sample berhenti diperbarui', hari: SENIN_SABTU },
-  { id: 'sampel_terlambat', menu: 'lab', judul: 'Sampel lab melewati batas wajar', hari: SENIN_SABTU },
-  { id: 'sales_anjlok', menu: 'sales', judul: 'Sales kemarin anjlok', hari: SENIN_SABTU }
+  { id: 'data_sales', menu: 'sales', judul: 'Sales data stopped updating', hari: SENIN_JUMAT },
+  { id: 'data_tat', menu: 'lab', judul: 'Sample TAT data stopped updating', hari: SENIN_SABTU },
+  { id: 'sampel_terlambat', menu: 'lab', judul: 'Lab samples past their normal limit', hari: SENIN_SABTU },
+  { id: 'sales_anjlok', menu: 'sales', judul: 'Sales yesterday dropped', hari: SENIN_SABTU }
 ]
 
 export function definisi(id: PemicuId): DefinisiPemicu {
   const d = PEMICU.find((p) => p.id === id)
-  if (!d) throw new Error(`pemicu tidak dikenal: ${id}`)
+  if (!d) throw new Error(`unknown trigger: ${id}`)
   return d
 }
 
@@ -123,7 +122,7 @@ export function tanggalLokal(d: Date): string {
 }
 
 // Tanggal 'YYYY-MM-DD' dihitung lewat UTC supaya tidak bergeser zona waktu laptop.
-const keUtc = (tanggal: string): Date => new Date(`${tanggal}T00:00:00Z`)
+const keUtc = (isoDate: string): Date => new Date(`${isoDate}T00:00:00Z`)
 
 export function tambahHari(tanggal: string, n: number): string {
   const d = keUtc(tanggal)
@@ -264,7 +263,8 @@ const HARI_MS = 24 * JAM_MS
  */
 export function umurTanpaMinggu(k: KesegaranData): number | null {
   if (k.terakhir === null || k.umurJam === null || k.umurJam <= 0) return k.umurJam
-  const awal = new Date(`${k.terakhir.replace(' ', 'T')}:00Z`).getTime()
+  const lastSeen = k.terakhir
+  const awal = new Date(`${lastSeen.replace(' ', 'T')}:00Z`).getTime()
   if (Number.isNaN(awal)) return k.umurJam
   const akhir = awal + k.umurJam * JAM_MS
   let minggu = 0
@@ -314,7 +314,7 @@ export function tidakDipantau(backlog: KategoriBacklog[], terpantau: readonly st
     .sort((a, b) => a.category.localeCompare(b.category))
     .map(
       (b) =>
-        `${b.category} (${b.di_lab === 0 ? 'jam terima lab tidak tercatat' : 'riwayat sampel selesai belum cukup'})`
+        `${b.category} (${b.di_lab === 0 ? 'lab receipt time not recorded' : 'not enough completed-sample history'})`
     )
 }
 
@@ -392,41 +392,42 @@ export function nilaiSalesAnjlok(
 // diproyeksikan (pola `chatPratinjau`), dan toast tidak bisa ditarik kembali.
 // Rupiah hanya di `rincian`, yang tampil di riwayat DI DALAM aplikasi.
 
-const HARI_PENDEK = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
-const BULAN_PENDEK = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+const HARI_PENDEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const HARI_PANJANG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const BULAN_PENDEK = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const BULAN_PANJANG = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
-const angkaId = (n: number): string => n.toLocaleString('id-ID')
+const angkaId = (n: number): string => n.toLocaleString('en-US')
 const desimal1 = (n: number): string =>
-  n.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+  n.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 const persen = (r: number): number => Math.round(r * 100)
-const jam = (h: number): string => `${dua(h)}.00`
+const hhmm = (h: number): string => `${dua(h)}:00`
 
-/** '19 Okt' */
-function tanggalSingkat(tanggal: string): string {
-  const d = keUtc(tanggal)
-  return `${d.getUTCDate()} ${BULAN_PENDEK[d.getUTCMonth()]}`
+/** 'Oct 19' */
+function tanggalSingkat(isoDate: string): string {
+  const d = keUtc(isoDate)
+  return `${BULAN_PENDEK[d.getUTCMonth()]} ${d.getUTCDate()}`
 }
-/** 'Sen 19 Okt' */
-function labelTanggal(tanggal: string): string {
-  return `${HARI_PENDEK[keUtc(tanggal).getUTCDay()]} ${tanggalSingkat(tanggal)}`
+/** 'Mon Oct 19' */
+function labelTanggal(isoDate: string): string {
+  return `${HARI_PENDEK[keUtc(isoDate).getUTCDay()]} ${tanggalSingkat(isoDate)}`
 }
-/** '19 Oktober 2026' */
-function tanggalPanjang(tanggal: string): string {
-  const d = keUtc(tanggal)
-  return `${d.getUTCDate()} ${BULAN_PANJANG[d.getUTCMonth()]} ${d.getUTCFullYear()}`
+/** 'October 19, 2026' */
+function tanggalPanjang(isoDate: string): string {
+  const d = keUtc(isoDate)
+  return `${BULAN_PANJANG[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`
 }
-/** 'YYYY-MM-DD HH:MI' → 'Kam 8 Okt 02.25' */
+/** 'YYYY-MM-DD HH:MI' -> 'Thu Oct 8 02:25' */
 function labelWaktu(waktu: string): string {
   const [tgl, jamMenit] = waktu.split(' ')
-  return `${labelTanggal(tgl)}${jamMenit ? ` ${jamMenit.replace(':', '.')}` : ''}`
+  return `${labelTanggal(tgl)}${jamMenit ? ` ${jamMenit}` : ''}`
 }
-/** '±36 jam' di bawah dua hari, selebihnya '12 hari'. */
+/** '~36 hours' under two days, otherwise '12 days'. */
 function teksUmur(umurJam: number): string {
-  return umurJam < 48 ? `±${Math.round(umurJam)} jam` : `${Math.floor(umurJam / 24)} hari`
+  return umurJam < 48 ? `~${Math.round(umurJam)} hours` : `${Math.floor(umurJam / 24)} days`
 }
 
 /** Isi satu kejadian: judul & isi = toast; rincian = riwayat di aplikasi; aksi = saat diklik. */
@@ -438,27 +439,28 @@ export interface Kabar {
 }
 
 export function kabarDataMacet(jenis: 'sales' | 'tat', k: { terakhir: string; umurJam: number }): Kabar {
-  const judul = `${jenis === 'sales' ? 'Data Sales' : 'Data TAT Sample'} belum diperbarui ${teksUmur(k.umurJam)}`
+  const last = labelWaktu(k.terakhir)
+  const judul = `${jenis === 'sales' ? 'Sales data' : 'Sample TAT data'} not updated for ${teksUmur(k.umurJam)}`
   const isi =
     jenis === 'sales'
-      ? `Baris baru terakhir masuk ${labelWaktu(k.terakhir)}. Jawaban Tanya Data Sales memakai data sampai jam itu (bisa karena libur).`
-      : `Terakhir ${labelWaktu(k.terakhir)}. Backlog & TAT yang dijawab AIRA tertinggal sejak itu; pemantau sampel terlambat ditahan.`
+      ? `Last new row arrived ${last}. Ask Sales Data answers use data up to that time (it may be a holiday).`
+      : `Last updated ${last}. The backlog & TAT AIRA answers have been behind since then; the late-sample monitor is on hold.`
   return { judul, isi, rincian: isi, aksi: { tujuan: 'panel' } }
 }
 
-export function kabarSampel(baris: BarisSampel[], pertamaKali: boolean, tidak: string[]): Kabar {
-  const { baru, terlambat } = putuskanSampel(baris, pertamaKali)
-  const kunci = pertamaKali ? 'terlambat' : 'baru'
+export function kabarSampel(baris: BarisSampel[], pertamaKali: boolean, notMonitored: string[]): Kabar {
+  const { baru: newlyLate, terlambat: lateTotal } = putuskanSampel(baris, pertamaKali)
+  const countOf = (b: BarisSampel): number => (pertamaKali ? b.terlambat : b.baru)
   const urut = baris
-    .filter((b) => b[kunci] > 0)
-    .sort((a, b) => b[kunci] - a[kunci] || b.terlambat - a.terlambat)
-  const daftar = urut.map((b) => `${b.category} ${angkaId(b[kunci])} (> ${desimal1(b.batas_hari)} hari)`).join(', ')
+    .filter((b) => countOf(b) > 0)
+    .sort((a, b) => countOf(b) - countOf(a) || b.terlambat - a.terlambat)
+  const daftar = urut.map((b) => `${b.category} ${angkaId(countOf(b))} (> ${desimal1(b.batas_hari)} days)`).join(', ')
   const judul = pertamaKali
-    ? `${angkaId(terlambat)} sampel lab sedang melewati batas wajar`
-    : `${angkaId(baru)} sampel lab baru melewati batas wajar`
-  const isi = pertamaKali ? `${daftar}.` : `${daftar}. Total terlambat: ${angkaId(terlambat)}.`
-  const rincian = isi + (tidak.length > 0 ? ` Tidak dipantau: ${tidak.join(', ')}.` : '')
-  const sasaran = urut[0] ? `sampel ${urut[0].category}` : 'sampel'
+    ? `${angkaId(lateTotal)} lab samples are currently past their normal limit`
+    : `${angkaId(newlyLate)} lab samples newly past their normal limit`
+  const isi = pertamaKali ? `${daftar}.` : `${daftar}. Total late: ${angkaId(lateTotal)}.`
+  const rincian = isi + (notMonitored.length > 0 ? ` Not monitored: ${notMonitored.join(', ')}.` : '')
+  const sasaran = urut[0] ? `${urut[0].category} samples` : 'samples'
   return {
     judul,
     isi,
@@ -466,32 +468,33 @@ export function kabarSampel(baris: BarisSampel[], pertamaKali: boolean, tidak: s
     aksi: {
       tujuan: 'menu',
       mode: 'lab',
-      tanya: `Tampilkan ${sasaran} yang sudah diterima lab tapi hasilnya belum keluar, urut dari yang paling lama`
+      tanya: `Show ${sasaran} that the lab has received but whose results are not out yet, oldest first`
     }
   }
 }
 
 export function kabarSales(p: PenilaianSales): Kabar {
-  const hari = NAMA_HARI[keUtc(p.tanggal).getUTCDay()]
+  const date = p.tanggal
+  const weekday = HARI_PANJANG[keUtc(date).getUTCDay()]
   // Jumlah pembanding yang SEBENARNYA dipakai (3 atau 4), dan tanggal yang dilewati disebut —
   // dulu selalu tertulis "4 minggu" (temuan review akhir 20 Okt 2026).
-  const dilewati = tanggalPembanding(p.tanggal).filter((d) => !p.pembanding.includes(d))
+  const dilewati = tanggalPembanding(date).filter((d) => !p.pembanding.includes(d))
   const tanggalMedian =
     p.pembanding.map(tanggalSingkat).join(', ') +
-    (dilewati.length > 0 ? `; ${dilewati.map(tanggalSingkat).join(', ')} tidak dipakai — sales atau order nol` : '')
+    (dilewati.length > 0 ? `; ${dilewati.map(tanggalSingkat).join(', ')} not used — sales or orders were zero` : '')
   return {
-    judul: `Sales ${labelTanggal(p.tanggal)} anjlok: ${persen(p.rasioNett ?? 0)}% dari biasanya`,
+    judul: `Sales ${labelTanggal(date)} dropped: ${persen(p.rasioNett ?? 0)}% of usual`,
     // "tidak ikut anjlok", BUKAN "normal": order 55% bukan normal — ia hanya di atas
     // ambang libur (review akhir 20 Okt 2026).
-    isi: `Order masuk ${persen(p.rasioOrder ?? 0)}% dari biasanya (tidak ikut anjlok). Klik untuk menggali.`,
+    isi: `Orders received ${persen(p.rasioOrder ?? 0)}% of usual (did not drop with it). Click to dig in.`,
     rincian:
-      `Nett ${tanggalPanjang(p.tanggal)}: ${rupiah(p.nett)}. Median ${p.pembanding.length} hari ${hari} ` +
-      `sebelumnya (${tanggalMedian}): ${rupiah(p.medianNett ?? 0)}. ` +
-      `Order masuk ${angkaId(p.order)} vs median ${angkaId(p.medianOrder ?? 0)}.`,
+      `Net ${tanggalPanjang(date)}: ${rupiah(p.nett)}. Median of the previous ${p.pembanding.length} ${weekday}s ` +
+      `(${tanggalMedian}): ${rupiah(p.medianNett ?? 0)}. ` +
+      `Orders received ${angkaId(p.order)} vs median ${angkaId(p.medianOrder ?? 0)}.`,
     aksi: {
       tujuan: 'menu',
       mode: 'sales',
-      tanya: `Bandingkan sales ${tanggalPanjang(p.tanggal)} dengan ${tanggalPanjang(tambahHari(p.tanggal, -7))} per kategori layanan`
+      tanya: `Compare sales on ${tanggalPanjang(date)} with ${tanggalPanjang(tambahHari(date, -7))} by service category`
     }
   }
 }
@@ -503,50 +506,53 @@ export function kabarSales(p: PenilaianSales): Kabar {
  * layar tampak seperti AIRA rusak (temuan review akhir 20 Okt 2026). `sisaMs` > 0.
  */
 export function kalimatBatasManual(sisaMs: number): string {
+  const wait = Math.max(1, Math.ceil(sisaMs / 1000))
   return (
-    `Baru saja diperiksa — coba lagi dalam ${Math.max(1, Math.ceil(sisaMs / 1000))} detik ` +
-    `(dibatasi sekali per ${Math.round(JEDA_PERIKSA_MANUAL_MS / 1000)} detik).`
+    `Just checked — try again in ${wait} ${wait === 1 ? 'second' : 'seconds'} ` +
+    `(limited to once per ${Math.round(JEDA_PERIKSA_MANUAL_MS / 1000)} seconds).`
   )
 }
 
 /** "Tidak bisa memeriksa" ≠ "data macet" (aturan 33) — tanpa toast, hanya status. */
-export const RINGKAS_GAGAL = 'Gagal memeriksa: database tidak terjangkau.'
+export const RINGKAS_GAGAL = 'Check failed: the database could not be reached.'
 
 /**
  * Tidak satu pun kategori punya riwayat cukup untuk diberi batas. "Terlambat 0" di sini
  * berarti "tidak ada yang diperiksa", BUKAN "tidak ada yang terlambat" (aturan 33).
  */
 export const RINGKAS_SAMPEL_KOSONG =
-  'Tidak ada kategori yang bisa dipantau saat ini — riwayat sampel selesai dengan jam terima lab belum cukup.'
+  'No category can be monitored right now — there is not enough completed-sample history with a lab receipt time.'
 
 export function ringkasDataMacet(jenis: 'sales' | 'tat', k: KesegaranData, macet: boolean): string {
-  if (k.terakhir === null || k.umurJam === null) return 'Waktu pembaruan data tidak terbaca.'
+  if (k.terakhir === null || k.umurJam === null) return 'The data update time could not be read.'
+  const last = labelWaktu(k.terakhir)
   if (waktuMasaDepan(k)) {
-    return `Waktu data terakhir tercatat di masa depan (${labelWaktu(k.terakhir)}) — kemacetan tidak bisa dinilai.`
+    return `The last data time is recorded in the future (${last}) — a stall cannot be assessed.`
   }
   // Data Sales = baris BARU (created_at): updated_at tabel bisa lebih baru karena retry bridging.
   if (jenis === 'sales') {
     return macet
-      ? `Tidak ada baris baru sejak ${labelWaktu(k.terakhir)} (${teksUmur(k.umurJam)}).`
-      : `Baris baru terakhir ${labelWaktu(k.terakhir)} — normal.`
+      ? `No new rows since ${last} (${teksUmur(k.umurJam)}).`
+      : `Last new row ${last} — normal.`
   }
   return macet
-    ? `Belum diperbarui sejak ${labelWaktu(k.terakhir)} (${teksUmur(k.umurJam)}).`
-    : `Data terakhir ${labelWaktu(k.terakhir)} — normal.`
+    ? `Not updated since ${last} (${teksUmur(k.umurJam)}).`
+    : `Last data ${last} — normal.`
 }
 
 export function ringkasSampel(
   d: { baru: number; terlambat: number } | { ditahanSejak: string | null } | { masaDepan: string }
 ): string {
   if ('masaDepan' in d) {
-    return `Ditahan: waktu data TAT tercatat di masa depan (${labelWaktu(d.masaDepan)}) — kesegarannya tidak bisa dipastikan.`
+    return `On hold: the TAT data time is recorded in the future (${labelWaktu(d.masaDepan)}) — its freshness cannot be confirmed.`
   }
   if ('ditahanSejak' in d) {
     return d.ditahanSejak
-      ? `Ditahan: data TAT belum diperbarui sejak ${labelWaktu(d.ditahanSejak)}.`
-      : 'Ditahan: data TAT belum diperbarui.'
+      ? `On hold: TAT data not updated since ${labelWaktu(d.ditahanSejak)}.`
+      : 'On hold: TAT data not updated.'
   }
-  return `Sedang terlambat ${angkaId(d.terlambat)} sampel; ${angkaId(d.baru)} baru sejak pemeriksaan sebelumnya.`
+  const { terlambat: lateNow, baru: newSince } = d
+  return `${angkaId(lateNow)} samples currently late; ${angkaId(newSince)} new since the previous check.`
 }
 
 export function ringkasSales(
@@ -556,16 +562,17 @@ export function ringkasSales(
     | { hasil: 'masa_depan'; tanggal: string; terakhir: string }
 ): string {
   const tgl = labelTanggal(p.tanggal)
-  if (p.hasil === 'menunggu') return `Menunggu sinkronisasi data ${tgl}.`
+  if (p.hasil === 'menunggu') return `Waiting for the ${tgl} data sync.`
   if (p.hasil === 'masa_depan') {
-    return `Waktu data Sales tercatat di masa depan (${labelWaktu(p.terakhir)}) — kelengkapan data ${tgl} tidak bisa dipastikan, belum dinilai.`
+    const last = labelWaktu(p.terakhir)
+    return `The Sales data time is recorded in the future (${last}) — the completeness of ${tgl} data cannot be confirmed, not assessed yet.`
   }
-  if (p.hasil === 'kurang_data') return `${tgl}: pembanding kurang dari ${SALES_MIN_PEMBANDING} hari — tidak dinilai.`
+  if (p.hasil === 'kurang_data') return `${tgl}: fewer than ${SALES_MIN_PEMBANDING} comparison days — not assessed.`
   const rN = persen(p.rasioNett ?? 0)
   const rO = persen(p.rasioOrder ?? 0)
-  if (p.hasil === 'libur') return `${tgl}: order masuk hanya ${rO}% dari biasanya — dianggap libur.`
-  if (p.hasil === 'berbunyi') return `${tgl}: ${rN}% dari biasanya — diberitahukan.`
-  return `${tgl}: ${rN}% dari biasanya (order ${rO}%) — normal.`
+  if (p.hasil === 'libur') return `${tgl}: orders received only ${rO}% of usual — treated as a holiday.`
+  if (p.hasil === 'berbunyi') return `${tgl}: ${rN}% of usual — notified.`
+  return `${tgl}: ${rN}% of usual (orders ${rO}%) — normal.`
 }
 
 /**
@@ -573,26 +580,26 @@ export function ringkasSales(
  * kalimat yang diketik tangan akan menyimpang dari kode tanpa ada yang tahu.
  */
 export function kalimatAturan(id: PemicuId): string {
-  const hari = definisi(id).hari.includes(6) ? 'Senin–Sabtu' : 'Senin–Jumat'
+  const weekdays = definisi(id).hari.includes(6) ? 'Monday–Saturday' : 'Monday–Friday'
   switch (id) {
     case 'data_sales':
-      return `Berbunyi bila tidak ada baris baru di data Sales lebih dari ${AMBANG_DATA_SALES_JAM} jam (jam hari Minggu tidak dihitung). Dicek tiap jam, ${hari} ${jam(JAM_MULAI)}–${jam(JAM_SELESAI)}.`
+      return `Fires when there are no new rows in the Sales data for more than ${AMBANG_DATA_SALES_JAM} hours (Sunday hours are not counted). Checked hourly, ${weekdays} ${hhmm(JAM_MULAI)}–${hhmm(JAM_SELESAI)}.`
     case 'data_tat':
-      return `Berbunyi bila data TAT Sample tidak diperbarui lebih dari ${AMBANG_DATA_TAT_JAM} jam. Dicek tiap jam, ${hari} ${jam(JAM_MULAI)}–${jam(JAM_SELESAI)}.`
+      return `Fires when the Sample TAT data has not been updated for more than ${AMBANG_DATA_TAT_JAM} hours. Checked hourly, ${weekdays} ${hhmm(JAM_MULAI)}–${hhmm(JAM_SELESAI)}.`
     case 'sampel_terlambat':
       return (
-        `Berbunyi bila ada sampel yang sudah diterima lab (maksimal ${LAB_UMUR_MAKS_HARI} hari) baru melewati batas ` +
-        `wajar kategorinya: lebih lama dari ${persen(LAB_PERSENTIL)}% sampel sejenis yang selesai dalam ` +
-        `${LAB_JENDELA_HARI} hari terakhir. Dicek sekali sehari mulai ${jam(LAB_JAM_PERIKSA)}, ${hari}; ditahan ` +
-        'selama data TAT belum diperbarui.'
+        `Fires when a sample the lab has received (at most ${LAB_UMUR_MAKS_HARI} days ago) newly passes the normal ` +
+        `limit for its category: longer than ${persen(LAB_PERSENTIL)}% of similar samples completed in the last ` +
+        `${LAB_JENDELA_HARI} days. Checked once a day from ${hhmm(LAB_JAM_PERIKSA)}, ${weekdays}; on hold ` +
+        'while the TAT data is not up to date.'
       )
     case 'sales_anjlok':
       return (
-        `Berbunyi bila sales hari kerja terakhir (basis invoice) di bawah ${persen(SALES_RASIO_ANJLOK)}% dari median ` +
-        `hari yang sama ${SALES_MINGGU_PEMBANDING} minggu sebelumnya, kecuali order masuk hari itu juga di bawah ` +
-        `${persen(SALES_RASIO_LIBUR)}% (dianggap libur). Dicek mulai ${jam(SALES_JAM_PERIKSA)}, ${hari}; tiap hari ` +
-        'dinilai sekali. Hari yang datanya belum lengkap saat diperiksa (biasanya Jumat — data Sabtu sering baru ' +
-        `masuk sore) dinilai menyusul, paling jauh ${SALES_SUSULAN_HARI_KERJA} hari kerja ke belakang.`
+        `Fires when sales on the last working day (invoice basis) are below ${persen(SALES_RASIO_ANJLOK)}% of the median of ` +
+        `the same weekday over the previous ${SALES_MINGGU_PEMBANDING} weeks, unless orders received that day are also below ` +
+        `${persen(SALES_RASIO_LIBUR)}% (treated as a holiday). Checked from ${hhmm(SALES_JAM_PERIKSA)}, ${weekdays}; each day ` +
+        'is assessed once. A day whose data was incomplete when checked (usually Friday — Saturday data often arrives ' +
+        `late in the day) is assessed later, going back at most ${SALES_SUSULAN_HARI_KERJA} working days.`
       )
   }
 }

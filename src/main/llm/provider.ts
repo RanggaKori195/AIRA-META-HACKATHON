@@ -57,8 +57,20 @@ export interface StreamOptions {
   model: string
   signal: AbortSignal
   tools?: Array<Record<string, unknown>>
-  /** 'required' memaksa model memanggil tool — dipakai untuk memulihkan false refusal. */
-  toolChoice?: 'auto' | 'required'
+  /**
+   * 'required' memaksa model memanggil tool — dipakai untuk memulihkan false refusal.
+   * 'none' = this turn needs no tools (a greeting in a data menu): they are not sent at all.
+   */
+  toolChoice?: 'auto' | 'required' | 'none'
+}
+
+/** Result of a one-shot completion with the reason the model stopped. */
+export interface CompletionDetail {
+  text: string
+  /** `stop`, `length` (output limit reached) … — undefined when the gateway did not say. */
+  finishReason?: string
+  /** Hidden reasoning tokens spent before the visible answer, when the gateway reports them. */
+  reasoningTokens?: number
 }
 
 export interface LLMProvider {
@@ -70,6 +82,11 @@ export interface LLMProvider {
   ): Promise<StreamResult>
   /** Panggilan sekali jalan tanpa tool/stream — dipakai untuk OCR & tugas vision. */
   complete(messages: ChatTurn[], model: string, maxTokens?: number): Promise<string>
+  /**
+   * Like `complete`, but also reports why the model stopped and never throws on a cut reply:
+   * the caller decides how to present text that hit the output limit (e.g. OCR marks the page).
+   */
+  completeDetail(messages: ChatTurn[], model: string, maxTokens?: number): Promise<CompletionDetail>
   embed(texts: string[], model: string): Promise<number[][]>
   /** Skor relevansi tiap dokumen terhadap query, urutan sama dengan input. */
   rerank(query: string, documents: string[], model: string): Promise<number[]>
@@ -85,6 +102,8 @@ export class LLMError extends Error {
       | 'LLM_BAD_RESPONSE'
       /** Percakapan melebihi context window model — bisa dipulihkan dengan memangkas riwayat. */
       | 'LLM_CONTEXT_OVERFLOW'
+      /** The output limit was reached before any visible text (hidden reasoning used it all). */
+      | 'LLM_TRUNCATED'
       | 'LLM_CANCELLED',
     message: string
   ) {

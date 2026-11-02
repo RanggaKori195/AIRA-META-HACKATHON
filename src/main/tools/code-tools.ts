@@ -41,7 +41,7 @@ export const codeTools: ToolDefinition[] = [
     },
     tier: 'mutate',
     summarize: (a) =>
-      `Edit ${a.path}\n--- lama\n${shortPreview(String(a.old_string ?? ''), 300)}\n+++ baru\n${shortPreview(String(a.new_string ?? ''), 300)}`,
+      `Edit ${a.path}\n--- old\n${shortPreview(String(a.old_string ?? ''), 300)}\n+++ new\n${shortPreview(String(a.new_string ?? ''), 300)}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       const oldString = str(args, 'old_string')
@@ -73,7 +73,7 @@ export const codeTools: ToolDefinition[] = [
   },
   {
     name: 'search_code',
-    label: 'Cari di Kode',
+    label: 'Search Code',
     description:
       'Mencari teks/pola di dalam ISI file (seperti grep), rekursif. Mengembalikan file, nomor baris, ' +
       'dan isi barisnya. Gunakan untuk menemukan fungsi, variabel, konfigurasi, atau string di codebase.',
@@ -89,7 +89,7 @@ export const codeTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Grep "${a.query}" di ${a.dir}`,
+    summarize: (a) => `Grep "${a.query}" in ${a.dir}`,
     execute: async (args, ctx) => {
       const root = resolveInBoundary(str(args, 'dir'), ctx.allowedDirs)
       const query = str(args, 'query')

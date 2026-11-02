@@ -50,7 +50,7 @@ function IconTambahOrang(): JSX.Element {
 }
 
 /** Panggilan belum ada di AIRA — tombolnya tampil (mengikuti mockup) tapi mati dan MENGATAKANNYA. */
-export const BELUM_ADA_PANGGILAN = 'Panggilan suara & video belum tersedia di AIRA'
+export const BELUM_ADA_PANGGILAN = 'Voice & video calls are not available in AIRA yet'
 export { IconVideo, IconTelepon, IconTambahOrang }
 
 /** Selang memuat pesan baru saat ruang terbuka. Sama dengan `chat/rules.ts`. */
@@ -213,7 +213,7 @@ export function RuangPercakapan({
       // Batas diperiksa di sini HANYA supaya pesan galatnya cepat; yang
       // sebenarnya menahan tetap `periksaLampiran` di main process.
       if (file.size > MAKS_LAMPIRAN) {
-        setGalat(`Berkas melebihi ${MAKS_LAMPIRAN / 1048576} MB. Taruh di OneDrive lalu kirim tautannya.`)
+        setGalat(`File exceeds ${MAKS_LAMPIRAN / 1048576} MB. Put it on OneDrive and send the link.`)
         return
       }
       const buf = new Uint8Array(await file.arrayBuffer())
@@ -229,7 +229,7 @@ export function RuangPercakapan({
         const ok = await window.aira.chatHapusPesan(id)
         // `false` BUKAN galat jaringan: main process menolak karena pesannya
         // bukan milik kita atau sudah dihapus. Dikatakan apa adanya.
-        if (!ok) setGalat('Pesan tidak bisa dihapus — hanya pengirimnya yang bisa menghapus.')
+        if (!ok) setGalat('The message cannot be deleted — only its sender can delete it.')
         await muat()
         onBerubah()
       } catch (e) {
@@ -252,8 +252,8 @@ export function RuangPercakapan({
   const sub =
     item.jenis === 'grup'
       ? item.grup.aktif
-        ? `${item.grup.jumlahAnggota} anggota`
-        : 'Kamu sudah bukan anggota'
+        ? `${item.grup.jumlahAnggota} members`
+        : 'You are no longer a member'
       : [online ? 'Online' : statusOrang(item.rekan), jabatanRekan(item.rekan)].filter(Boolean).join(' • ')
 
   const menuItem = (label: string, aksi: () => void): JSX.Element => (
@@ -274,7 +274,7 @@ export function RuangPercakapan({
           className="psn-ruang-identitas"
           onClick={() => diGrup && setInfo(true)}
           disabled={!diGrup}
-          title={diGrup ? 'Info grup' : undefined}
+          title={diGrup ? 'Group info' : undefined}
         >
           <Avatar nama={nama} grup={diGrup} online={online} ukuran={40} />
           <span className="psn-kepala-teks">
@@ -292,21 +292,21 @@ export function RuangPercakapan({
           <button
             className="psn-ikon"
             onClick={() => (diGrup ? setInfo(true) : onTambahOrang())}
-            title={diGrup ? 'Tambah anggota (Info grup)' : `Buat grup bersama ${nama}`}
+            title={diGrup ? 'Add members (Group info)' : `Create a group with ${nama}`}
           >
             <IconTambahOrang />
           </button>
         )}
         <div className="psn-menu-wadah" onClick={(e) => e.stopPropagation()}>
-          <button className="psn-ikon" onClick={() => setMenu((m) => !m)} title="Pilihan lain">
+          <button className="psn-ikon" onClick={() => setMenu((m) => !m)} title="More options">
             <IconMore size={18} />
           </button>
           {menu && (
             <div className="psn-menu">
-              {menuItem(disematkan ? 'Lepas sematan' : 'Sematkan percakapan', onSematkan)}
-              {menuItem(favorit ? 'Hapus dari favorit' : 'Tambah ke favorit', onFavorit)}
-              {menuItem(senyap ? 'Nyalakan notifikasi' : 'Matikan notifikasi', onSenyap)}
-              {diGrup && menuItem('Info grup', () => setInfo(true))}
+              {menuItem(disematkan ? 'Unpin' : 'Pin conversation', onSematkan)}
+              {menuItem(favorit ? 'Remove from favorites' : 'Add to favorites', onFavorit)}
+              {menuItem(senyap ? 'Turn on notifications' : 'Mute notifications', onSenyap)}
+              {diGrup && menuItem('Group info', () => setInfo(true))}
             </div>
           )}
         </div>
@@ -315,7 +315,7 @@ export function RuangPercakapan({
       <div className="psn-pesan">
         {pesan.length === 0 && !galat && (
           <p className="psn-kosong-ruang">
-            {diGrup ? 'Belum ada pesan di grup ini.' : `Belum ada pesan. Sapa ${nama} duluan.`}
+            {diGrup ? 'No messages in this group yet.' : `No messages yet. Say hi to ${nama} first.`}
           </p>
         )}
 
@@ -357,7 +357,7 @@ export function RuangPercakapan({
                 {p.dihapusAt ? (
                   // Nisan: barisnya tetap ada supaya percakapan tidak berlubang.
                   <div className="psn-gelembung nisan">
-                    <span className="psn-isi">🚫 Pesan ini dihapus</span>
+                    <span className="psn-isi">🚫 This message was deleted</span>
                     <span className="psn-meta">{jamPesan(p.createdAt)}</span>
                   </div>
                 ) : (
@@ -373,14 +373,14 @@ export function RuangPercakapan({
                         onClick={() =>
                           void window.aira.chatSimpanLampiran(p.id).catch((e) => setGalat(bersih(e)))
                         }
-                        title="Klik untuk menyimpan berkas"
+                        title="Click to save the file"
                       >
                         <span className="psn-lampiran-ikon">
                           <IconAttach size={16} />
                         </span>
                         <span className="psn-lampiran-teks">
                           <strong>{p.lampiranNama}</strong>
-                          <span>{ukuran(p.lampiranUkuran)} · klik untuk simpan</span>
+                          <span>{ukuran(p.lampiranUkuran)} · click to save</span>
                         </span>
                       </button>
                     )}
@@ -388,7 +388,7 @@ export function RuangPercakapan({
                     <span className="psn-meta">
                       {jamPesan(p.createdAt)}
                       {tanda && (
-                        <span className={`psn-centang${tanda === '✓✓' ? ' dibaca' : ''}`} title={tanda === '✓✓' ? 'Sudah dibaca' : 'Terkirim'}>
+                        <span className={`psn-centang${tanda === '✓✓' ? ' dibaca' : ''}`} title={tanda === '✓✓' ? 'Read' : 'Sent'}>
                           {tanda}
                         </span>
                       )}
@@ -398,7 +398,7 @@ export function RuangPercakapan({
                 {/* Tombol hapus hanya pada pesan SENDIRI. Kenyamanan, bukan
                     penguncian — main process menolak yang bukan miliknya. */}
                 {dariSaya && !p.dihapusAt && (
-                  <button className="psn-hapus" title="Hapus pesan ini" onClick={() => setHapus(p)}>
+                  <button className="psn-hapus" title="Delete this message" onClick={() => setHapus(p)}>
                     <IconTrash size={13} />
                   </button>
                 )}
@@ -410,7 +410,7 @@ export function RuangPercakapan({
       </div>
 
       {galat && (
-        <div className="psn-galat-bar" onClick={() => setGalat(null)} title="Klik untuk menutup">
+        <div className="psn-galat-bar" onClick={() => setGalat(null)} title="Click to dismiss">
           {galat}
         </div>
       )}
@@ -431,7 +431,7 @@ export function RuangPercakapan({
             className="psn-ikon"
             onClick={() => berkasRef.current?.click()}
             disabled={sibuk}
-            title="Kirim gambar atau berkas (maks 5 MB)"
+            title="Send an image or file (max 5 MB)"
           >
             <IconAttach size={18} />
           </button>
@@ -458,7 +458,7 @@ export function RuangPercakapan({
           <textarea
             ref={teksRef}
             rows={1}
-            placeholder="Tulis pesan..."
+            placeholder="Type a message..."
             value={teks}
             disabled={sibuk}
             onChange={(e) => setTeks(e.target.value)}
@@ -473,14 +473,14 @@ export function RuangPercakapan({
             className="psn-kirim"
             onClick={() => void kirim()}
             disabled={sibuk || !teks.trim()}
-            title="Kirim (Enter)"
+            title="Send (Enter)"
           >
             <IconSend size={16} />
           </button>
         </footer>
       ) : (
         <footer className="psn-tulis-tutup">
-          Kamu tidak bisa mengirim pesan ke grup ini karena kamu sudah bukan anggota.
+          You cannot send messages to this group because you are no longer a member.
         </footer>
       )}
 
@@ -506,11 +506,11 @@ export function RuangPercakapan({
 
       {hapus && (
         <ConfirmDialog
-          title="Hapus pesan ini?"
+          title="Delete this message?"
           body={
-            'Isi pesan dibuang untuk kamu DAN untuk ' +
-            (diGrup ? 'semua anggota grup' : nama) +
-            '. Yang tertinggal keterangan "Pesan ini dihapus" — tidak bisa dibatalkan.'
+            'The message content is removed for you AND for ' +
+            (diGrup ? 'all group members' : nama) +
+            '. Only a "This message was deleted" note remains — this cannot be undone.'
           }
           onCancel={() => setHapus(null)}
           onConfirm={() => void jalankanHapus(hapus.id)}

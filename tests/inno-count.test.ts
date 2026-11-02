@@ -44,6 +44,6 @@ describe('inno_item_count', () => {
     const teks = cari.summarize!({ jenis: 'single', lab: 'PK' })
     assert.doesNotMatch(teks, /undefined/)
     assert.match(teks, /single/)
-    assert.equal(hitung!.summarize!({}), 'Hitung item: semua')
+    assert.equal(hitung!.summarize!({}), 'Count items: all')
   })
 })

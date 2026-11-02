@@ -61,7 +61,7 @@ export default function Settings({ onBack, sesi, fokusPemantau, onAksiPemantau }
     <div className="settings">
       <div className="settings-inner">
         <div className="settings-head">
-          <button className="btn-mini" onClick={onBack} title="Kembali">
+          <button className="btn-mini" onClick={onBack} title="Back">
             <IconBack size={15} />
           </button>
           <h2>Settings</h2>
@@ -74,26 +74,26 @@ export default function Settings({ onBack, sesi, fokusPemantau, onAksiPemantau }
         <PanelPembaruan />
 
         <section className="card">
-          <h3>Notifikasi</h3>
+          <h3>Notifications</h3>
           <p className="hint">
-            AIRA memberi tahu saat task selesai, saat butuh izin, atau saat gagal. Notifikasi muncul
-            ketika jendela AIRA tidak sedang kamu lihat (task panjang tetap diberitahukan).
+            AIRA notifies you when a task finishes, needs permission, or fails. Notifications appear
+            when the AIRA window is not in view (long tasks are still announced).
           </p>
           {notifStatus && <p className="hint">{notifStatus}</p>}
           <button
             className="btn-send"
             onClick={() => {
-              setNotifStatus('Mengirim… lihat pojok kanan bawah layar.')
+              setNotifStatus('Sending… look at the bottom-right corner of the screen.')
               void window.aira.testNotification().then((shown) => {
                 setNotifStatus(
                   shown
-                    ? '✅ Notifikasi dikirim. Kalau tidak terlihat, cek Windows → Settings → Notifications dan pastikan notifikasi aplikasi diizinkan.'
-                    : '⚠️ Sistem menolak menampilkan notifikasi. Ikon AIRA di taskbar akan berkedip sebagai gantinya.'
+                    ? '✅ Notification sent. If you do not see it, check Windows → Settings → Notifications and make sure app notifications are allowed.'
+                    : '⚠️ The system refused to show the notification. The AIRA taskbar icon will flash instead.'
                 )
               })
             }}
           >
-            <IconBell size={15} /> Tes Notifikasi
+            <IconBell size={15} /> Test Notification
           </button>
         </section>
 
@@ -101,9 +101,9 @@ export default function Settings({ onBack, sesi, fokusPemantau, onAksiPemantau }
         <PemantauPanel onAksi={onAksiPemantau} fokus={fokusPemantau} />
 
         <section className="card">
-          <h3>Chat rekan</h3>
+          <h3>Teammate chat</h3>
           {chat === null ? (
-            <p className="hint">Setelan chat tidak terbaca.</p>
+            <p className="hint">Chat settings could not be read.</p>
           ) : (
             <>
               <label className="setel-baris">
@@ -113,10 +113,10 @@ export default function Settings({ onBack, sesi, fokusPemantau, onAksiPemantau }
                   onChange={(e) => void ubahChat({ autoStart: e.target.checked })}
                 />
                 <span>
-                  <strong>Nyalakan AIRA otomatis saat Windows login</strong>
+                  <strong>Start AIRA automatically when Windows signs in</strong>
                   <span className="hint">
-                    AIRA berjalan diam di tray, tidak membuka jendela. Tanpa ini, pesan dari rekan
-                    tidak akan sampai selama AIRA tidak dibuka — dan pengirimnya tidak tahu.
+                    AIRA runs quietly in the tray without opening a window. Without this, messages
+                    from teammates will not arrive while AIRA is closed — and the sender will not know.
                   </span>
                 </span>
               </label>
@@ -128,18 +128,17 @@ export default function Settings({ onBack, sesi, fokusPemantau, onAksiPemantau }
                   onChange={(e) => void ubahChat({ pratinjau: e.target.checked })}
                 />
                 <span>
-                  <strong>Tampilkan cuplikan isi pesan di notifikasi</strong>
+                  <strong>Show a message preview in notifications</strong>
                   <span className="hint">
-                    Matikan bila laptop sering di-share screen atau dicolok proyektor: cuplikan chat
-                    ikut muncul di layar besar dan tidak bisa ditarik kembali.
+                    Turn this off if your laptop is often screen-shared or plugged into a projector: the
+                    chat preview would show on the big screen and cannot be taken back.
                   </span>
                 </span>
               </label>
 
               <p className="hint">
-                Menutup jendela AIRA tidak mematikan aplikasinya — ia pindah ke tray supaya pesan
-                tetap masuk. Untuk benar-benar keluar, klik kanan ikon AIRA di tray lalu pilih
-                Keluar.
+                Closing the AIRA window does not quit the app — it moves to the tray so messages keep
+                arriving. To really quit, right-click the AIRA tray icon and choose Quit.
               </p>
             </>
           )}

@@ -75,8 +75,8 @@ describe('jadwal: validasi pola', () => {
   })
 
   test('uraian terbaca manusia', () => {
-    assert.equal(uraianPola({ jenis: 'mingguan', hari: [1, 4], jam: '08:00' }), 'Tiap Senin & Kamis, 08:00')
-    assert.match(uraianPola({ jenis: 'bulanan', tanggal: 31, jam: '07:30' }), /hari terakhir bulan/)
+    assert.equal(uraianPola({ jenis: 'mingguan', hari: [1, 4], jam: '08:00' }), 'Every Monday & Thursday, 08:00')
+    assert.match(uraianPola({ jenis: 'bulanan', tanggal: 31, jam: '07:30' }), /last day of the month/)
   })
 })
 

@@ -11,10 +11,11 @@
 import type { KartuVisual, Panel, Sel } from '../../shared/visual'
 import { PENERJEMAH_LAB } from './lab'
 import { PENERJEMAH_INNO } from './inno'
+import { bulanSingkat, labelArah, labelDimensi, labelPeriode } from '../sales/display-en'
 
 type J = Record<string, any>
 
-const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 const angka = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : v != null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null)
 
@@ -24,26 +25,26 @@ function persenSel(p: unknown): Sel {
   return { nilai: n, satuan: 'persen', arah: n > 0 ? 'naik' : n < 0 ? 'turun' : undefined }
 }
 
-/** Rupiah ringkas untuk catatan kartu ("Rp 102,3 M"). */
+/** Rupiah ringkas untuk catatan kartu ("IDR 102.3B"). */
 function fmtRp(n: number): string {
-  if (Math.abs(n) >= 1e9) return `Rp ${(n / 1e9).toLocaleString('id-ID', { maximumFractionDigits: 1 })} M`
-  if (Math.abs(n) >= 1e6) return `Rp ${(n / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 0 })} jt`
-  return `Rp ${Math.round(n).toLocaleString('id-ID')}`
+  if (Math.abs(n) >= 1e9) return `IDR ${(n / 1e9).toLocaleString('en-US', { maximumFractionDigits: 1 })}B`
+  if (Math.abs(n) >= 1e6) return `IDR ${(n / 1e6).toLocaleString('en-US', { maximumFractionDigits: 0 })}M`
+  return `IDR ${Math.round(n).toLocaleString('en-US')}`
 }
 
 const rpSel = (v: unknown): Sel => ({ nilai: angka(v), satuan: 'rp' })
 const nSel = (v: unknown): Sel => ({ nilai: angka(v), satuan: 'angka' })
 
-/** "bulan ini (2026-09-01 s/d 2026-09-29) · basis invoice · Provinsi: Jawa Barat" */
+/** "This month (2026-09-01 to 2026-09-29) · basis: invoice · Province: Jawa Barat" */
 function sub(j: J, periode?: string, rentang?: string): string | null {
   const bagian: string[] = []
   const p = periode ?? j.periode
   const r = rentang ?? j.rentang
-  if (p) bagian.push(r ? `${kapital(String(p))} (${r})` : kapital(String(p)))
-  if (j.basis) bagian.push(j.basis === 'order' ? 'basis order masuk' : 'basis invoice (tanggal hasil)')
-  if (Array.isArray(j.filterProvinsi)) bagian.push(`Provinsi: ${j.filterProvinsi.join(', ')}`)
-  if (Array.isArray(j.filterKota)) bagian.push(`Kota: ${j.filterKota.join(', ')}`)
-  if (j.cakupan && j.cakupan !== 'all') bagian.push(j.cakupan === 'erp' ? 'hanya yang sudah masuk ERP' : 'yang belum masuk ERP')
+  if (p) bagian.push(r ? `${kapital(labelPeriode(String(p)))} (${labelPeriode(String(r))})` : kapital(labelPeriode(String(p))))
+  if (j.basis) bagian.push(j.basis === 'order' ? 'basis: incoming orders' : 'basis: invoice (result date)')
+  if (Array.isArray(j.filterProvinsi)) bagian.push(`Province: ${j.filterProvinsi.join(', ')}`)
+  if (Array.isArray(j.filterKota)) bagian.push(`City: ${j.filterKota.join(', ')}`)
+  if (j.cakupan && j.cakupan !== 'all') bagian.push(j.cakupan === 'erp' ? 'only orders already in the ERP' : 'orders not yet in the ERP')
   return bagian.length ? bagian.join(' · ') : null
 }
 
@@ -53,9 +54,9 @@ const kapital = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1)
 export function labelDeret(periode: string, granularitas: string): string {
   const [y, m, d] = periode.split('-').map(Number)
   if (!y || !m) return periode
-  if (granularitas === 'month' || !d) return `${BULAN[m - 1]} ${y}`
-  if (granularitas === 'week') return `mg ${d} ${BULAN[m - 1]}`
-  return `${d} ${BULAN[m - 1]}`
+  if (granularitas === 'month' || !d) return `${MONTHS[m - 1]} ${y}`
+  if (granularitas === 'week') return `wk ${d} ${MONTHS[m - 1]}`
+  return `${d} ${MONTHS[m - 1]}`
 }
 
 /**
@@ -66,18 +67,18 @@ function cekOrderId(j: J): KartuVisual | null {
   if (typeof j.ditemukan !== 'boolean' || typeof j.order_id !== 'string') return null
   const catatan = [
     typeof j.catatanKesegaran === 'string' ? j.catatanKesegaran : null,
-    'Data pasien, jenis pemeriksaan, harga, dan pelanggan sengaja tidak ditampilkan.'
+    'Patient data, test type, price, and customer are deliberately not shown.'
   ].filter((x): x is string => x !== null)
   if (!j.ditemukan) {
     return {
       tool: 'sales_order_status',
       judul: `Order ID ${j.order_id}`,
-      sub: 'Belum ada di SalesRepository',
+      sub: 'Not in SalesRepository yet',
       panel: [
         {
           jenis: 'tabel',
-          judul: 'Kemungkinan sebabnya',
-          kolom: [{ label: 'Sebab' }],
+          judul: 'Possible causes',
+          kolom: [{ label: 'Cause' }],
           baris: (Array.isArray(j.sebabMungkin) ? j.sebabMungkin : []).map((s: unknown) => [String(s)])
         }
       ],
@@ -89,22 +90,22 @@ function cekOrderId(j: J): KartuVisual | null {
   const teksSel = (v: unknown): Sel => (v == null || v === '' ? '—' : String(v))
   return {
     tool: 'sales_order_status',
-    judul: hasil.length === 1 ? `Order ID ${hasil[0].order_id}` : `Order ID ${j.order_id} (${hasil.length} cocok)`,
+    judul: hasil.length === 1 ? `Order ID ${hasil[0].order_id}` : `Order ID ${j.order_id} (${hasil.length} matches)`,
     sub: typeof j.ringkasan === 'string' ? j.ringkasan : null,
     panel: hasil.map((h) => ({
       jenis: 'tabel' as const,
       judul: hasil.length > 1 ? String(h.order_id) : undefined,
-      kolom: [{ label: 'Status' }, { label: 'Keterangan' }],
+      kolom: [{ label: 'Status' }, { label: 'Details' }],
       baris: [
-        ['Diakui sebagai transaksi', h.diakui ? 'Ya' : 'Tidak — transfer dibatalkan'],
-        ['Jumlah pemeriksaan', nSel(h.jumlahPemeriksaan)],
-        ...(angka(h.pemeriksaanDibatalkan) ? [['Pemeriksaan dibatalkan', nSel(h.pemeriksaanDibatalkan)] as Sel[]] : []),
-        ['Tanggal order masuk', teksSel(h.tanggalOrderMasuk)],
-        ['Hasil / invoice keluar', teksSel(h.hasilInvoice)],
-        ['Tanggal hasil / invoice', teksSel(h.tanggalHasilInvoice)],
-        ['Order di ERP', teksSel(h.orderDiERP)],
-        ['Invoice di ERP', teksSel(h.invoiceDiERP)],
-        ['Data terakhir diperbarui', teksSel(h.terakhirDiperbarui)]
+        ['Recognized as a transaction', h.diakui ? 'Yes' : 'No — transfer cancelled'],
+        ['Number of tests', nSel(h.jumlahPemeriksaan)],
+        ...(angka(h.pemeriksaanDibatalkan) ? [['Cancelled tests', nSel(h.pemeriksaanDibatalkan)] as Sel[]] : []),
+        ['Order received date', teksSel(h.tanggalOrderMasuk)],
+        ['Result / invoice released', teksSel(h.hasilInvoice)],
+        ['Result / invoice date', teksSel(h.tanggalHasilInvoice)],
+        ['Order in the ERP', teksSel(h.orderDiERP)],
+        ['Invoice in the ERP', teksSel(h.invoiceDiERP)],
+        ['Data last updated', teksSel(h.terakhirDiperbarui)]
       ]
     })),
     catatan: h0Catatan(hasil, catatan)
@@ -121,26 +122,26 @@ function summary(j: J): KartuVisual | null {
   if (angka(j.nett) === null) return null
   return {
     tool: 'sales_summary',
-    judul: 'Ringkasan Penjualan',
+    judul: 'Sales Summary',
     sub: sub(j),
     panel: [
       {
         jenis: 'kpi',
         item: [
           { label: 'Sales (nett)', nilai: angka(j.nett), satuan: 'rp' },
-          { label: 'Jumlah order', nilai: angka(j.jumlahOrder), satuan: 'angka', catatan: `${angka(j.barisItem) ?? '—'} baris pemeriksaan` },
-          { label: 'Pelanggan', nilai: angka(j.pelanggan), satuan: 'angka' },
-          { label: 'Jenis pemeriksaan', nilai: angka(j.jenis_item), satuan: 'angka' }
+          { label: 'Orders', nilai: angka(j.jumlahOrder), satuan: 'angka', catatan: `${angka(j.barisItem) ?? '—'} test lines` },
+          { label: 'Customers', nilai: angka(j.pelanggan), satuan: 'angka' },
+          { label: 'Test types', nilai: angka(j.jenis_item), satuan: 'angka' }
         ]
       },
       {
         jenis: 'tabel',
-        kolom: [{ label: 'Komponen' }, { label: 'Nilai', kanan: true }],
+        kolom: [{ label: 'Component' }, { label: 'Value', kanan: true }],
         baris: [
           ['Gross', rpSel(j.gross)],
-          ['Diskon', rpSel(j.diskon)],
+          ['Discount', rpSel(j.diskon)],
           ['Nett', rpSel(j.nett)],
-          ['Jumlah invoice', nSel(j.jumlahInvoice)]
+          ['Invoices', nSel(j.jumlahInvoice)]
         ]
       }
     ],
@@ -155,33 +156,33 @@ function compare(j: J): KartuVisual | null {
   const baris: Sel[][] = [
     ['Nett', rpSel(a.nett), rpSel(b.nett), persenSel(pers(a.nett, b.nett))],
     ['Gross', rpSel(a.gross), rpSel(b.gross), persenSel(pers(a.gross, b.gross))],
-    ['Diskon', rpSel(a.diskon), rpSel(b.diskon), persenSel(pers(a.diskon, b.diskon))],
-    ['Jumlah order', nSel(a.jumlahOrder), nSel(b.jumlahOrder), persenSel(pers(a.jumlahOrder, b.jumlahOrder))],
-    ['Pelanggan', nSel(a.pelanggan), nSel(b.pelanggan), persenSel(pers(a.pelanggan, b.pelanggan))],
-    ['Jenis pemeriksaan', nSel(a.jenis_item), nSel(b.jenis_item), persenSel(pers(a.jenis_item, b.jenis_item))]
+    ['Discount', rpSel(a.diskon), rpSel(b.diskon), persenSel(pers(a.diskon, b.diskon))],
+    ['Orders', nSel(a.jumlahOrder), nSel(b.jumlahOrder), persenSel(pers(a.jumlahOrder, b.jumlahOrder))],
+    ['Customers', nSel(a.pelanggan), nSel(b.pelanggan), persenSel(pers(a.pelanggan, b.pelanggan))],
+    ['Test types', nSel(a.jenis_item), nSel(b.jenis_item), persenSel(pers(a.jenis_item, b.jenis_item))]
   ]
   const p = angka(j.persenPerubahan)
   return {
     tool: 'sales_compare',
-    judul: 'Perbandingan Penjualan',
-    sub: sub(j, `${a.label} vs ${String(b.label).split(' (')[0]}`, `${a.rentang} vs ${b.rentang}`),
+    judul: 'Sales Comparison',
+    sub: sub(j, `${labelPeriode(a.label)} vs ${labelPeriode(String(b.label).split(' (')[0])}`, `${a.rentang} vs ${b.rentang}`),
     panel: [
       {
         jenis: 'kpi',
         item: [
-          { label: kapital(String(a.label)), nilai: angka(a.nett), satuan: 'rp' },
-          { label: kapital(String(b.label).split(' (')[0]), nilai: angka(b.nett), satuan: 'rp' },
-          { label: 'Selisih', nilai: angka(j.selisihNett), satuan: 'rp' },
-          { label: 'Pertumbuhan', nilai: p, satuan: 'persen', arah: p === null ? undefined : p >= 0 ? 'naik' : 'turun' }
+          { label: kapital(labelPeriode(String(a.label))), nilai: angka(a.nett), satuan: 'rp' },
+          { label: kapital(labelPeriode(String(b.label).split(' (')[0])), nilai: angka(b.nett), satuan: 'rp' },
+          { label: 'Difference', nilai: angka(j.selisihNett), satuan: 'rp' },
+          { label: 'Growth', nilai: p, satuan: 'persen', arah: p === null ? undefined : p >= 0 ? 'naik' : 'turun' }
         ]
       },
       {
         jenis: 'tabel',
-        kolom: [{ label: 'Indikator' }, { label: kapital(String(a.label)), kanan: true }, { label: 'Pembanding', kanan: true }, { label: '% Change', kanan: true }],
+        kolom: [{ label: 'Indicator' }, { label: kapital(labelPeriode(String(a.label))), kanan: true }, { label: 'Comparison', kanan: true }, { label: '% Change', kanan: true }],
         baris
       }
     ],
-    catatan: j.catatanPerbandingan ? [`Pembanding dipotong ke jumlah hari yang sama (${b.rentang}).`] : []
+    catatan: j.catatanPerbandingan ? [`The comparison is trimmed to the same number of days (${labelPeriode(String(b.rentang))}).`] : []
   }
 }
 
@@ -196,18 +197,19 @@ function pers(kini: unknown, lalu: unknown): number | null {
 function breakdown(j: J): KartuVisual | null {
   if (!Array.isArray(j.baris)) return null
   const baris = j.baris as J[]
-  const dim = String(j.dimensi ?? 'kategori')
+  const dim = labelDimensi(String(j.dimensi ?? 'category'))
   const catatan: string[] = []
   if (angka(j.persenTercakupDaftarIni) !== null) {
-    catatan.push(`Daftar ini mencakup ${String(j.persenTercakupDaftarIni).replace('.', ',')}% dari total nett periode (Rp ${Math.round(angka(j.totalNettPeriode) ?? 0).toLocaleString('id-ID')}).`)
+    catatan.push(`This list covers ${String(j.persenTercakupDaftarIni)}% of the period's total nett (IDR ${Math.round(angka(j.totalNettPeriode) ?? 0).toLocaleString('en-US')}).`)
   }
-  if (j.catatanUrutan) catatan.push('Hanya yang PUNYA transaksi di periode ini; yang nol tidak muncul.')
-  if (baris.some((r) => String(r.kategori).startsWith('(pelanggan tidak ada di master)'))) {
-    catatan.push('"(pelanggan tidak ada di master)" = transaksi yang kode pelanggannya belum terdaftar di master.')
+  if (j.catatanUrutan) catatan.push('Only rows WITH transactions in this period; zero rows are not shown.')
+  const penandaTanpaMaster = '(pelanggan tidak ada di master)' // marker written by the region/customer queries
+  if (baris.some((r) => String(r.kategori).startsWith(penandaTanpaMaster))) {
+    catatan.push('"' + penandaTanpaMaster + '" = transactions whose customer code is not registered in the master data.')
   }
   return {
     tool: 'sales_breakdown',
-    judul: `Penjualan per ${dim}${j.urutan?.startsWith('terkecil') ? ' (terkecil)' : ''}`,
+    judul: `Sales by ${dim}${j.urutan?.startsWith('terkecil') ? ' (smallest)' : ''}`,
     sub: sub(j),
     panel: [
       {
@@ -216,12 +218,12 @@ function breakdown(j: J): KartuVisual | null {
         baris: baris.slice(0, 15).map((r) => ({
           label: String(r.kategori),
           nilai: angka(r.nett) ?? 0,
-          catatan: angka(r.persen) !== null ? `${String(r.persen).replace('.', ',')}%` : undefined
+          catatan: angka(r.persen) !== null ? `${String(r.persen)}%` : undefined
         }))
       },
       {
         jenis: 'tabel',
-        kolom: [{ label: '#' }, { label: kapital(dim) }, { label: 'Order', kanan: true }, { label: 'Nett', kanan: true }, { label: 'Kontribusi', kanan: true }],
+        kolom: [{ label: '#' }, { label: kapital(dim) }, { label: 'Orders', kanan: true }, { label: 'Nett', kanan: true }, { label: 'Contribution', kanan: true }],
         baris: baris.map((r, i) => [i + 1, String(r.kategori), nSel(r.jumlahOrder), rpSel(r.nett), angka(r.persen) === null ? null : { nilai: angka(r.persen), satuan: 'persen' }])
       }
     ],
@@ -238,15 +240,15 @@ function trend(j: J): KartuVisual | null {
   const puncak = deret.reduce((a, b) => ((angka(b.nett) ?? 0) > (angka(a.nett) ?? 0) ? b : a))
   return {
     tool: 'sales_trend',
-    judul: `Tren Penjualan per ${g === 'month' ? 'Bulan' : g === 'week' ? 'Minggu' : 'Hari'}`,
+    judul: `Sales Trend by ${g === 'month' ? 'Month' : g === 'week' ? 'Week' : 'Day'}`,
     sub: sub(j),
     panel: [
       {
         jenis: 'kpi',
         item: [
-          { label: 'Total nett periode', nilai: total, satuan: 'rp' },
-          { label: g === 'day' ? 'Order (jumlah harian)' : 'Order (jumlah per periode)', nilai: order, satuan: 'angka', catatan: g === 'day' ? 'order lintas hari bisa terhitung dua kali' : undefined },
-          { label: 'Tertinggi', nilai: angka(puncak.nett), satuan: 'rp', catatan: labelDeret(String(puncak.periode), g) }
+          { label: 'Total nett for the period', nilai: total, satuan: 'rp' },
+          { label: g === 'day' ? 'Orders (daily sum)' : 'Orders (sum per period)', nilai: order, satuan: 'angka', catatan: g === 'day' ? 'orders spanning several days may be counted twice' : undefined },
+          { label: 'Highest', nilai: angka(puncak.nett), satuan: 'rp', catatan: labelDeret(String(puncak.periode), g) }
         ]
       },
       {
@@ -268,20 +270,20 @@ function movers(j: J): KartuVisual | null {
       rpSel(r.nett),
       rpSel(r.nettSebelum),
       { nilai: angka(r.selisih), satuan: 'rp', arah: (angka(r.selisih) ?? 0) >= 0 ? 'naik' : 'turun' },
-      r.status === 'baru' ? 'baru' : r.status === 'berhenti' ? 'berhenti' : persenSel(r.persen)
+      r.status === 'baru' ? 'new' : r.status === 'berhenti' ? 'stopped' : persenSel(r.persen)
     ])
-  const kolom = [{ label: 'Pemeriksaan' }, { label: 'Kini', kanan: true }, { label: 'Pembanding', kanan: true }, { label: 'Selisih', kanan: true }, { label: '%', kanan: true }]
+  const kolom = [{ label: 'Test' }, { label: 'Current', kanan: true }, { label: 'Comparison', kanan: true }, { label: 'Difference', kanan: true }, { label: '%', kanan: true }]
   const a = j.periodeUtama ?? {}
   const b = j.periodePembanding ?? {}
   return {
     tool: 'sales_movers',
-    judul: 'Pemeriksaan yang Paling Naik & Turun',
-    sub: sub(j, `${a.label} vs ${String(b.label ?? '').split(' (')[0]}`, `${a.rentang} vs ${b.rentang}`),
+    judul: 'Tests Rising & Falling the Most',
+    sub: sub(j, `${labelPeriode(a.label)} vs ${labelPeriode(String(b.label ?? '').split(' (')[0])}`, `${a.rentang} vs ${b.rentang}`),
     panel: [
-      { jenis: 'tabel', judul: 'Paling naik', kolom, baris: baris(j.itemNaik ?? []) },
-      { jenis: 'tabel', judul: 'Paling turun', kolom, baris: baris(j.itemTurun ?? []) }
+      { jenis: 'tabel', judul: 'Rising the most', kolom, baris: baris(j.itemNaik ?? []) },
+      { jenis: 'tabel', judul: 'Falling the most', kolom, baris: baris(j.itemTurun ?? []) }
     ],
-    catatan: ['Diurutkan menurut selisih rupiah, bukan persentase. "baru" = nol di periode pembanding; "berhenti" = nol di periode ini.']
+    catatan: ['Sorted by rupiah difference, not percentage. "new" = zero in the comparison period; "stopped" = zero in this period.']
   }
 }
 
@@ -294,10 +296,10 @@ function ytd(j: J): KartuVisual | null {
     {
       jenis: 'kpi',
       item: [
-        { label: String(a.label), nilai: angka(a.nett), satuan: 'rp' },
-        { label: String(b.label), nilai: angka(b.nett), satuan: 'rp' },
-        { label: 'Selisih', nilai: angka(j.selisihNett), satuan: 'rp' },
-        { label: 'Pertumbuhan', nilai: g, satuan: 'persen', arah: g === null ? undefined : g >= 0 ? 'naik' : 'turun', catatan: g === null && j.peringatanGrowth ? 'sengaja tidak dihitung — lihat catatan' : undefined }
+        { label: labelPeriode(String(a.label)), nilai: angka(a.nett), satuan: 'rp' },
+        { label: labelPeriode(String(b.label)), nilai: angka(b.nett), satuan: 'rp' },
+        { label: 'Difference', nilai: angka(j.selisihNett), satuan: 'rp' },
+        { label: 'Growth', nilai: g, satuan: 'persen', arah: g === null ? undefined : g >= 0 ? 'naik' : 'turun', catatan: g === null && j.peringatanGrowth ? 'deliberately not calculated — see note' : undefined }
       ]
     }
   ]
@@ -310,7 +312,7 @@ function ytd(j: J): KartuVisual | null {
         jenis: 'deret',
         satuan: 'rp',
         namaSeri: baru.slice(4),
-        titik: rows.map((r) => ({ label: String(r.bulan).slice(0, 3), nilai: angka(r[baru]) ?? 0 })),
+        titik: rows.map((r) => ({ label: bulanSingkat(String(r.bulan)), nilai: angka(r[baru]) ?? 0 })),
         pembanding: { nama: lama.slice(4), nilai: rows.map((r) => angka(r[lama])) }
       })
     }
@@ -318,10 +320,21 @@ function ytd(j: J): KartuVisual | null {
   return {
     tool: 'sales_ytd',
     judul: 'Year-to-Date (YTD)',
-    sub: sub(j, `${a.label} vs ${b.label}`, `${a.rentang} vs ${b.rentang}`),
+    sub: sub(j, `${labelPeriode(String(a.label))} vs ${labelPeriode(String(b.label))}`, `${a.rentang} vs ${b.rentang}`),
     panel,
-    catatan: j.peringatanGrowth ? ['Persentase pertumbuhan sengaja tidak dihitung: cakupan ERP baru lengkap sejak tanggal bridging.'] : []
+    catatan: j.peringatanGrowth ? ['The growth percentage is deliberately not calculated: ERP coverage is only complete since the bridging date.'] : []
   }
+}
+
+/** Criteria sentence of the customers tool, in English for the card. Unknown wording passes through. */
+function kriteriaEn(k: string): string {
+  let m = /^pernah aktif minimal (\d+) bulan DAN sudah lebih dari (\d+) hari tidak order$/.exec(k)
+  if (m) return `was active for at least ${m[1]} months AND has not ordered for more than ${m[2]} days`
+  m = /^masih order \(diam <= (\d+) hari\) tetapi nett (\d+) hari terakhir turun minimal (\d+)% dibanding (\d+) hari sebelumnya$/.exec(k)
+  if (m) return `still ordering (inactive <= ${m[1]} days) but nett over the last ${m[2]} days dropped by at least ${m[3]}% vs the previous ${m[4]} days`
+  m = /^order pertamanya jatuh dalam (\d+) hari terakhir$/.exec(k)
+  if (m) return `first order falls within the last ${m[1]} days`
+  return k
 }
 
 function customers(j: J): KartuVisual | null {
@@ -330,33 +343,33 @@ function customers(j: J): KartuVisual | null {
   const rows = j.baris as J[]
   const kolom =
     status === 'melemah'
-      ? [{ label: 'Pelanggan' }, { label: 'Nett terkini', kanan: true }, { label: 'Sebelumnya', kanan: true }, { label: 'Turun', kanan: true }]
+      ? [{ label: 'Customer' }, { label: 'Current nett', kanan: true }, { label: 'Previous', kanan: true }, { label: 'Drop', kanan: true }]
       : status === 'baru'
-        ? [{ label: 'Pelanggan' }, { label: 'Order pertama', kanan: true }, { label: 'Nett', kanan: true }]
-        : [{ label: 'Pelanggan' }, { label: 'Diam', kanan: true }, { label: 'Bulan aktif', kanan: true }, { label: 'Nett pengamatan', kanan: true }]
+        ? [{ label: 'Customer' }, { label: 'First order', kanan: true }, { label: 'Nett', kanan: true }]
+        : [{ label: 'Customer' }, { label: 'Inactive', kanan: true }, { label: 'Active months', kanan: true }, { label: 'Observed nett', kanan: true }]
   const baris: Sel[][] = rows.map((r) =>
     status === 'melemah'
       ? [String(r.nama), rpSel(r.nettTerkini), rpSel(r.nettSebelum), angka(r.persenTurun) === null ? null : { nilai: -(angka(r.persenTurun) as number), satuan: 'persen', arah: 'turun' }]
       : status === 'baru'
-        ? [String(r.nama), `${r.hariSejakPertama} hari lalu`, rpSel(r.nettTotal)]
+        ? [String(r.nama), `${r.hariSejakPertama} days ago`, rpSel(r.nettTotal)]
         : [String(r.nama), { nilai: angka(r.hariDiam), satuan: 'hari' }, nSel(r.bulanAktif), rpSel(r.nettTotal)]
   )
-  const judul = status === 'melemah' ? 'Pelanggan yang Melemah' : status === 'baru' ? 'Pelanggan Baru' : 'Pelanggan yang Berhenti Order'
+  const judul = status === 'melemah' ? 'Declining Customers' : status === 'baru' ? 'New Customers' : 'Customers Who Stopped Ordering'
   return {
     tool: 'sales_customers',
     judul,
-    sub: [j.rentangPengamatan ? `Pengamatan ${j.rentangPengamatan}` : null, sub(j)].filter(Boolean).join(' · ') || null,
+    sub: [j.rentangPengamatan ? `Observation ${labelPeriode(String(j.rentangPengamatan))}` : null, sub(j)].filter(Boolean).join(' · ') || null,
     panel: [
       {
         jenis: 'kpi',
         item: [
-          { label: `Jumlah pelanggan ${status}`, nilai: angka(j.jumlahPelanggan), satuan: 'angka', catatan: rows.length < (angka(j.jumlahPelanggan) ?? 0) ? `${rows.length} teratas ditampilkan` : undefined },
-          { label: 'Nett dalam pengamatan', nilai: angka(j.totalNettPengamatan), satuan: 'rp' }
+          { label: 'Number of ' + (status === 'melemah' ? 'declining' : status === 'baru' ? 'new' : 'lapsed') + ' customers', nilai: angka(j.jumlahPelanggan), satuan: 'angka', catatan: rows.length < (angka(j.jumlahPelanggan) ?? 0) ? `top ${rows.length} shown` : undefined },
+          { label: 'Nett in the observation window', nilai: angka(j.totalNettPengamatan), satuan: 'rp' }
         ]
       },
       { jenis: 'tabel', kolom, baris }
     ],
-    catatan: [String(j.kriteria ?? ''), j.segmen === 'institusi' ? 'Akun "Pasien Pribadi" tidak termasuk.' : ''].filter(Boolean).map((k) => kapital(k))
+    catatan: [kriteriaEn(String(j.kriteria ?? '')), j.segmen === 'institusi' ? 'The "Pasien Pribadi" (private patient) account is not included.' : ''].filter(Boolean).map((k) => kapital(k))
   }
 }
 
@@ -365,20 +378,20 @@ function projection(j: J): KartuVisual | null {
   const s = angka(j.selisihTerhadapTrenPersen)
   return {
     tool: 'sales_projection',
-    judul: 'Proyeksi Tutup Bulan',
-    sub: `Bulan ${j.bulanBerjalan} · data sampai ${j.sampaiTanggal} (hari ke-${j.hariKe} dari ${j.hariDalamBulan}) · basis ${j.basis}`,
+    judul: 'Month-End Projection',
+    sub: `Month ${j.bulanBerjalan} · data up to ${j.sampaiTanggal} (day ${j.hariKe} of ${j.hariDalamBulan}) · basis ${j.basis}`,
     panel: [
       {
         jenis: 'kpi',
         item: [
-          { label: 'Nett sejauh ini', nilai: angka(j.nettSejauhIni), satuan: 'rp', catatan: `${j.jumlahOrderSejauhIni ?? '—'} order` },
-          { label: 'Proyeksi tutup bulan', nilai: angka(j.proyeksiNettTutupBulan), satuan: 'rp', catatan: 'PERKIRAAN' },
-          { label: 'Harapan menurut tren', nilai: angka(j.harapanMenurutTren), satuan: 'rp' },
-          { label: 'Selisih vs tren', nilai: s, satuan: 'persen', arah: s === null ? undefined : s >= 0 ? 'naik' : 'turun' }
+          { label: 'Nett so far', nilai: angka(j.nettSejauhIni), satuan: 'rp', catatan: `${j.jumlahOrderSejauhIni ?? '—'} orders` },
+          { label: 'Month-end projection', nilai: angka(j.proyeksiNettTutupBulan), satuan: 'rp', catatan: 'ESTIMATE' },
+          { label: 'Expected from trend', nilai: angka(j.harapanMenurutTren), satuan: 'rp' },
+          { label: 'Difference vs trend', nilai: s, satuan: 'persen', arah: s === null ? undefined : s >= 0 ? 'naik' : 'turun' }
         ]
       }
     ],
-    catatan: [`Perkiraan (dasar: ${j.dasarProyeksi}), bukan realisasi — angka pastinya baru ada saat bulan ditutup.`]
+    catatan: [`Estimate (basis: ${j.dasarProyeksi}), not actuals — the exact figure is only known when the month closes.`]
   }
 }
 
@@ -387,42 +400,42 @@ function forecast(j: J): KartuVisual | null {
     const r = j.ramalan as J[]
     return {
       tool: 'sales_forecast',
-      judul: 'Ramalan Penjualan',
-      sub: `Dari ${j.riwayatBulan} bulan riwayat · bulan lengkap terakhir ${j.bulanTerakhirLengkap} · basis ${j.basis}`,
+      judul: 'Sales Forecast',
+      sub: `From ${j.riwayatBulan} months of history · last complete month ${j.bulanTerakhirLengkap} · basis ${j.basis}`,
       panel: [
         {
           jenis: 'kpi',
           item: [
-            { label: `Nett ${j.bulanTerakhirLengkap} (aktual)`, nilai: angka(j.nettBulanTerakhir), satuan: 'rp' },
-            { label: 'Akurasi historis (MAPE)', nilai: angka(j.akurasiHistorisPersen), satuan: 'persen', catatan: 'makin kecil makin akurat' }
+            { label: `Nett ${j.bulanTerakhirLengkap} (actual)`, nilai: angka(j.nettBulanTerakhir), satuan: 'rp' },
+            { label: 'Historical accuracy (MAPE)', nilai: angka(j.akurasiHistorisPersen), satuan: 'persen', catatan: 'lower is more accurate' }
           ]
         },
         {
           jenis: 'deret',
           satuan: 'rp',
-          namaSeri: 'Ramalan',
+          namaSeri: 'Forecast',
           titik: r.map((x) => {
             const [y, m] = String(x.bulan).split('-').map(Number)
-            return { label: `${BULAN[m - 1]} ${y}`, nilai: angka(x.nett) ?? 0, bawah: angka(x.rentangBawah), atas: angka(x.rentangAtas), perkiraan: true }
+            return { label: `${MONTHS[m - 1]} ${y}`, nilai: angka(x.nett) ?? 0, bawah: angka(x.rentangBawah), atas: angka(x.rentangAtas), perkiraan: true }
           })
         }
       ],
-      catatan: ['Ramalan = perkiraan dengan rentang, bukan angka pasti. Bulan berjalan tidak diramal (pakai proyeksi).']
+      catatan: ['Forecast = an estimate with a range, not an exact figure. The current month is not forecast (use the projection).']
     }
   }
   if (Array.isArray(j.item)) {
     return {
       tool: 'sales_forecast',
-      judul: 'Arah Tren per Pemeriksaan',
-      sub: `Tren ${j.jendelaBulan} bulan (${j.rentangBulan}) · basis ${j.basis}`,
+      judul: 'Trend Direction by Test',
+      sub: `${j.jendelaBulan}-month trend (${j.rentangBulan}) · basis ${j.basis}`,
       panel: [
         {
           jenis: 'tabel',
-          kolom: [{ label: 'Pemeriksaan' }, { label: 'Arah' }, { label: 'Laju/bulan', kanan: true }, { label: 'Laju %/bulan', kanan: true }, { label: 'Nett bulan terakhir', kanan: true }],
-          baris: (j.item as J[]).map((x) => [String(x.item), String(x.arah), { nilai: angka(x.lajuPerBulan), satuan: 'rp', arah: (angka(x.lajuPerBulan) ?? 0) >= 0 ? 'naik' : 'turun' }, persenSel(x.lajuPersenPerBulan), rpSel(x.nettBulanTerakhir)])
+          kolom: [{ label: 'Test' }, { label: 'Direction' }, { label: 'Rate/month', kanan: true }, { label: 'Rate %/month', kanan: true }, { label: 'Last month nett', kanan: true }],
+          baris: (j.item as J[]).map((x) => [String(x.item), labelArah(x.arah), { nilai: angka(x.lajuPerBulan), satuan: 'rp', arah: (angka(x.lajuPerBulan) ?? 0) >= 0 ? 'naik' : 'turun' }, persenSel(x.lajuPersenPerBulan), rpSel(x.nettBulanTerakhir)])
         }
       ],
-      catatan: ['Ekstrapolasi tren, bukan ramalan bermusim; data ini tidak memuat sebab naik/turunnya.']
+      catatan: ['Trend extrapolation, not a seasonal forecast; this data does not explain why values rise or fall.']
     }
   }
   return null
@@ -444,36 +457,36 @@ function fullYear(j: J): KartuVisual | null {
     ...ramalan.map((t) => ({ label: labelDeret(String(t.bulan), 'month'), nilai: angka(t.nett) ?? 0, bawah: angka(t.rentangBawah), atas: angka(t.rentangAtas), perkiraan: true }))
   ]
   const be = angka(j.bestEstimate)
-  const judul = j.jenis === 'realisasi' ? `Realisasi Penjualan ${j.tahun}` : `Best Estimate Penjualan ${j.tahun}`
+  const judul = (j.jenis === 'realisasi' ? 'Sales Actuals ' : 'Sales Best Estimate ') + j.tahun
   const pTahun = angka(j.pertumbuhanVsTahunLaluPersen)
   return {
     tool: 'sales_full_year',
     judul,
-    sub: `sampai ${j.sampaiTanggal} · basis ${j.basis === 'order' ? 'order masuk' : 'invoice (tanggal hasil)'}`,
+    sub: `up to ${j.sampaiTanggal} · basis: ${j.basis === 'order' ? 'incoming orders' : 'invoice (result date)'}`,
     panel: [
       {
         jenis: 'kpi',
         item: [
           j.jenis === 'tidak_lengkap'
-            ? { label: 'Best Estimate', nilai: null, satuan: 'rp', catatan: 'tidak dihitung — sisa tahun melewati batas ramalan 3 bulan' }
+            ? { label: 'Best Estimate', nilai: null, satuan: 'rp', catatan: 'not calculated — the rest of the year is beyond the 3-month forecast limit' }
             : {
-                label: j.jenis === 'realisasi' ? 'Total setahun' : 'Best Estimate setahun',
+                label: j.jenis === 'realisasi' ? 'Full-year total' : 'Full-year Best Estimate',
                 nilai: be,
                 satuan: 'rp',
-                catatan: angka(j.rentangBawah) !== null ? `rentang ${fmtRp(angka(j.rentangBawah) as number)} – ${fmtRp(angka(j.rentangAtas) as number)}` : j.jenis === 'realisasi' ? 'realisasi' : undefined
+                catatan: angka(j.rentangBawah) !== null ? `range ${fmtRp(angka(j.rentangBawah) as number)} – ${fmtRp(angka(j.rentangAtas) as number)}` : j.jenis === 'realisasi' ? 'actuals' : undefined
               },
-          { label: `Aktual ${aktual.length} bulan`, nilai: angka(j.totalAktual), satuan: 'rp' },
-          ...(pr ? [{ label: `Proyeksi ${labelDeret(String(pr.bulan), 'month')}`, nilai: angka(pr.nett), satuan: 'rp' as const, catatan: 'PERKIRAAN bulan berjalan' }] : []),
-          ...(pTahun !== null ? [{ label: `vs full year ${Number(j.tahun) - 1}`, nilai: pTahun, satuan: 'persen' as const, arah: pTahun >= 0 ? ('naik' as const) : ('turun' as const), catatan: fmtRp(angka(j.fullYearTahunLalu) ?? 0) }] : [])
+          { label: `Actual ${aktual.length} months`, nilai: angka(j.totalAktual), satuan: 'rp' },
+          ...(pr ? [{ label: 'Projection ' + labelDeret(String(pr.bulan), 'month'), nilai: angka(pr.nett), satuan: 'rp' as const, catatan: 'ESTIMATE for the current month' }] : []),
+          ...(pTahun !== null ? [{ label: 'vs full year ' + (Number(j.tahun) - 1), nilai: pTahun, satuan: 'persen' as const, arah: pTahun >= 0 ? ('naik' as const) : ('turun' as const), catatan: fmtRp(angka(j.fullYearTahunLalu) ?? 0) }] : [])
         ]
       },
-      ...(titik.length ? [{ jenis: 'deret' as const, judul: 'Nett per bulan — aktual lalu perkiraan', satuan: 'rp' as const, namaSeri: 'Nett', titik }] : [])
+      ...(titik.length ? [{ jenis: 'deret' as const, judul: 'Nett per month — actual, then estimate', satuan: 'rp' as const, namaSeri: 'Nett', titik }] : [])
     ],
     catatan: [
-      ...(j.jenis === 'best_estimate' ? ['PERKIRAAN, bukan realisasi: bulan berjalan dari pola penumpukan, sisa bulan dari tren 12 bulan.', `Akurasi historis ramalan (MAPE): ${String(j.akurasiHistorisPersen ?? '—').replace('.', ',')}%.`] : []),
-      ...(j.jenis === 'tidak_lengkap' ? [`Bulan ${(j.bulanTakDiramal as string[]).join(', ')} tidak diramal — di luar batas 3 bulan, tren linier tidak dapat dipercaya.`] : []),
-      ...(Array.isArray(j.bulanKosong) && j.bulanKosong.length ? [`Bulan tanpa data: ${j.bulanKosong.join(', ')} (bukan nol).`] : []),
-      'Best Estimate = perkiraan dari data, bukan target/budget.'
+      ...(j.jenis === 'best_estimate' ? ['ESTIMATE, not actuals: the current month comes from the accumulation pattern, the remaining months from the 12-month trend.', `Historical forecast accuracy (MAPE): ${String(j.akurasiHistorisPersen ?? '—')}%.`] : []),
+      ...(j.jenis === 'tidak_lengkap' ? [`Months ${(j.bulanTakDiramal as string[]).join(', ')} are not forecast — beyond the 3-month limit a linear trend cannot be trusted.`] : []),
+      ...(Array.isArray(j.bulanKosong) && j.bulanKosong.length ? [`Months without data: ${j.bulanKosong.join(', ')} (not zero).`] : []),
+      'Best Estimate = an estimate from the data, not a target/budget.'
     ]
   }
 }

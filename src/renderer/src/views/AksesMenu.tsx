@@ -49,15 +49,15 @@ import {
 // Kartu statistik & angka di tab dihitung dari data TERSIMPAN, bukan draf.
 
 const MENU_LABELS: Record<MenuId, string> = {
-  sales: 'Tanya Data Sales',
+  sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
-  lab: 'Tanya TAT Sample',
-  onedrive: 'Tanya Microsoft 365'
+  lab: 'Ask Sample TAT',
+  onedrive: 'Ask Microsoft 365'
 }
 
 const ROLE_LABELS: Record<RoleId, string> = {
   super_admin: 'Super Admin',
-  direktur: 'Direktur',
+  direktur: 'Director',
   manager: 'Manager',
   spv: 'SPV',
   staff: 'Staff'
@@ -120,7 +120,7 @@ interface Props {
   onBeranda: () => void
 }
 
-type Keluar = 'kembali' | 'beranda'
+type Keluar = 'back' | 'home'
 
 export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element {
   const [konfig, setKonfig] = useState<AccessConfig>({ akses: {}, daftarDivisi: [] })
@@ -129,8 +129,8 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
   const [draf, setDraf] = useState<Draf>({})
   const [menu, setMenu] = useState<MenuId>('sales')
   const [cari, setCari] = useState('')
-  const [saringRole, setSaringRole] = useState<RoleId | 'semua'>('semua')
-  const [saringStatus, setSaringStatus] = useState<SaringStatus>('semua')
+  const [saringRole, setSaringRole] = useState<RoleId | 'all'>('all')
+  const [saringStatus, setSaringStatus] = useState<SaringStatus>('all')
   const [urutan, setUrutan] = useState<Urutan>({ kolom: 'no', naik: true })
   const [halaman, setHalaman] = useState(1)
   const [perHalaman, setPerHalaman] = useState(20)
@@ -207,7 +207,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
   const nilai = (role: RoleId, kode: string): boolean => nilaiTampil(konfig.akses, draf, menu, role, kode)
   const jumlahUser = (role: RoleId, kode: string): number => penghuni(users, role, kode).length
 
-  const roleTampil = saringRole === 'semua' ? ROLE_DIATUR : ROLE_DIATUR.filter((r) => r === saringRole)
+  const roleTampil = saringRole === 'all' ? ROLE_DIATUR : ROLE_DIATUR.filter((r) => r === saringRole)
 
   const baris = susunBaris(konfig.daftarDivisi, {
     cari,
@@ -244,14 +244,14 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
       setDraf({})
       setUsers(await window.aira.listAuthUsers())
       setPesan(
-        `${jumlah} perubahan akses disimpan. User yang sedang membuka AIRA melihatnya paling lama 5 menit lagi, tanpa perlu login ulang.`
+        `${jumlah} access changes saved. Users who currently have AIRA open will see them within 5 minutes, without signing in again.`
       )
     })
 
   const tambahDivisi = (): Promise<void> =>
     jalankan(async () => {
       setKonfig(await window.aira.createDivision({ nama: namaBaru }))
-      setPesan(`Divisi "${namaBaru.trim()}" ditambahkan — masih tertutup untuk semua menu sampai dicentang.`)
+      setPesan(`Division "${namaBaru.trim()}" added — still closed to every menu until it is checked.`)
       setNamaBaru('')
       setTambahBuka(false)
     })
@@ -263,8 +263,8 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
       const nama = konfig.daftarDivisi.find((d) => d.kode === kode)?.nama ?? kode
       setPesan(
         aktif
-          ? `Divisi ${nama} diaktifkan kembali.`
-          : `Divisi ${nama} dinonaktifkan: tidak bisa dipilih untuk user baru. User & akses yang sudah ada tetap berlaku.`
+          ? `Division ${nama} was reactivated.`
+          : `Division ${nama} was deactivated: it can no longer be chosen for new users. Existing users and access still apply.`
       )
     })
 
@@ -273,7 +273,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
 
   const keluar = (arah: Keluar): void => {
     if (perubahan.length > 0) setKonfirmasiKeluar(arah)
-    else if (arah === 'kembali') onKembali()
+    else if (arah === 'back') onKembali()
     else onBeranda()
   }
 
@@ -296,17 +296,17 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
   return (
     <div className="akses-halaman">
       <div className="akses-kepala">
-        <button className="akses-kembali" onClick={() => keluar('kembali')} title="Kembali ke Settings">
+        <button className="akses-kembali" onClick={() => keluar('back')} title="Back to Settings">
           <IconBack size={16} />
         </button>
         <div>
           <h1>Settings</h1>
-          <nav className="akses-remah" aria-label="Remah">
-            <button onClick={() => keluar('beranda')}>Beranda</button>
+          <nav className="akses-remah" aria-label="Breadcrumb">
+            <button onClick={() => keluar('home')}>Home</button>
             <IconChevronRight size={12} />
-            <button onClick={() => keluar('kembali')}>Settings</button>
+            <button onClick={() => keluar('back')}>Settings</button>
             <IconChevronRight size={12} />
-            <span>Akses Menu per Role &amp; Divisi</span>
+            <span>Menu Access by Role &amp; Division</span>
           </nav>
         </div>
       </div>
@@ -317,10 +317,10 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
             <IconBuilding size={26} />
           </span>
           <div>
-            <span className="akses-stat-label">Jumlah Divisi</span>
+            <span className="akses-stat-label">Divisions</span>
             <strong>{stat.divisi}</strong>
             <span className="akses-stat-sub">
-              Divisi dalam sistem{stat.divisiNonaktif > 0 ? ` (${stat.divisiNonaktif} nonaktif)` : ''}
+              Divisions in the system{stat.divisiNonaktif > 0 ? ` (${stat.divisiNonaktif} inactive)` : ''}
             </span>
           </div>
         </div>
@@ -329,9 +329,9 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
             <IconFileText size={26} />
           </span>
           <div>
-            <span className="akses-stat-label">Menu Aktif</span>
+            <span className="akses-stat-label">Active Menus</span>
             <strong>{stat.menuTerbuka}</strong>
-            <span className="akses-stat-sub">Menu dapat diakses</span>
+            <span className="akses-stat-sub">Menus that can be opened</span>
           </div>
         </div>
         <div className="akses-stat">
@@ -339,7 +339,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
             <IconUsers size={26} />
           </span>
           <div>
-            <span className="akses-stat-label">Role Aktif</span>
+            <span className="akses-stat-label">Active Roles</span>
             <strong>{stat.role}</strong>
             <span className="akses-stat-sub">{ROLE_DIATUR.map((r) => ROLE_LABELS[r]).join(', ')}</span>
           </div>
@@ -349,9 +349,9 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
             <IconUser size={26} />
           </span>
           <div>
-            <span className="akses-stat-label">User Terdaftar</span>
+            <span className="akses-stat-label">Registered Users</span>
             <strong>{stat.userBerdivisi}</strong>
-            <span className="akses-stat-sub">Total user pada divisi</span>
+            <span className="akses-stat-sub">Total users in divisions</span>
           </div>
         </div>
       </div>
@@ -361,11 +361,11 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
           <IconInfo size={18} />
         </span>
         <div className="akses-info-teks">
-          <h2>Cara Kerja Akses Menu per Role &amp; Divisi</h2>
+          <h2>How Menu Access by Role &amp; Division Works</h2>
           <p>
-            Satu centang = satu role di satu divisi. Mencentang SPV di IT tidak ikut membuka SPV di
-            divisi lain, dan tidak ikut membuka Manager di IT. Direktur dan Super Admin selalu bisa
-            membuka semua menu. Mode umum (Task Baru) terbuka untuk semua orang.
+            One checkmark = one role in one division. Checking SPV in IT does not also open SPV in
+            another division, nor Manager in IT. Directors and Super Admins can always open every
+            menu. General mode (New Task) is open to everyone.
           </p>
         </div>
         <IlustrasiPerisai />
@@ -386,12 +386,12 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
             {MENU_LABELS[m]}
             <span
               className="akses-tab-jumlah"
-              title="User (selain Direktur & Super Admin) yang melihat menu ini — sesuai yang tersimpan"
+              title="Users (other than Directors & Super Admins) who see this menu — as saved"
             >
               {jumlahDiMenu(m)}
             </span>
             {perubahanDiMenu(m) > 0 && (
-              <span className="akses-tab-draf" title="Perubahan di menu ini yang belum disimpan" />
+              <span className="akses-tab-draf" title="Unsaved changes in this menu" />
             )}
           </button>
         ))}
@@ -403,7 +403,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
             <span>{error ?? pesan}</span>
             <button
               className="btn-mini"
-              title="Tutup"
+              title="Close"
               onClick={() => {
                 setError(null)
                 setPesan(null)
@@ -419,7 +419,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
             <IconSearch size={16} />
             <input
               type="text"
-              placeholder="Cari divisi..."
+              placeholder="Search divisions..."
               value={cari}
               onChange={(e) => {
                 setCari(e.target.value)
@@ -430,9 +430,9 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
           <select
             className="akses-pilih"
             value={saringRole}
-            onChange={(e) => setSaringRole(e.target.value as RoleId | 'semua')}
+            onChange={(e) => setSaringRole(e.target.value as RoleId | 'all')}
           >
-            <option value="semua">Semua role</option>
+            <option value="all">All roles</option>
             {ROLE_DIATUR.map((r) => (
               <option key={r} value={r}>
                 {ROLE_LABELS[r]}
@@ -447,15 +447,15 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
               setHalaman(1)
             }}
           >
-            <option value="semua">Semua status</option>
-            <option value="aktif">Divisi aktif</option>
-            <option value="nonaktif">Divisi nonaktif</option>
+            <option value="all">All statuses</option>
+            <option value="active">Active divisions</option>
+            <option value="inactive">Inactive divisions</option>
           </select>
 
           <div className="akses-alat-kanan">
             <label
               className="akses-tombol akses-pilih-semua"
-              title="Centang/kosongkan semua divisi AKTIF yang tampil (sesuai pencarian & saringan) untuk role yang tampil"
+              title="Check/uncheck all ACTIVE divisions shown (per search & filters) for the roles shown"
             >
               <input
                 type="checkbox"
@@ -468,25 +468,25 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                   setSel(cakupanSemua.map((c) => ({ ...c, diizinkan: !semuaTercentang })))
                 }
               />
-              Pilih semua
+              Select all
             </label>
             <button
               className="akses-tombol"
               disabled={busy || perubahan.length === 0}
               onClick={() => setKonfirmasiReset(true)}
-              title="Buang semua perubahan yang belum disimpan"
+              title="Discard all unsaved changes"
             >
               <IconReset size={15} /> Reset
             </button>
             <button className="akses-tombol akses-tombol-garis" disabled={busy} onClick={() => setTambahBuka(true)}>
-              <IconPlus size={15} /> Tambah Divisi
+              <IconPlus size={15} /> Add Division
             </button>
             <button
               className="akses-tombol akses-tombol-utama"
               disabled={busy || perubahan.length === 0}
               onClick={() => void simpan()}
             >
-              <IconSave size={15} /> Simpan Perubahan
+              <IconSave size={15} /> Save Changes
               {perubahan.length > 0 && <span className="akses-hitung">{perubahan.length}</span>}
             </button>
           </div>
@@ -502,8 +502,8 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                   </button>
                 </th>
                 <th className="kol-divisi">
-                  <button onClick={() => urutkan('divisi')}>
-                    Divisi <TombolUrut kolom="divisi" />
+                  <button onClick={() => urutkan('division')}>
+                    Division <TombolUrut kolom="division" />
                   </button>
                 </th>
                 {roleTampil.map((r) => (
@@ -516,7 +516,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                     </button>
                   </th>
                 ))}
-                <th className="kol-aksi" aria-label="Aksi" />
+                <th className="kol-aksi" aria-label="Actions" />
               </tr>
             </thead>
             <tbody>
@@ -525,7 +525,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                   <td className="kol-no">{d.no}</td>
                   <td className="kol-divisi">
                     {d.nama}
-                    {!d.aktif && <span className="tag tag-netral">nonaktif</span>}
+                    {!d.aktif && <span className="tag tag-netral">inactive</span>}
                   </td>
                   {roleTampil.map((r) => {
                     const orang = penghuni(users, r, d.kode)
@@ -538,14 +538,14 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                             type="checkbox"
                             checked={dicentang}
                             disabled={busy}
-                            title={`Izinkan ${ROLE_LABELS[r]} di divisi ${d.nama} membuka ${MENU_LABELS[menu]}${berubah ? ' (belum disimpan)' : ''}`}
+                            title={`Allow ${ROLE_LABELS[r]} in division ${d.nama} to open ${MENU_LABELS[menu]}${berubah ? ' (not saved yet)' : ''}`}
                             onChange={(e) => setSel([{ role: r, kode: d.kode, diizinkan: e.target.checked }])}
                           />
                           <span
                             className={orang.length > 0 ? 'akses-orang' : 'akses-orang kosong'}
-                            title={orang.length > 0 ? orang.join(', ') : 'Belum ada user dengan role & divisi ini'}
+                            title={orang.length > 0 ? orang.join(', ') : 'No users with this role & division yet'}
                           >
-                            {orang.length} user
+                            {orang.length} users
                           </span>
                         </label>
                       </td>
@@ -555,7 +555,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                     <div className="akses-aksi" ref={menuBaris === d.kode ? menuRef : undefined}>
                       <button
                         className="akses-titik"
-                        title="Aksi lain"
+                        title="More actions"
                         onClick={(e) => {
                           const r = e.currentTarget.getBoundingClientRect()
                           // Tinggi menu ±170 px: terbuka ke atas bila tidak muat di bawah.
@@ -575,7 +575,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                               setMenuBaris(null)
                             }}
                           >
-                            Centang semua role
+                            Check all roles
                           </button>
                           <button
                             role="menuitem"
@@ -584,7 +584,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                               setMenuBaris(null)
                             }}
                           >
-                            Kosongkan semua role
+                            Uncheck all roles
                           </button>
                           <button
                             role="menuitem"
@@ -593,14 +593,14 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                               setMenuBaris(null)
                             }}
                           >
-                            Lihat user di divisi ini
+                            View users in this division
                           </button>
                           <button
                             role="menuitem"
                             disabled={busy}
                             onClick={() => void ubahAktifDivisi(d.kode, !d.aktif)}
                           >
-                            {d.aktif ? 'Nonaktifkan divisi' : 'Aktifkan divisi'}
+                            {d.aktif ? 'Deactivate division' : 'Activate division'}
                           </button>
                         </div>
                       )}
@@ -611,14 +611,14 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
               {dimuat && hal.isi.length === 0 && (
                 <tr>
                   <td colSpan={roleTampil.length + 3} className="akses-kosong">
-                    {konfig.daftarDivisi.length === 0 ? 'Belum ada divisi.' : 'Tidak ada divisi yang cocok.'}
+                    {konfig.daftarDivisi.length === 0 ? 'No divisions yet.' : 'No matching divisions.'}
                   </td>
                 </tr>
               )}
               {!dimuat && (
                 <tr>
                   <td colSpan={roleTampil.length + 3} className="akses-kosong">
-                    Memuat…
+                    Loading…
                   </td>
                 </tr>
               )}
@@ -628,13 +628,13 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
 
         <div className="akses-kaki">
           <span>
-            Menampilkan {hal.isi.length} dari {baris.length} divisi
+            Showing {hal.isi.length} of {baris.length} divisions
             {perubahan.length > 0 && (
-              <span className="akses-kaki-draf"> · {perubahan.length} perubahan belum disimpan</span>
+              <span className="akses-kaki-draf"> · {perubahan.length} unsaved changes</span>
             )}
           </span>
           <div className="akses-halaman-nav">
-            <span>Tampilkan</span>
+            <span>Show</span>
             <select
               className="akses-pilih akses-pilih-kecil"
               value={perHalaman}
@@ -649,12 +649,12 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
                 </option>
               ))}
             </select>
-            <span>per halaman</span>
+            <span>per page</span>
             <button
               className="akses-hal"
               disabled={hal.halaman <= 1}
               onClick={() => setHalaman(hal.halaman - 1)}
-              title="Halaman sebelumnya"
+              title="Previous page"
             >
               <IconChevronLeft size={14} />
             </button>
@@ -671,7 +671,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
               className="akses-hal"
               disabled={hal.halaman >= hal.jumlahHalaman}
               onClick={() => setHalaman(hal.halaman + 1)}
-              title="Halaman berikutnya"
+              title="Next page"
             >
               <IconChevronRight size={14} />
             </button>
@@ -682,15 +682,15 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
       {tambahBuka && (
         <div className="akses-latar" onMouseDown={() => !busy && setTambahBuka(false)}>
           <div className="akses-dialog" onMouseDown={(e) => e.stopPropagation()}>
-            <h3>Tambah Divisi</h3>
+            <h3>Add Division</h3>
             <label>
-              Nama divisi
+              Division name
               <input
                 type="text"
                 value={namaBaru}
                 autoFocus
                 maxLength={60}
-                placeholder="mis. Bioinformatika"
+                placeholder="e.g. Bioinformatics"
                 onChange={(e) => setNamaBaru(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && namaBaru.trim()) void tambahDivisi()
@@ -699,18 +699,18 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
               />
             </label>
             <p className="hint">
-              Divisi baru lahir tertutup: belum bisa membuka menu apa pun sampai dicentang di tabel.
+              A new division starts closed: it cannot open any menu until it is checked in the table.
             </p>
             <div className="akses-dialog-aksi">
               <button className="akses-tombol" disabled={busy} onClick={() => setTambahBuka(false)}>
-                Batal
+                Cancel
               </button>
               <button
                 className="akses-tombol akses-tombol-utama"
                 disabled={busy || namaBaru.trim().length === 0}
                 onClick={() => void tambahDivisi()}
               >
-                Simpan Divisi
+                Save Division
               </button>
             </div>
           </div>
@@ -720,7 +720,7 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
       {divisiLihat && (
         <div className="akses-latar" onMouseDown={() => setLihatUser(null)}>
           <div className="akses-dialog" onMouseDown={(e) => e.stopPropagation()}>
-            <h3>User di divisi {divisiLihat.nama}</h3>
+            <h3>Users in division {divisiLihat.nama}</h3>
             {ROLE_DIATUR.map((r) => {
               const orang = penghuni(users, r, divisiLihat.kode)
               return (
@@ -731,11 +731,11 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
               )
             })}
             <p className="hint">
-              Direktur &amp; Super Admin tidak punya divisi — mereka selalu bisa membuka semua menu.
+              Directors &amp; Super Admins have no division — they can always open every menu.
             </p>
             <div className="akses-dialog-aksi">
               <button className="akses-tombol" onClick={() => setLihatUser(null)}>
-                Tutup
+                Close
               </button>
             </div>
           </div>
@@ -744,15 +744,15 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
 
       {konfirmasiKeluar && (
         <ConfirmDialog
-          title="Buang perubahan yang belum disimpan?"
-          body={`Ada ${perubahan.length} centangan yang belum disimpan. Kalau keluar sekarang, perubahan itu hilang.`}
-          confirmLabel="Buang & keluar"
+          title="Discard unsaved changes?"
+          body={`There are ${perubahan.length} unsaved checkmarks. If you leave now, those changes are lost.`}
+          confirmLabel="Discard & leave"
           onCancel={() => setKonfirmasiKeluar(null)}
           onConfirm={() => {
             const arah = konfirmasiKeluar
             setKonfirmasiKeluar(null)
             setDraf({})
-            if (arah === 'kembali') onKembali()
+            if (arah === 'back') onKembali()
             else onBeranda()
           }}
         />
@@ -760,8 +760,8 @@ export default function AksesMenu({ onKembali, onBeranda }: Props): JSX.Element 
 
       {konfirmasiReset && (
         <ConfirmDialog
-          title="Reset perubahan?"
-          body={`${perubahan.length} centangan yang belum disimpan akan dikembalikan ke keadaan tersimpan.`}
+          title="Reset changes?"
+          body={`${perubahan.length} unsaved checkmarks will be restored to the saved state.`}
           confirmLabel="Reset"
           onCancel={() => setKonfirmasiReset(false)}
           onConfirm={() => {

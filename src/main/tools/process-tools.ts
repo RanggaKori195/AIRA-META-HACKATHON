@@ -9,7 +9,7 @@ import { assertNotBrowserLaunch } from './command-guard'
 export const processTools: ToolDefinition[] = [
   {
     name: 'run_background',
-    label: 'Jalankan di Background',
+    label: 'Run in Background',
     description:
       'Menjalankan perintah yang HIDUP TERUS di background (dev server, watcher, script panjang). ' +
       'Mengembalikan processId — pantau outputnya dengan check_process, hentikan dengan stop_process. ' +
@@ -23,7 +23,7 @@ export const processTools: ToolDefinition[] = [
       required: ['command', 'cwd']
     },
     tier: 'execute',
-    summarize: (a) => `Background: ${a.command}  (di ${a.cwd})`,
+    summarize: (a) => `Background: ${a.command}  (in ${a.cwd})`,
     execute: async (args, ctx) => {
       const command = args.command
       if (typeof command !== 'string' || !command.trim()) {
@@ -44,7 +44,7 @@ export const processTools: ToolDefinition[] = [
   },
   {
     name: 'check_process',
-    label: 'Cek Proses',
+    label: 'Check Process',
     description:
       'Melihat status & output proses background. Tanpa processId: daftar semua proses. ' +
       'Dengan processId: output terakhir proses itu.',
@@ -56,7 +56,7 @@ export const processTools: ToolDefinition[] = [
       }
     },
     tier: 'read',
-    summarize: (a) => (a.processId ? `Cek proses ${a.processId}` : 'Daftar proses background'),
+    summarize: (a) => (a.processId ? `Check process ${a.processId}` : 'Background process list'),
     execute: async (args) => {
       if (typeof args.processId === 'string' && args.processId) {
         const tail = Math.min(Math.max(Number(args.tail) || 50, 1), 300)
@@ -69,7 +69,7 @@ export const processTools: ToolDefinition[] = [
   },
   {
     name: 'stop_process',
-    label: 'Hentikan Proses',
+    label: 'Stop Process',
     description: 'Menghentikan proses background beserta child process-nya.',
     parameters: {
       type: 'object',
@@ -77,7 +77,7 @@ export const processTools: ToolDefinition[] = [
       required: ['processId']
     },
     tier: 'write',
-    summarize: (a) => `Hentikan proses ${a.processId}`,
+    summarize: (a) => `Stop process ${a.processId}`,
     execute: async (args) => {
       const id = args.processId
       if (typeof id !== 'string' || !id) throw new ToolError('argumen "processId" wajib')

@@ -27,7 +27,7 @@ import {
   IconUpload,
   IconZap
 } from '../components/Icons'
-import logo from '../assets/aira-logo.png'
+import logo from '../assets/mascot/hello.png'
 
 // Beranda (Task Baru) — tata letak baru 29 Sep 2026 mengikuti mockup user:
 // hero + kotak tugas di tengah, "Mulai Cepat" & "Fitur Utama" di bawahnya, dan
@@ -65,26 +65,26 @@ interface Kartu {
  * jawaban pertama AIRA adalah "lampirannya mana?".
  */
 const MULAI_CEPAT: Kartu[] = [
-  { judul: 'Ringkas Dokumen', prompt: 'Ringkas dokumen yang saya lampirkan jadi 5 poin', ikon: <IconFileText size={22} />, warna: 'biru' },
-  { judul: 'Buat Presentasi', prompt: 'Buatkan presentasi 8 slide tentang rencana kerja Q4', ikon: <IconPresentation size={22} />, warna: 'ungu' },
-  { judul: 'Excel dari PDF', prompt: 'Ambil tabel di PDF ini lalu jadikan Excel', ikon: <IconTable size={22} />, warna: 'hijau' },
-  { judul: 'Analisis Data', prompt: 'Dokumen mana di folder kerja saya yang membahas anggaran 2026?', ikon: <IconTrend size={22} />, warna: 'oranye' },
-  { judul: 'Notulen Rapat', prompt: 'Buatkan notulen rapat dari catatan kasar ini', ikon: <IconNote size={22} />, warna: 'merah' },
-  { judul: 'Buat Script', prompt: 'Tuliskan script untuk merapikan nama file di folder ini', ikon: <IconCode size={22} />, warna: 'nila' }
+  { judul: 'Summarize a Document', prompt: 'Summarize the document I attached in 5 points', ikon: <IconFileText size={22} />, warna: 'biru' },
+  { judul: 'Create a Presentation', prompt: 'Create an 8-slide presentation about the Q4 work plan', ikon: <IconPresentation size={22} />, warna: 'ungu' },
+  { judul: 'Excel from PDF', prompt: 'Take the table in this PDF and turn it into Excel', ikon: <IconTable size={22} />, warna: 'hijau' },
+  { judul: 'Analyze Data', prompt: 'Which document in my work folder discusses the 2026 budget?', ikon: <IconTrend size={22} />, warna: 'oranye' },
+  { judul: 'Meeting Minutes', prompt: 'Write meeting minutes from these rough notes', ikon: <IconNote size={22} />, warna: 'merah' },
+  { judul: 'Write a Script', prompt: 'Write a script to tidy up the file names in this folder', ikon: <IconCode size={22} />, warna: 'nila' }
 ]
 
 const FITUR_UTAMA = [
-  { judul: 'Pahami Dokumen', ket: 'Membaca berbagai format file dengan akurat', ikon: <IconFileText size={20} />, warna: 'hijau' },
-  { judul: 'Integrasi Data', ket: 'Mengakses data internal dengan aman', ikon: <IconDatabase size={20} />, warna: 'biru' },
-  { judul: 'Analisis Cerdas', ket: 'Memberikan insight dan rekomendasi', ikon: <IconTrend size={20} />, warna: 'ungu' },
-  { judul: 'Produktivitas', ket: 'Otomatisasi tugas sehari-hari', ikon: <IconZap size={20} />, warna: 'kuning' }
+  { judul: 'Understand Documents', ket: 'Reads many file formats accurately', ikon: <IconFileText size={20} />, warna: 'hijau' },
+  { judul: 'Data Integration', ket: 'Accesses internal data safely', ikon: <IconDatabase size={20} />, warna: 'biru' },
+  { judul: 'Smart Analysis', ket: 'Provides insights and recommendations', ikon: <IconTrend size={20} />, warna: 'ungu' },
+  { judul: 'Productivity', ket: 'Automates everyday tasks', ikon: <IconZap size={20} />, warna: 'kuning' }
 ]
 
 const TIPS = [
-  { judul: 'Seret & lepas file', ket: 'Kamu bisa langsung menyeret file ke kolom chat.', ikon: <IconUpload size={18} /> },
-  { judul: 'Gunakan perintah jelas', ket: 'Semakin spesifik perintahmu, semakin baik hasilnya.', ikon: <IconSparkle size={18} /> },
-  { judul: 'Akses folder kerja', ket: 'Tambahkan folder di sidebar untuk akses cepat.', ikon: <IconFolder size={18} /> },
-  { judul: 'Gabungkan sumber data', ket: 'Saya bisa menggabungkan informasi dari beberapa file sekaligus.', ikon: <IconLayers size={18} /> }
+  { judul: 'Drag & drop files', ket: 'You can drag files straight into the chat box.', ikon: <IconUpload size={18} /> },
+  { judul: 'Give clear instructions', ket: 'The more specific your request, the better the result.', ikon: <IconSparkle size={18} /> },
+  { judul: 'Access work folders', ket: 'Add a folder in the sidebar for quick access.', ikon: <IconFolder size={18} /> },
+  { judul: 'Combine data sources', ket: 'I can combine information from several files at once.', ikon: <IconLayers size={18} /> }
 ]
 
 /** Warna tile per jenis berkas — mengikuti warna aplikasi Office masing-masing. */
@@ -98,14 +98,14 @@ function warnaBerkas(jenis: string): string {
 }
 
 function sejak(ms: number): string {
-  const menit = Math.max(0, Math.round((Date.now() - ms) / 60_000))
-  if (menit < 1) return 'baru saja'
-  if (menit < 60) return `${menit} menit yang lalu`
-  const jam = Math.round(menit / 60)
-  if (jam < 24) return `${jam} jam yang lalu`
-  const hari = Math.round(jam / 24)
-  if (hari < 30) return `${hari} hari yang lalu`
-  return new Date(ms).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+  const minutes = Math.max(0, Math.round((Date.now() - ms) / 60_000))
+  if (minutes < 1) return 'just now'
+  if (minutes < 60) return `${minutes} min ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return `${hours} h ago`
+  const days = Math.round(hours / 24)
+  if (days < 30) return `${days} d ago`
+  return new Date(ms).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 const KUNCI_BANTUAN = 'aira.beranda.bantuanDitutup'
@@ -175,7 +175,7 @@ export default function Home({
   const submit = (): void => {
     const trimmed = text.trim()
     if (!trimmed && attachments.length === 0) return
-    onSubmit(trimmed || 'Tolong analisis lampiran ini.')
+    onSubmit(trimmed || 'Please analyze this attachment.')
     setText('')
   }
 
@@ -192,9 +192,9 @@ export default function Home({
     setGalatBerkas(null)
     try {
       const ok = await window.aira.berkasBuka(b.path, aksi)
-      if (!ok) setGalatBerkas(`${b.nama} tidak bisa dibuka — mungkin sudah dipindah atau dihapus.`)
+      if (!ok) setGalatBerkas(`${b.nama} could not be opened — it may have been moved or deleted.`)
     } catch {
-      setGalatBerkas(`${b.nama} tidak bisa dibuka.`)
+      setGalatBerkas(`${b.nama} could not be opened.`)
       void muatBerkas()
     }
   }
@@ -239,14 +239,14 @@ export default function Home({
           </svg>
           <div className="hero-teks">
             <span className="hero-lencana">
-              <IconSparkle size={14} /> AI Agent Internal the company
+              <IconSparkle size={14} /> AI Lab Assistant · powered by Meta Muse
             </span>
             <h1>
-              Halo, saya <span>AIRA</span> <span className="hero-lambai">👋</span>
+              Hi, I&apos;m <span>AIRA</span> <span className="hero-lambai">👋</span>
             </h1>
             <p>
-              Saya siap membantu membaca, mencari, menganalisis, dan merapikan file di folder yang kamu
-              izinkan — atau sekadar menjawab pertanyaan.
+              I can read, search, analyze and tidy up files in the folders you allow — or simply
+              answer your questions.
             </p>
           </div>
           <img className="hero-logo" src={logo} alt="AIRA" />
@@ -254,8 +254,8 @@ export default function Home({
 
         {workspaceCount === 0 && (
           <p className="beranda-peringatan">
-            ⚠ Belum ada folder akses. Tambahkan lewat tombol “+” di bagian Folder Akses (sidebar) supaya
-            saya bisa bekerja dengan file kamu.
+            ⚠ No access folders yet. Add one with the “+” button in Access Folders (sidebar) so I
+            can work with your files.
           </p>
         )}
 
@@ -263,7 +263,7 @@ export default function Home({
           <AttachBar attachments={attachments} onRemove={onRemoveAttachment} />
           <textarea
             ref={kotak}
-            placeholder="Apa yang bisa saya kerjakan hari ini?  (seret file ke sini juga bisa)"
+            placeholder="What can I do for you today?  (you can also drag files here)"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
@@ -276,7 +276,7 @@ export default function Home({
           />
           <div className="row">
             <div className="row-left">
-              <button className="btn-attach" onClick={onAttach} title="Lampirkan file atau gambar">
+              <button className="btn-attach" onClick={onAttach} title="Attach a file or image">
                 <IconAttach />
               </button>
               {/* Hasil dikte DISISIPKAN ke kotak teks, tidak dikirim otomatis. */}
@@ -284,24 +284,24 @@ export default function Home({
               <ModelPicker value={modelChoice} onChange={onModelChoice} />
             </div>
             <button className="btn-send" disabled={!text.trim() && attachments.length === 0} onClick={submit}>
-              Kirim <IconSend size={14} />
+              Send <IconSend size={14} />
             </button>
           </div>
         </div>
 
         <div className="beranda-kepala">
           <h3>
-            <IconZap size={17} /> Mulai Cepat
+            <IconZap size={17} /> Quick Start
           </h3>
-          <span>Pilih contoh pekerjaan atau gunakan perintahmu sendiri</span>
+          <span>Pick an example task or use your own prompt</span>
           {/* Jalan keluar yang TIDAK lewat model — tetap bekerja saat gateway mati. */}
           <button className="beranda-tautan" onClick={onPanduan}>
-            Lihat semua <IconArrowRight size={14} />
+            View all <IconArrowRight size={14} />
           </button>
         </div>
         <div className="mulai-cepat">
           {MULAI_CEPAT.map((k) => (
-            <button key={k.judul} className="kartu-cepat" onClick={() => isiContoh(k.prompt)} title="Isi ke kotak tugas">
+            <button key={k.judul} className="kartu-cepat" onClick={() => isiContoh(k.prompt)} title="Fill the task box">
               <span className={`tile-ikon ${k.warna}`}>{k.ikon}</span>
               <span className="kartu-cepat-teks">
                 <strong>{k.judul}</strong>
@@ -316,7 +316,7 @@ export default function Home({
 
         <div className="beranda-kepala">
           <h3>
-            <IconStar size={17} /> Fitur Utama
+            <IconStar size={17} /> Key Features
           </h3>
         </div>
         <div className="fitur-utama">
@@ -339,11 +339,11 @@ export default function Home({
             ref={cariRef}
             value={cari}
             onChange={(e) => setCari(e.target.value)}
-            placeholder="Cari file, percakapan, atau topik..."
+            placeholder="Search files, conversations, or topics..."
             maxLength={100}
           />
           {cari ? (
-            <button className="btn-mini" onClick={() => setCari('')} title="Bersihkan">
+            <button className="btn-mini" onClick={() => setCari('')} title="Clear">
               <IconClose size={13} />
             </button>
           ) : (
@@ -352,7 +352,7 @@ export default function Home({
           {hasilCari && (
             <div className="hasil-cari">
               {hasilCari.sesi.length === 0 && hasilCari.berkas.length === 0 && (
-                <div className="hasil-kosong">Tidak ada yang cocok dengan “{cari.trim()}”.</div>
+                <div className="hasil-kosong">Nothing matches “{cari.trim()}”.</div>
               )}
               {hasilCari.sesi.map((s) => (
                 <button key={s.id} onClick={() => onOpenSession(s)}>
@@ -371,20 +371,20 @@ export default function Home({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconFolder size={16} /> File Terbaru
+              <IconFolder size={16} /> Recent Files
             </h4>
             {(berkas?.length ?? 0) > 5 && (
               <button className="beranda-tautan" onClick={() => setSemuaBerkas((x) => !x)}>
-                {semuaBerkas ? 'Lebih sedikit' : 'Lihat semua'}
+                {semuaBerkas ? 'Show less' : 'View all'}
               </button>
             )}
           </div>
           {galatBerkas && <div className="berkas-galat">{galatBerkas}</div>}
           {berkas === null ? (
-            <p className="panel-kosong">Memuat…</p>
+            <p className="panel-kosong">Loading…</p>
           ) : berkas.length === 0 ? (
             <p className="panel-kosong">
-              Belum ada berkas. Laporan, Excel, presentasi, dan gambar yang dibuat AIRA untukmu akan muncul di sini.
+              No files yet. Reports, Excel files, presentations and images AIRA creates for you will appear here.
             </p>
           ) : (
             <ul className="daftar-berkas">
@@ -394,12 +394,12 @@ export default function Home({
                     <TileBerkas jenis={b.jenis} />
                     <span>
                       <strong>{b.nama}</strong>
-                      <span>Dibuat {sejak(b.dibuat)}</span>
+                      <span>Created {sejak(b.dibuat)}</span>
                     </span>
                   </button>
                   <button
                     className="btn-mini"
-                    title="Pilihan lain"
+                    title="More options"
                     onClick={(e) => {
                       e.stopPropagation()
                       setMenuBerkas((m) => (m === b.path ? null : b.path))
@@ -409,8 +409,8 @@ export default function Home({
                   </button>
                   {menuBerkas === b.path && (
                     <div className="menu-berkas" onClick={(e) => e.stopPropagation()}>
-                      <button onClick={() => void buka(b, 'buka')}>Buka</button>
-                      <button onClick={() => void buka(b, 'folder')}>Tampilkan di folder</button>
+                      <button onClick={() => void buka(b, 'buka')}>Open</button>
+                      <button onClick={() => void buka(b, 'folder')}>Show in folder</button>
                       <button
                         onClick={() => {
                           setMenuBerkas(null)
@@ -419,7 +419,7 @@ export default function Home({
                         }}
                         disabled={!sessions.some((x) => x.id === b.sessionId)}
                       >
-                        Buka percakapannya
+                        Open its conversation
                       </button>
                     </div>
                   )}
@@ -432,7 +432,7 @@ export default function Home({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconBulb size={16} /> Tips Penggunaan
+              <IconBulb size={16} /> Usage Tips
             </h4>
           </div>
           <ul className="daftar-tips">
@@ -454,15 +454,15 @@ export default function Home({
               <IconHelp size={22} />
             </span>
             <span>
-              <strong>Butuh bantuan?</strong>
-              <span>Lihat panduan lengkap penggunaan AIRA atau hubungi tim IT.</span>
+              <strong>Need help?</strong>
+              <span>See the full AIRA guide or contact the IT team.</span>
               <button className="beranda-tautan" onClick={onPanduan}>
-                Buka Panduan <IconArrowRight size={14} />
+                Open Guide <IconArrowRight size={14} />
               </button>
             </span>
             <button
               className="btn-mini bantuan-tutup"
-              title="Tutup"
+              title="Close"
               onClick={() => {
                 setBantuanDitutup(true)
                 try {

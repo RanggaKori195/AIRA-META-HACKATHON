@@ -108,7 +108,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['path']
     },
     tier: 'mutate',
-    summarize: (a) => `Beri AIRA akses ke folder ${a.path}`,
+    summarize: (a) => `Give AIRA access to folder ${a.path}`,
     execute: async (args) => {
       const dir = path.resolve(str(args, 'path'))
       if (!existsSync(dir)) throw new ToolError(`folder "${dir}" tidak ditemukan`)
@@ -132,7 +132,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['path']
     },
     tier: 'read',
-    summarize: (a) => `Lihat isi folder ${a.path}`,
+    summarize: (a) => `List folder ${a.path}`,
     execute: async (args, ctx) => {
       const dir = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       const entries = readdirSync(dir, { withFileTypes: true }).slice(0, MAX_DIR_ENTRIES)
@@ -168,7 +168,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['path']
     },
     tier: 'read',
-    summarize: (a) => `Baca file ${a.path}${a.fromLine ? ` (dari baris ${a.fromLine})` : ''}`,
+    summarize: (a) => `Read file ${a.path}${a.fromLine ? ` (from line ${a.fromLine})` : ''}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       const stats = statSync(file)
@@ -208,7 +208,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['dir', 'query']
     },
     tier: 'read',
-    summarize: (a) => `Cari "${a.query}" di ${a.dir}`,
+    summarize: (a) => `Search "${a.query}" in ${a.dir}`,
     execute: async (args, ctx) => {
       const root = resolveInBoundary(str(args, 'dir'), ctx.allowedDirs)
       const query = str(args, 'query').toLowerCase()
@@ -242,7 +242,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['path']
     },
     tier: 'write',
-    summarize: (a) => `Buat folder ${a.path}`,
+    summarize: (a) => `Create folder ${a.path}`,
     execute: async (args, ctx) => {
       const dir = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       mkdirSync(dir, { recursive: true })
@@ -269,7 +269,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['path', 'content']
     },
     tier: 'write',
-    summarize: (a) => `Tulis file baru ${a.path}`,
+    summarize: (a) => `Write new file ${a.path}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       assertPlainTextTarget(file)
@@ -292,7 +292,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['path', 'content']
     },
     tier: 'mutate',
-    summarize: (a) => `TIMPA isi file ${a.path}`,
+    summarize: (a) => `OVERWRITE file ${a.path}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       assertPlainTextTarget(file)
@@ -313,7 +313,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['source', 'destination']
     },
     tier: 'write',
-    summarize: (a) => `Salin ${a.source} -> ${a.destination}`,
+    summarize: (a) => `Copy ${a.source} -> ${a.destination}`,
     execute: async (args, ctx) => {
       const source = resolveInBoundary(str(args, 'source'), ctx.allowedDirs)
       const destination = resolveInBoundary(str(args, 'destination'), ctx.allowedDirs)
@@ -335,7 +335,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['source', 'destination']
     },
     tier: 'mutate',
-    summarize: (a) => `Pindahkan ${a.source} -> ${a.destination}`,
+    summarize: (a) => `Move ${a.source} -> ${a.destination}`,
     execute: async (args, ctx) => {
       const source = resolveInBoundary(str(args, 'source'), ctx.allowedDirs)
       const destination = resolveInBoundary(str(args, 'destination'), ctx.allowedDirs)
@@ -355,7 +355,7 @@ export const fsTools: ToolDefinition[] = [
       required: ['path']
     },
     tier: 'mutate',
-    summarize: (a) => `HAPUS ${a.path} (ke Recycle Bin)`,
+    summarize: (a) => `DELETE ${a.path} (to Recycle Bin)`,
     execute: async (args, ctx) => {
       const target = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       if (!existsSync(target)) throw new ToolError('path tidak ditemukan')
@@ -402,7 +402,7 @@ export const fsTools: ToolDefinition[] = [
     timeoutMs: 120_000,
     // ⚠️ `cwd` opsional sejak 8 Sep 2026 — tanpa penjagaan ini ringkasannya
     // tertulis "(di undefined)" di kartu persetujuan yang dibaca user.
-    summarize: (a) => `Jalankan: ${a.command}${a.cwd ? `  (di ${a.cwd})` : ''}`,
+    summarize: (a) => `Run: ${a.command}${a.cwd ? `  (in ${a.cwd})` : ''}`,
     execute: async (args, ctx) => {
       /*
        * `cwd` opsional (8 Sep 2026, permintaan user).

@@ -28,7 +28,7 @@ function jalankan<T>(kerja: () => T): T {
 export const diagramTools: ToolDefinition[] = [
   {
     name: 'buat_diagram',
-    label: 'Buat diagram',
+    label: 'Create diagram',
     description:
       'Membuat DIAGRAM INTERAKTIF: diagram alur/SOP, alur sampel, struktur organisasi, arsitektur ' +
       'sistem, atau hubungan antar pihak. Hasilnya berkas .html (dibuka di browser: geser, zoom, klik ' +
@@ -56,7 +56,7 @@ export const diagramTools: ToolDefinition[] = [
             type: 'object',
             properties: {
               id: { type: 'string', description: 'Id pendek unik, mis. "s1"' },
-              label: { type: 'string', description: 'Frasa pendek (≤ 80 karakter) — detail taruh di keterangan' },
+              label: { type: 'string', description: 'Short phrase (≤ 80 characters) — put details in keterangan' },
               bentuk: {
                 type: 'string',
                 enum: [...BENTUK],
@@ -78,7 +78,7 @@ export const diagramTools: ToolDefinition[] = [
             properties: {
               dari: { type: 'string' },
               ke: { type: 'string' },
-              label: { type: 'string', description: 'Opsional, pendek (mis. "ya", "tidak", "jika gagal")' },
+              label: { type: 'string', description: 'Optional, short (e.g. "yes", "no", "if it fails")' },
               putus: { type: 'boolean', description: 'true = garis putus-putus (alur opsional/tidak langsung)' }
             },
             required: ['dari', 'ke']
@@ -98,7 +98,7 @@ export const diagramTools: ToolDefinition[] = [
     },
     tier: 'write',
     timeoutMs: 60_000,
-    summarize: (a) => `Buat diagram ${a.path}`,
+    summarize: (a) => `Create diagram ${a.path}`,
     execute: async (args, ctx) => {
       const mentah = typeof args.path === 'string' ? args.path.trim() : ''
       if (!mentah) throw new ToolError('argumen "path" wajib — berkas .html tujuan')

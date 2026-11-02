@@ -438,7 +438,7 @@ export async function login(usernameRaw: string, password: string): Promise<Hasi
     return {
       ok: false,
       error:
-        'Tidak bisa menghubungi database login. Pastikan kamu terhubung ke jaringan internal the company (VPN bila di luar kantor).'
+        'Tidak bisa menghubungi database login. Periksa koneksi jaringan kamu.'
     }
   }
 

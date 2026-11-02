@@ -29,12 +29,12 @@ export default function CredentialCard({ request, onSubmit }: Props): JSX.Elemen
   return (
     <div className="credential-card">
       <div className="approval-title">
-        <IconLock size={16} /> Login diperlukan
+        <IconLock size={16} /> Sign-in required
       </div>
       <p className="hint">
-        AIRA butuh login untuk <strong>{request.credentialName}</strong>
-        {request.url ? ` (${new URL(request.url).host})` : ''}. Isi di sini — data ini dikirim langsung
-        ke halaman oleh sistem, <strong>tidak menjadi teks chat</strong> dan tidak terlihat oleh AI.
+        AIRA needs to sign in to <strong>{request.credentialName}</strong>
+        {request.url ? ` (${new URL(request.url).host})` : ''}. Enter it here — this data is sent straight
+        to the page by the system, <strong>never becomes chat text</strong> and is not visible to the AI.
       </p>
       <div className="two-col">
         <label>
@@ -61,14 +61,14 @@ export default function CredentialCard({ request, onSubmit }: Props): JSX.Elemen
       </div>
       <label className="checkbox">
         <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
-        Ingat kredensial ini (tersimpan terenkripsi, tidak perlu diisi lagi)
+        Remember these credentials (stored encrypted, no need to enter them again)
       </label>
       <div className="approval-actions">
         <button className="btn-send" disabled={!username.trim() || !password} onClick={submit}>
-          Login
+          Sign in
         </button>
         <button className="btn-stop" onClick={() => onSubmit(request.requestId, null)}>
-          Batal
+          Cancel
         </button>
       </div>
     </div>

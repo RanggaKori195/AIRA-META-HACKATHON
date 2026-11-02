@@ -7,10 +7,10 @@ interface Props {
 }
 
 const OPTIONS: Array<{ value: ModelChoice; label: string; title: string }> = [
-  { value: 'auto', label: '⚡ Auto', title: 'Pilih model otomatis sesuai jenis permintaan' },
-  { value: 'chat', label: 'Cepat', title: 'Jawaban cepat untuk tanya jawab biasa' },
-  { value: 'agent', label: 'Cerdas', title: 'Reasoning mendalam untuk task bertahap' },
-  { value: 'coder', label: 'Coding', title: 'Dioptimalkan untuk menulis & mengedit kode' }
+  { value: 'auto', label: 'Auto', title: 'Picks the model for each request automatically' },
+  { value: 'chat', label: 'Fast (Muse Spark)', title: 'Quick answers for everyday questions' },
+  { value: 'agent', label: 'Smart (Muse Wonder)', title: 'Deep reasoning for multi-step tasks' },
+  { value: 'coder', label: 'Coding (Muse Wonder)', title: 'Writing and editing code' }
 ]
 
 export default function ModelPicker({ value, onChange }: Props): JSX.Element {

@@ -90,7 +90,7 @@ describe('saringan, urutan, halaman', () => {
   ]
   const nilai = (role: string, kode: string): boolean => nilaiTampil(tersimpan, {}, 'sales', role as never, kode)
   const jumlah = (): number => 0
-  const opsi = { cari: '', status: 'semua' as const, urutan: { kolom: 'no' as const, naik: true }, nilai, jumlahUser: jumlah }
+  const opsi = { cari: '', status: 'all' as const, urutan: { kolom: 'no' as const, naik: true }, nilai, jumlahUser: jumlah }
 
   test('nomor urut asli dipertahankan walau disaring', () => {
     const b = susunBaris(daftar, { ...opsi, cari: 'it' })
@@ -102,8 +102,8 @@ describe('saringan, urutan, halaman', () => {
   })
 
   test('saringan status aktif/nonaktif', () => {
-    assert.deepEqual(susunBaris(daftar, { ...opsi, status: 'nonaktif' }).map((x) => x.kode), ['lama'])
-    assert.equal(susunBaris(daftar, { ...opsi, status: 'aktif' }).length, 3)
+    assert.deepEqual(susunBaris(daftar, { ...opsi, status: 'inactive' }).map((x) => x.kode), ['lama'])
+    assert.equal(susunBaris(daftar, { ...opsi, status: 'active' }).length, 3)
   })
 
   test('urut kolom role: yang tercentang dulu', () => {
@@ -112,8 +112,8 @@ describe('saringan, urutan, halaman', () => {
   })
 
   test('urut divisi naik & turun', () => {
-    assert.equal(susunBaris(daftar, { ...opsi, urutan: { kolom: 'divisi', naik: true } })[0].nama, 'Divisi Lama')
-    assert.equal(susunBaris(daftar, { ...opsi, urutan: { kolom: 'divisi', naik: false } })[0].nama, 'PA TP')
+    assert.equal(susunBaris(daftar, { ...opsi, urutan: { kolom: 'division', naik: true } })[0].nama, 'Divisi Lama')
+    assert.equal(susunBaris(daftar, { ...opsi, urutan: { kolom: 'division', naik: false } })[0].nama, 'PA TP')
   })
 
   test('halaman di luar jangkauan dijepit, tidak menghasilkan tabel kosong', () => {

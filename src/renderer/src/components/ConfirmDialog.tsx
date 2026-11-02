@@ -18,7 +18,7 @@ interface Props {
 export default function ConfirmDialog({
   title,
   body,
-  confirmLabel = 'Hapus',
+  confirmLabel = 'Delete',
   onConfirm,
   onCancel
 }: Props): JSX.Element {
@@ -53,7 +53,7 @@ export default function ConfirmDialog({
         {body && <p className="dialog-body">{body}</p>}
         <div className="dialog-actions">
           <button className="btn-ghost" onClick={onCancel}>
-            Batal
+            Cancel
           </button>
           <button className="btn-danger" ref={confirmRef} onClick={onConfirm}>
             {confirmLabel}

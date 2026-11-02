@@ -38,19 +38,19 @@ import {
 // ⚠️ Semua data lewat main process yang memeriksa pemilik dari SESI.
 
 const LABEL_MODE: Record<ChatMode, string> = {
-  general: 'Task Baru',
-  sales: 'Data Sales',
-  masterdata: 'Data Master Data',
-  lab: 'TAT Sample',
+  general: 'New Task',
+  sales: 'Sales Data',
+  masterdata: 'Master Data',
+  lab: 'Sample TAT',
   onedrive: 'Microsoft 365'
 }
 
 const LABEL_MODE_PANJANG: Record<ChatMode, string> = {
-  general: 'Task Baru',
-  sales: 'Tanya Data Sales',
+  general: 'New Task',
+  sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
-  lab: 'Tanya TAT Sample',
-  onedrive: 'Tanya Microsoft 365'
+  lab: 'Ask Sample TAT',
+  onedrive: 'Ask Microsoft 365'
 }
 
 /** Warna per sumber — dipakai titik kalender, ubin ikon, dan chip. */
@@ -60,7 +60,7 @@ function warna(jenis: JenisJadwal, mode: ChatMode): string {
 }
 
 function labelSumber(jenis: JenisJadwal, mode: ChatMode): string {
-  return jenis === 'pengingat' ? 'Pengingat' : LABEL_MODE[mode]
+  return jenis === 'pengingat' ? 'Reminder' : LABEL_MODE[mode]
 }
 
 function IkonSumber({ jenis, mode }: { jenis: JenisJadwal; mode: ChatMode }): JSX.Element {
@@ -71,16 +71,16 @@ function IkonSumber({ jenis, mode }: { jenis: JenisJadwal; mode: ChatMode }): JS
   return <IconFileText size={17} />
 }
 
-const HARI_PENDEK = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+const HARI_PENDEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 type Jenis = PolaJadwal['jenis']
 
 const LABEL_JENIS: Record<Jenis, string> = {
-  harian: 'Tiap hari',
-  hari_kerja: 'Tiap hari kerja (Sen–Jum)',
-  mingguan: 'Tiap minggu',
-  bulanan: 'Tiap bulan',
-  sekali: 'Sekali saja'
+  harian: 'Every day',
+  hari_kerja: 'Every weekday (Mon–Fri)',
+  mingguan: 'Every week',
+  bulanan: 'Every month',
+  sekali: 'Once only'
 }
 
 interface Templat {
@@ -98,56 +98,56 @@ interface Templat {
 /** Template — hanya ditampilkan bila menunya boleh dibuka user ini. Mengisi form, tidak menyimpan. */
 const TEMPLAT: Templat[] = [
   {
-    judul: 'Ringkasan sales harian',
-    ket: 'Otomatis setiap pagi hari kerja',
+    judul: 'Daily sales summary',
+    ket: 'Automatic every weekday morning',
     jenis: 'aira',
     mode: 'sales',
-    nama: 'Ringkasan sales harian',
-    prompt: 'Buatkan ringkasan sales kemarin dibanding hari yang sama minggu lalu.',
+    nama: 'Daily sales summary',
+    prompt: 'Write a summary of yesterday\'s sales compared with the same day last week.',
     pola: { jenis: 'hari_kerja', jam: '07:30' },
     ikon: <IconChart size={18} />,
     warna: 'oranye'
   },
   {
-    judul: 'Laporan sales bulanan',
-    ket: 'Setiap tanggal 1, untuk bulan lalu',
+    judul: 'Monthly sales report',
+    ket: 'On the 1st of each month, for last month',
     jenis: 'aira',
     mode: 'sales',
-    nama: 'Laporan sales bulanan',
-    prompt: 'Buatkan laporan sales bulan lalu per region dalam Excel, lengkap dengan grafik.',
+    nama: 'Monthly sales report',
+    prompt: 'Create last month\'s sales report by region in Excel, including charts.',
     pola: { jenis: 'bulanan', tanggal: 1, jam: '07:30' },
     ikon: <IconFileText size={18} />,
     warna: 'hijau'
   },
   {
-    judul: 'Cek backlog sampel',
-    ket: 'Setiap hari kerja sore',
+    judul: 'Sample backlog check',
+    ket: 'Every weekday afternoon',
     jenis: 'aira',
     mode: 'lab',
-    nama: 'Cek backlog sampel',
-    prompt: 'Tampilkan backlog sampel lab saat ini dan sebutkan yang umurnya lebih dari 3 hari.',
+    nama: 'Sample backlog check',
+    prompt: 'Show the current lab sample backlog and point out anything older than 3 days.',
     pola: { jenis: 'hari_kerja', jam: '16:00' },
     ikon: <IconFlask size={18} />,
     warna: 'biru'
   },
   {
-    judul: 'Rapat tim',
-    ket: 'Pengingat setiap minggu',
+    judul: 'Team meeting',
+    ket: 'Weekly reminder',
     jenis: 'pengingat',
     mode: 'general',
-    nama: 'Rapat tim mingguan',
-    prompt: 'Rapat tim mingguan — siapkan update pekerjaanmu.',
+    nama: 'Weekly team meeting',
+    prompt: 'Weekly team meeting — prepare your work update.',
     pola: { jenis: 'mingguan', hari: [1], jam: '09:00' },
     ikon: <IconUsers size={18} />,
     warna: 'hijau'
   },
   {
-    judul: 'Reminder tugas',
-    ket: 'Pengingat harian',
+    judul: 'Task reminder',
+    ket: 'Daily reminder',
     jenis: 'pengingat',
     mode: 'general',
-    nama: 'Cek daftar tugas',
-    prompt: 'Periksa daftar tugas hari ini.',
+    nama: 'Check task list',
+    prompt: 'Review today\'s task list.',
     pola: { jenis: 'harian', jam: '08:00' },
     ikon: <IconBell size={18} />,
     warna: 'merah'
@@ -230,10 +230,10 @@ const jamDari = (ms: number): string => {
 }
 
 const tanggalPanjang = (d: Date): string =>
-  d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  d.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
 const tanggalPendek = (ms: number): string =>
-  new Date(ms).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+  new Date(ms).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 
 /** Pesan galat IPC tanpa awalan "Error invoking remote method …". */
 function pesanGalat(err: unknown): string {
@@ -256,12 +256,12 @@ interface Entri {
 }
 
 const LABEL_STATUS: Record<Entri['status'], string> = {
-  akan: 'Akan datang',
-  tertunda: 'Tertunda',
-  jalan: 'Berjalan',
-  ok: 'Selesai',
-  gagal: 'Gagal',
-  ditolak: 'Tidak dijalankan'
+  akan: 'Upcoming',
+  tertunda: 'Overdue',
+  jalan: 'Running',
+  ok: 'Done',
+  gagal: 'Failed',
+  ditolak: 'Not run'
 }
 
 /**
@@ -328,7 +328,7 @@ export default function Jadwal({
   const [error, setError] = useState<string | null>(null)
   const [sibuk, setSibuk] = useState(false)
   const [hapus, setHapus] = useState<ItemJadwal | null>(null)
-  const [tampilan, setTampilan] = useState<'kalender' | 'daftar' | 'timeline'>('kalender')
+  const [tampilan, setTampilan] = useState<'calendar' | 'list' | 'timeline'>('calendar')
   const [bulan, setBulan] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
   const [dipilih, setDipilih] = useState(() => awalHari(new Date()))
   const [menuEntri, setMenuEntri] = useState<string | null>(null)
@@ -433,9 +433,9 @@ export default function Jadwal({
     const mode = modeBoleh.includes(t.mode) ? t.mode : 'general'
     const d = drafDari({ ...t, mode })
     d.catatan = t.pola
-      ? 'Diisi dari kalimatmu — periksa dulu sebelum menyimpan.'
-      : 'Kapan dijalankannya tidak terbaca dari kalimatmu — pilih sendiri di bawah.'
-    if (t.mode !== mode) d.catatan += ` Menu "${LABEL_MODE_PANJANG[t.mode]}" tidak tersedia untukmu, jadi dipakai Task Baru.`
+      ? 'Filled in from your sentence — please check it before saving.'
+      : 'When to run it could not be read from your sentence — pick it yourself below.'
+    if (t.mode !== mode) d.catatan += ' The "' + LABEL_MODE_PANJANG[t.mode] + '" menu is not available to you, so New Task is used.'
     setDraf(d)
     setMinta('')
   }
@@ -457,7 +457,7 @@ export default function Jadwal({
       selesai: jalan.filter(
         (r) => r.status === 'ok' && r.dijadwalkan >= awalBulanIni.getTime() && r.dijadwalkan < akhirBulanIni.getTime()
       ).length,
-      namaBulan: hariIni.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })
+      namaBulan: hariIni.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     }
   }, [semua, jalan, kini, hariIni])
 
@@ -499,7 +499,7 @@ export default function Jadwal({
   const keHariIni = (): void => {
     setBulan(new Date(hariIni.getFullYear(), hariIni.getMonth(), 1))
     setDipilih(hariIni)
-    setTampilan('kalender')
+    setTampilan('calendar')
   }
 
   const MenuEntri = ({ e }: { e: Entri }): JSX.Element => {
@@ -513,7 +513,7 @@ export default function Jadwal({
               onBukaSesi(e.sessionId!, e.mode)
             }}
           >
-            Buka hasil
+            Open result
           </button>
         )}
         {i && (
@@ -525,7 +525,7 @@ export default function Jadwal({
                 void aksi(() => window.aira.jadwalJalankan(i.id))
               }}
             >
-              Jalankan sekarang
+              Run now
             </button>
             <button
               onClick={() => {
@@ -533,7 +533,7 @@ export default function Jadwal({
                 setDraf(drafDari(i))
               }}
             >
-              Ubah
+              Edit
             </button>
             <button
               disabled={sibuk}
@@ -542,7 +542,7 @@ export default function Jadwal({
                 void aksi(() => window.aira.jadwalSaklar(i.id, !i.aktif))
               }}
             >
-              {i.aktif ? 'Matikan tugas ini' : 'Nyalakan lagi'}
+              {i.aktif ? 'Turn this task off' : 'Turn back on'}
             </button>
             <button
               onClick={() => {
@@ -550,7 +550,7 @@ export default function Jadwal({
                 setHapus(i)
               }}
             >
-              Hapus tugas
+              Delete task
             </button>
           </>
         )}
@@ -561,7 +561,7 @@ export default function Jadwal({
   const TombolMenu = ({ id }: { id: string }): JSX.Element => (
     <button
       className="btn-mini jadwal-titik3"
-      title="Pilihan lain"
+      title="More options"
       onClick={(ev) => {
         ev.stopPropagation()
         setMenuEntri((m) => (m === id ? null : id))
@@ -603,17 +603,17 @@ export default function Jadwal({
             <IconCalendar size={26} />
           </span>
           <div>
-            <h1>Jadwal</h1>
+            <h1>Schedule</h1>
             <p>
-              AIRA membantu mengingatkan, merencanakan, dan menjalankan tugasmu. Atur jadwal, buat pengingat,
-              dan biarkan AIRA yang menyiapkan semuanya.
+              AIRA helps you remember, plan, and run your tasks. Set a schedule, create reminders,
+              and let AIRA get everything ready.
             </p>
           </div>
           <div className="jadwal-baru-tombol" onClick={(e) => e.stopPropagation()}>
             <button className="btn-send" onClick={() => setDraf(drafKosong('aira'))}>
-              <IconPlus size={16} /> Tugas baru
+              <IconPlus size={16} /> New task
             </button>
-            <button className="btn-send jadwal-panah" title="Pilih jenis" onClick={() => setMenuBaru((x) => !x)}>
+            <button className="btn-send jadwal-panah" title="Choose a type" onClick={() => setMenuBaru((x) => !x)}>
               <span className="jadwal-caret" />
             </button>
             {menuBaru && (
@@ -624,8 +624,8 @@ export default function Jadwal({
                     setDraf(drafKosong('aira'))
                   }}
                 >
-                  <strong>Tugas AIRA</strong>
-                  <span>AIRA menjalankan perintahmu pada jamnya</span>
+                  <strong>AIRA task</strong>
+                  <span>AIRA runs your instruction at the scheduled time</span>
                 </button>
                 <button
                   onClick={() => {
@@ -633,8 +633,8 @@ export default function Jadwal({
                     setDraf(drafKosong('pengingat'))
                   }}
                 >
-                  <strong>Pengingat</strong>
-                  <span>Hanya notifikasi, tanpa AIRA bekerja</span>
+                  <strong>Reminder</strong>
+                  <span>A notification only, AIRA does no work</span>
                 </button>
               </div>
             )}
@@ -642,32 +642,32 @@ export default function Jadwal({
         </header>
 
         <p className="jadwal-batas-baru">
-          Tugas berjalan <strong>selama AIRA menyala di laptop ini</strong> (termasuk saat di tray) dan hanya saat
-          kamu yang login. Terlewat karena laptop mati = disusulkan <strong>sekali</strong>. Tugas terjadwal tidak
-          pernah menghapus, memindah, atau menjalankan perintah.
+          Tasks run <strong>only while AIRA is running on this laptop</strong> (including when it is in the tray) and
+          only while you are signed in. If one is missed because the laptop was off, it is made up <strong>once</strong>.
+          Scheduled tasks never delete, move, or run commands.
         </p>
 
         {error && <div className="error">{error}</div>}
 
         <div className="jadwal-statistik">
-          <StatKartu angka={statistik.hariIni} label="Tugas hari ini" ikon={<IconCheck size={22} />} w="hijau" onKlik={keHariIni} />
+          <StatKartu angka={statistik.hariIni} label="Tasks today" ikon={<IconCheck size={22} />} w="hijau" onKlik={keHariIni} />
           <StatKartu
             angka={statistik.minggu}
-            label="Tugas minggu ini"
+            label="Tasks this week"
             ikon={<IconCalendar size={22} />}
             w="biru"
             onKlik={() => setTampilan('timeline')}
           />
           <StatKartu
             angka={statistik.tertunda}
-            label="Tugas tertunda"
+            label="Overdue tasks"
             ikon={<IconClock size={22} />}
             w="ungu"
-            onKlik={() => setTampilan('daftar')}
+            onKlik={() => setTampilan('list')}
           />
           <StatKartu
             angka={statistik.selesai}
-            label={`Tugas selesai (${statistik.namaBulan})`}
+            label={'Tasks done (' + statistik.namaBulan + ')'}
             ikon={<IconCheck size={22} />}
             w="hijau"
             onKlik={() => setTampilan('timeline')}
@@ -678,35 +678,35 @@ export default function Jadwal({
           <section className="kartu-panel jadwal-kalender">
             <div className="jadwal-alat">
               <div className="jadwal-segmen">
-                <button className={tampilan === 'kalender' ? 'aktif' : ''} onClick={() => setTampilan('kalender')}>
-                  <IconCalendar size={15} /> Kalender
+                <button className={tampilan === 'calendar' ? 'aktif' : ''} onClick={() => setTampilan('calendar')}>
+                  <IconCalendar size={15} /> Calendar
                 </button>
-                <button className={tampilan === 'daftar' ? 'aktif' : ''} onClick={() => setTampilan('daftar')}>
-                  <IconList size={15} /> Daftar
+                <button className={tampilan === 'list' ? 'aktif' : ''} onClick={() => setTampilan('list')}>
+                  <IconList size={15} /> List
                 </button>
                 <button className={tampilan === 'timeline' ? 'aktif' : ''} onClick={() => setTampilan('timeline')}>
                   <IconTimeline size={15} /> Timeline
                 </button>
               </div>
-              {tampilan === 'kalender' && (
+              {tampilan === 'calendar' && (
                 <div className="jadwal-navbulan">
                   <button className="btn-teks" onClick={keHariIni}>
-                    Hari ini
+                    Today
                   </button>
-                  <button className="btn-mini" title="Bulan sebelumnya" onClick={() => pindahBulan(-1)}>
+                  <button className="btn-mini" title="Previous month" onClick={() => pindahBulan(-1)}>
                     ‹
                   </button>
-                  <button className="btn-mini" title="Bulan berikutnya" onClick={() => pindahBulan(1)}>
+                  <button className="btn-mini" title="Next month" onClick={() => pindahBulan(1)}>
                     ›
                   </button>
-                  <strong>{bulan.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</strong>
+                  <strong>{bulan.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</strong>
                 </div>
               )}
             </div>
 
             {item === null ? (
-              <p className="panel-kosong">Memuat…</p>
-            ) : tampilan === 'kalender' ? (
+              <p className="panel-kosong">Loading…</p>
+            ) : tampilan === 'calendar' ? (
               <div className="kalender">
                 {HARI_PENDEK.map((h) => (
                   <div key={h} className="kalender-hari">
@@ -725,7 +725,7 @@ export default function Jadwal({
                         hariSama(d, hariIni) ? 'hari-ini' : ''
                       }`}
                       onClick={() => setDipilih(d)}
-                      title={e.length ? `${e.length} tugas` : undefined}
+                      title={e.length ? e.length + (e.length === 1 ? ' task' : ' tasks') : undefined}
                     >
                       <span className="kalender-angka">{d.getDate()}</span>
                       <span className="kalender-titik">
@@ -737,9 +737,9 @@ export default function Jadwal({
                   )
                 })}
               </div>
-            ) : tampilan === 'daftar' ? (
+            ) : tampilan === 'list' ? (
               semua.length === 0 ? (
-                <p className="panel-kosong">Belum ada tugas terjadwal. Pakai "Tugas baru" atau salah satu template.</p>
+                <p className="panel-kosong">No scheduled tasks yet. Use "New task" or one of the templates.</p>
               ) : (
                 <ul className="jadwal-daftar-baru">
                   {semua.map((i) => {
@@ -758,15 +758,15 @@ export default function Jadwal({
                           <span className={tertunda ? 'status-gagal' : ''}>
                             {!i.aktif
                               ? i.pola.jenis === 'sekali' && i.berikut === null
-                                ? 'Sudah dijalankan — tidak dijadwalkan lagi.'
-                                : 'Dimatikan.'
+                                ? 'Already run — not scheduled again.'
+                                : 'Turned off.'
                               : i.berikut
-                                ? `${tertunda ? 'Tertunda sejak' : 'Berikutnya'}: ${tanggalPendek(i.berikut)} ${jamDari(i.berikut)}`
-                                : 'Tidak dijadwalkan lagi.'}
-                            {terakhir && ` · Terakhir: ${LABEL_STATUS[terakhir.status]}`}
+                                ? (tertunda ? 'Overdue since' : 'Next') + ': ' + tanggalPendek(i.berikut) + ' ' + jamDari(i.berikut)
+                                : 'Not scheduled again.'}
+                            {terakhir && ' · Last: ' + LABEL_STATUS[terakhir.status]}
                           </span>
                         </span>
-                        <label className="jadwal-saklar" title={i.aktif ? 'Matikan' : 'Nyalakan'}>
+                        <label className="jadwal-saklar" title={i.aktif ? 'Turn off' : 'Turn on'}>
                           <input
                             type="checkbox"
                             checked={i.aktif}
@@ -787,7 +787,7 @@ export default function Jadwal({
                 </ul>
               )
             ) : timeline.length === 0 ? (
-              <p className="panel-kosong">Tidak ada tugas dari 3 hari lalu sampai 2 minggu ke depan.</p>
+              <p className="panel-kosong">No tasks from 3 days ago to 2 weeks ahead.</p>
             ) : (
               <div className="jadwal-timeline">
                 {timeline.map(([k, e]) => (
@@ -812,10 +812,10 @@ export default function Jadwal({
           <section className="kartu-panel jadwal-agenda">
             <div className="kartu-panel-kepala">
               <h4>{tanggalPanjang(dipilih)}</h4>
-              <span className="chip-jumlah">{agenda.length} tugas</span>
+              <span className="chip-jumlah">{agenda.length} {agenda.length === 1 ? 'task' : 'tasks'}</span>
             </div>
             {agenda.length === 0 ? (
-              <p className="panel-kosong">Tidak ada tugas di hari ini.</p>
+              <p className="panel-kosong">No tasks on this day.</p>
             ) : (
               <ul className="agenda">
                 {agenda.map((e) => (
@@ -848,21 +848,21 @@ export default function Jadwal({
         <section className="kartu-panel jadwal-mendatang">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconCalendar size={17} /> Tugas Mendatang
+              <IconCalendar size={17} /> Upcoming Tasks
             </h4>
             <button className="beranda-tautan" onClick={() => setTampilan('timeline')}>
-              Lihat semua <IconArrowRight size={14} />
+              View all <IconArrowRight size={14} />
             </button>
           </div>
           {mendatang.length === 0 ? (
-            <p className="panel-kosong">Belum ada tugas yang akan datang.</p>
+            <p className="panel-kosong">No upcoming tasks yet.</p>
           ) : (
             <table className="tabel-mendatang">
               <thead>
                 <tr>
-                  <th>Judul</th>
-                  <th>Tanggal</th>
-                  <th>Sumber</th>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Source</th>
                   <th>Status</th>
                   <th />
                 </tr>
@@ -913,14 +913,14 @@ export default function Jadwal({
             </span>
             <IconSparkleSolid size={22} className="minta-kilau" />
           </div>
-          <h4>Minta AIRA menjadwalkan</h4>
-          <p>Ceritakan apa yang ingin dijadwalkan, AIRA akan membantu membuat tugasnya.</p>
+          <h4>Ask AIRA to schedule</h4>
+          <p>Tell AIRA what you want scheduled and it will help create the task.</p>
           <div className="minta-kotak">
             <textarea
               rows={3}
               value={minta}
               maxLength={500}
-              placeholder="Mis. ingatkan saya setiap tanggal 1 jam 8 untuk kirim laporan sales"
+              placeholder="e.g. remind me on the 1st of every month at 8am to send the sales report"
               onChange={(e) => setMinta(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -931,7 +931,7 @@ export default function Jadwal({
             />
             <div className="minta-bawah">
               <TombolDikte onTeks={(t) => setMinta((p) => (p.trim() ? `${p.trim()} ${t}` : t))} />
-              <button className="btn-send minta-kirim" disabled={!minta.trim()} onClick={mintaAira} title="Susun tugasnya">
+              <button className="btn-send minta-kirim" disabled={!minta.trim()} onClick={mintaAira} title="Build the task">
                 <IconSend size={15} />
               </button>
             </div>
@@ -941,7 +941,7 @@ export default function Jadwal({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconCalendar size={17} /> Template Jadwal
+              <IconCalendar size={17} /> Schedule Templates
             </h4>
           </div>
           <ul className="daftar-templat">
@@ -966,14 +966,14 @@ export default function Jadwal({
               <IconBulb size={20} />
             </span>
             <span>
-              <strong>Tips Penggunaan</strong>
+              <strong>Usage Tip</strong>
               <span>
-                Kamu bisa menggunakan bahasa alami seperti “ingatkan saya setiap Senin pagi untuk cek data sales”.
+                You can use plain language such as “remind me every Monday morning to check the sales data”.
               </span>
             </span>
             <button
               className="btn-mini bantuan-tutup"
-              title="Tutup"
+              title="Close"
               onClick={() => {
                 setTipsDitutup(true)
                 try {
@@ -994,32 +994,32 @@ export default function Jadwal({
           <div className="jadwal-form jadwal-modal" onClick={(e) => e.stopPropagation()}>
             <div className="kartu-panel-kepala">
               <h4>
-                <IconSparkle size={17} /> {draf.id ? 'Ubah tugas' : 'Tugas baru'}
+                <IconSparkle size={17} /> {draf.id ? 'Edit task' : 'New task'}
               </h4>
-              <button className="btn-mini" title="Tutup" onClick={() => setDraf(null)}>
+              <button className="btn-mini" title="Close" onClick={() => setDraf(null)}>
                 <IconClose size={14} />
               </button>
             </div>
             {draf.catatan && <p className="jadwal-catatan">{draf.catatan}</p>}
             <div className="jadwal-segmen penuh">
               <button className={draf.jenis === 'aira' ? 'aktif' : ''} onClick={() => ubah({ jenis: 'aira' })}>
-                <IconSparkle size={15} /> AIRA menjalankan perintah
+                <IconSparkle size={15} /> AIRA runs an instruction
               </button>
               <button className={draf.jenis === 'pengingat' ? 'aktif' : ''} onClick={() => ubah({ jenis: 'pengingat' })}>
-                <IconBell size={15} /> Pengingat saja
+                <IconBell size={15} /> Reminder only
               </button>
             </div>
             <label>
-              Nama tugas
+              Task name
               <input
                 value={draf.nama}
                 maxLength={80}
-                placeholder="mis. Ringkasan sales mingguan"
+                placeholder="e.g. Weekly sales summary"
                 onChange={(e) => ubah({ nama: e.target.value })}
               />
             </label>
             <label>
-              {draf.jenis === 'pengingat' ? 'Isi pengingat' : 'Perintah untuk AIRA'}
+              {draf.jenis === 'pengingat' ? 'Reminder text' : 'Instruction for AIRA'}
               <div className="jadwal-prompt">
                 <textarea
                   rows={3}
@@ -1027,8 +1027,8 @@ export default function Jadwal({
                   maxLength={5000}
                   placeholder={
                     draf.jenis === 'pengingat'
-                      ? 'mis. Kirim laporan ke manajer'
-                      : 'Tulis seperti bertanya di chat, mis. buatkan ringkasan sales minggu lalu dalam PDF'
+                      ? 'e.g. Send the report to the manager'
+                      : 'Write it like a question in chat, e.g. create a PDF summary of last week\'s sales'
                   }
                   onChange={(e) => ubah({ prompt: e.target.value })}
                 />
@@ -1051,7 +1051,7 @@ export default function Jadwal({
                 </label>
               )}
               <label>
-                Ulangi
+                Repeat
                 <select value={draf.pola} onChange={(e) => ubah({ pola: e.target.value as Jenis })}>
                   {(Object.keys(LABEL_JENIS) as Jenis[]).map((j) => (
                     <option key={j} value={j}>
@@ -1062,13 +1062,13 @@ export default function Jadwal({
               </label>
               {draf.pola === 'sekali' && (
                 <label>
-                  Tanggal
+                  Date
                   <input type="date" value={draf.tanggal} onChange={(e) => ubah({ tanggal: e.target.value })} />
                 </label>
               )}
               {draf.pola === 'bulanan' && (
                 <label>
-                  Tanggal
+                  Day of month
                   <select value={draf.tanggalBulan} onChange={(e) => ubah({ tanggalBulan: Number(e.target.value) })}>
                     {Array.from({ length: 31 }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>
@@ -1079,7 +1079,7 @@ export default function Jadwal({
                 </label>
               )}
               <label>
-                Jam
+                Time
                 <input type="time" value={draf.jam} onChange={(e) => ubah({ jam: e.target.value })} />
               </label>
             </div>
@@ -1099,20 +1099,20 @@ export default function Jadwal({
               </div>
             )}
             {draf.pola === 'bulanan' && draf.tanggalBulan > 28 && (
-              <p className="hint">Di bulan yang lebih pendek, tugas jalan di hari terakhir bulan itu.</p>
+              <p className="hint">In shorter months, the task runs on the last day of the month.</p>
             )}
             <PratinjauBerikut draf={draf} />
             {error && <div className="error">{error}</div>}
             <div className="jadwal-aksi">
               <button className="btn-teks" onClick={() => setDraf(null)} disabled={sibuk}>
-                Batal
+                Cancel
               </button>
               <button
                 className="btn-send"
                 onClick={() => void simpan()}
                 disabled={sibuk || !draf.nama.trim() || !draf.prompt.trim()}
               >
-                {sibuk ? <IconSpinner size={14} /> : null} Simpan
+                {sibuk ? <IconSpinner size={14} /> : null} Save
               </button>
             </div>
           </div>
@@ -1121,8 +1121,8 @@ export default function Jadwal({
 
       {hapus && (
         <ConfirmDialog
-          title="Hapus tugas terjadwal ini?"
-          body={`${hapus.nama} — percakapan hasil yang sudah ada tetap tersimpan di riwayat chat.`}
+          title="Delete this scheduled task?"
+          body={hapus.nama + ' — existing result conversations stay in your chat history.'}
           onCancel={() => setHapus(null)}
           onConfirm={() => {
             const id = hapus.id
@@ -1135,17 +1135,17 @@ export default function Jadwal({
   )
 }
 
-/** "Jalan berikutnya: …" di form — user melihat akibat pilihannya sebelum menyimpan. */
+/** "Next run: …" di form — user melihat akibat pilihannya sebelum menyimpan. */
 function PratinjauBerikut({ draf }: { draf: Draf }): JSX.Element {
   let teks: string
   try {
     const t = berikutnya(polaDari(draf), new Date())
     teks = t
-      ? `Jalan berikutnya: ${tanggalPanjang(t)}, ${jamDari(t.getTime())}`
-      : 'Waktunya sudah lewat — pilih waktu yang akan datang.'
+      ? 'Next run: ' + tanggalPanjang(t) + ', ' + jamDari(t.getTime())
+      : 'That time has already passed — pick a future time.'
   } catch {
     teks = ''
   }
-  if (draf.pola === 'mingguan' && draf.hari.length === 0) teks = 'Pilih minimal satu hari.'
+  if (draf.pola === 'mingguan' && draf.hari.length === 0) teks = 'Pick at least one day.'
   return <p className="jadwal-pratinjau">{teks}</p>
 }

@@ -75,7 +75,7 @@ const SARING_DESC = {
 export const labTools: ToolDefinition[] = [
   {
     name: 'lab_backlog',
-    label: 'Sampel Belum Keluar',
+    label: 'Pending Samples',
     description:
       'Daftar sampel yang HASILNYA BELUM KELUAR, beserta status tahap dan berapa lama sudah menggantung. ' +
       'Pakai untuk pertanyaan seperti "sampel apa saja yang belum keluar", "apa yang masih nyangkut di lab", ' +
@@ -90,7 +90,7 @@ export const labTools: ToolDefinition[] = [
     tier: 'read',
     timeoutMs: 120_000,
     summarize: (a) =>
-      `Sampel belum keluar${a.category ? ` — ${a.category}` : ''}${a.account ? ` — ${a.account}` : ''}`,
+      `Pending samples${a.category ? ` — ${a.category}` : ''}${a.account ? ` — ${a.account}` : ''}`,
     execute: async (args) => {
       const batas = angka(args, 'batas', 30)
       const hasil = await backlog(saringan(args), batas)
@@ -100,6 +100,7 @@ export const labTools: ToolDefinition[] = [
         totalBaris: hasil.totalBaris,
         totalOrder: hasil.totalOrder,
         perStatus: hasil.perStatus,
+        perKategori: hasil.perKategori,
         daftarTerlama: hasil.daftar,
         catatanUmur:
           'Kolom umur_hari dan umur_median dalam HARI. ' +
@@ -117,25 +118,25 @@ export const labTools: ToolDefinition[] = [
 
   {
     name: 'lab_lacak',
-    label: 'Lacak Sampel',
+    label: 'Track Sample',
     description:
-      'Melacak SATU order berdasarkan Order ID: sekarang ada di tahap mana, dan kapan tiap tahap terjadi. ' +
-      'Pakai untuk pertanyaan seperti "Order ID ini tahapnya di mana", "sudah sampai mana sampel ini". ' +
-      'Satu Order ID bisa memuat beberapa pemeriksaan; semuanya dikembalikan.',
+      'Track ONE order by Order ID: which stage it is at now, and when each stage happened. ' +
+      'Use for questions such as "which stage is this Order ID at", "how far along is this sample". ' +
+      'One Order ID can contain several tests; all of them are returned.',
     parameters: {
       type: 'object',
       properties: {
         order_id: {
           type: 'string',
           description:
-            'Order ID yang ditanyakan user. WAJIB disalin dari kalimat user — jangan pernah mengarang atau menebak.'
+            "Order ID asked about by the user. MUST be copied exactly from the user's sentence — never invent or guess it."
         }
       },
       required: ['order_id']
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Lacak sampel ${a.order_id}`,
+    summarize: (a) => `Track sample ${a.order_id}`,
     execute: async (args) => {
       const id = teks(args, 'order_id')
       if (!id) throw new ToolError('order_id wajib diisi dan harus berasal dari kalimat user')
@@ -179,7 +180,7 @@ export const labTools: ToolDefinition[] = [
 
   {
     name: 'lab_rns',
-    label: 'RNS (Sampel Diambil Ulang)',
+    label: 'RNS (Re-collected Samples)',
     description:
       'RNS = Retake New Sample, yaitu sampel yang harus diambil ulang. Mengembalikan jumlah RNS, berapa yang ' +
       'sampel penggantinya sudah datang, berapa yang masih menunggu, dan peringkat pemeriksaan dengan RNS ' +
@@ -200,7 +201,7 @@ export const labTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 120_000,
-    summarize: (a) => `RNS sampel${a.category ? ` — ${a.category}` : ''}`,
+    summarize: (a) => `RNS samples${a.category ? ` — ${a.category}` : ''}`,
     execute: async (args) => {
       const f = saringan(args)
       const batas = angka(args, 'batas', 10)
@@ -234,7 +235,7 @@ export const labTools: ToolDefinition[] = [
 
   {
     name: 'lab_tat',
-    label: 'TAT Sampel',
+    label: 'Sample TAT',
     description:
       'Turn Around Time sampel: berapa lama tiap tahap, per kategori atau per pemeriksaan, dengan median, ' +
       'p90, dan terlama. Pakai untuk pertanyaan seperti "berapa TAT bulan ini", "pemeriksaan mana yang paling lama".',
@@ -259,7 +260,7 @@ export const labTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 120_000,
-    summarize: (a) => `TAT sampel — tahap ${a.tahap ?? 'total'}`,
+    summarize: (a) => 'Sample TAT — stage ' + String(a.tahap ?? 'total'),
     execute: async (args) => {
       const kode = teks(args, 'tahap') ?? 'total'
       const tahap = tahapDari(kode)

@@ -1,3 +1,4 @@
+import { RAG_DISABLED } from '../hackathon/flags'
 import { loadConfig } from '../config'
 import { folderCache, salinFolder, siapDiindeks } from '../m365/index-drive'
 import { buildProvider } from '../llm/factory'
@@ -108,6 +109,7 @@ export function indexAllAllowed(): Promise<IndexReport> {
 
 /** Fire-and-forget untuk pemicu background. */
 export function triggerAutoIndex(reason: string): void {
+  if (RAG_DISABLED) return
   void indexAllAllowed().then((report) => {
     if (report.indexed > 0) logger().info({ reason }, 'background index refreshed')
   })

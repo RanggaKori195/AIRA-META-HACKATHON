@@ -16,13 +16,13 @@ const angka = (v: unknown): number | null =>
 const hari = (v: unknown): Sel => ({ nilai: angka(v), satuan: 'hari' })
 const n = (v: unknown): Sel => ({ nilai: angka(v), satuan: 'angka' })
 
-/** "…terakhir diperbarui 2026-09-29 06:00. Sebutkan…" -> "Data ETL, diperbarui 2026-09-29 06:00". */
+/** "…last updated 2026-09-29 06:00. Mention…" -> "ETL data (not real-time), updated 2026-09-29 06:00". */
 export function kesegaran(j: J): string | null {
-  const m = /terakhir diperbarui (.+?)\. Sebutkan/.exec(String(j.catatanKesegaran ?? ''))
-  return m ? `Data hasil ETL (bukan real-time), diperbarui ${m[1]}` : null
+  const m = /(?:terakhir diperbarui|last updated|updated) (.+?)\. (?:Sebutkan|Mention|State|Cite)/i.exec(String(j.catatanKesegaran ?? ''))
+  return m ? `ETL data (not real-time), updated ${m[1]}` : null
 }
 
-const SUMBER = 'Pelacakan sampel (Patologi Anatomi)'
+const SUMBER = 'Sample tracking (Anatomical Pathology)'
 
 function backlog(j: J): KartuVisual | null {
   if (!Array.isArray(j.perStatus)) return null
@@ -31,40 +31,40 @@ function backlog(j: J): KartuVisual | null {
   const tertua = perStatus.reduce((m, s) => Math.max(m, angka(s.umur_tertua) ?? 0), 0)
   return {
     tool: 'lab_backlog',
-    judul: 'Sampel yang Belum Keluar Hasilnya',
+    judul: 'Samples Without Results Yet',
     sub: [SUMBER, kesegaran(j)].filter(Boolean).join(' · '),
     panel: [
       {
         jenis: 'kpi',
         item: [
-          { label: 'Order belum keluar', nilai: angka(j.totalOrder), satuan: 'angka' },
-          { label: 'Baris pemeriksaan', nilai: angka(j.totalBaris), satuan: 'angka', catatan: 'satu order bisa beberapa pemeriksaan' },
-          { label: 'Jumlah tahap/status', nilai: perStatus.length, satuan: 'angka' },
-          { label: 'Paling lama menggantung', nilai: tertua || null, satuan: 'hari' }
+          { label: 'Orders not released', nilai: angka(j.totalOrder), satuan: 'angka' },
+          { label: 'Test lines', nilai: angka(j.totalBaris), satuan: 'angka', catatan: 'one order can have several tests' },
+          { label: 'Stages/statuses', nilai: perStatus.length, satuan: 'angka' },
+          { label: 'Longest stuck', nilai: tertua || null, satuan: 'hari' }
         ]
       },
       {
         jenis: 'batang',
-        judul: 'Per tahap / status (baris)',
+        judul: 'By stage / status (lines)',
         satuan: 'angka',
         baris: perStatus.map((s) => ({
           label: String(s.sample_status),
           nilai: angka(s.baris) ?? 0,
-          catatan: angka(s.umur_median) !== null ? `median ${String(s.umur_median).replace('.', ',')} hari` : undefined
+          catatan: angka(s.umur_median) !== null ? `median ${String(s.umur_median)} days` : undefined
         }))
       },
       {
         jenis: 'tabel',
-        judul: 'Ringkasan per status',
-        kolom: [{ label: 'Status' }, { label: 'Order', kanan: true }, { label: 'Baris', kanan: true }, { label: 'Umur median', kanan: true }, { label: 'Tertua', kanan: true }],
+        judul: 'Summary by status',
+        kolom: [{ label: 'Status' }, { label: 'Orders', kanan: true }, { label: 'Lines', kanan: true }, { label: 'Median age', kanan: true }, { label: 'Oldest', kanan: true }],
         baris: perStatus.map((s) => [String(s.sample_status), n(s.order), n(s.baris), hari(s.umur_median), hari(s.umur_tertua)])
       },
       ...(daftar.length
         ? [
             {
               jenis: 'tabel' as const,
-              judul: 'Paling lama menggantung',
-              kolom: [{ label: 'Order ID' }, { label: 'Pemeriksaan' }, { label: 'Kategori' }, { label: 'Pelanggan' }, { label: 'Status' }, { label: 'Umur', kanan: true }],
+              judul: 'Stuck the longest',
+              kolom: [{ label: 'Order ID' }, { label: 'Test' }, { label: 'Category' }, { label: 'Customer' }, { label: 'Status' }, { label: 'Age', kanan: true }],
               baris: daftar.map((d) => [
                 String(d.order_id),
                 String(d.test),
@@ -78,8 +78,8 @@ function backlog(j: J): KartuVisual | null {
         : [])
     ],
     catatan: [
-      'Umur dihitung sejak sampel diterima lab; bila belum diterima, sejak order divalidasi; bila itu pun kosong, sejak order dibuat.',
-      ...(daftar.length < (angka(j.totalBaris) ?? 0) ? [`Daftar menampilkan ${daftar.length} dari ${j.totalBaris} baris (yang terlama).`] : [])
+      'Age is counted from when the lab received the sample; if not received yet, from order validation; if that is empty too, from order creation.',
+      ...(daftar.length < (angka(j.totalBaris) ?? 0) ? [`The list shows ${daftar.length} of ${j.totalBaris} lines (the oldest).`] : [])
     ]
   }
 }
@@ -88,38 +88,38 @@ function lacak(j: J): KartuVisual | null {
   if (j.ditemukan === false) {
     return {
       tool: 'lab_lacak',
-      judul: `Lacak Order ID ${j.order_id}`,
+      judul: `Track Order ID ${j.order_id}`,
       sub: [SUMBER, kesegaran(j)].filter(Boolean).join(' · '),
-      panel: [{ jenis: 'kpi', item: [{ label: 'Hasil pencarian', nilai: 0, satuan: 'angka', catatan: 'Order ID tidak ada di data pelacakan' }] }],
-      catatan: ['Data pelacakan hanya memuat Patologi Anatomi mulai Januari 2026 — order di luar itu memang tidak akan ketemu.']
+      panel: [{ jenis: 'kpi', item: [{ label: 'Search result', nilai: 0, satuan: 'angka', catatan: 'Order ID is not in the tracking data' }] }],
+      catatan: ['Tracking data only covers Anatomical Pathology from January 2026 — orders outside that will not be found.']
     }
   }
   if (!Array.isArray(j.pemeriksaan)) return null
   const p = j.pemeriksaan as J[]
   return {
     tool: 'lab_lacak',
-    judul: `Lacak Order ID ${j.order_id}`,
+    judul: `Track Order ID ${j.order_id}`,
     sub: [SUMBER, kesegaran(j)].filter(Boolean).join(' · '),
     panel: [
       {
         jenis: 'kpi',
         item: [
-          { label: 'Jumlah pemeriksaan', nilai: p.length, satuan: 'angka' },
+          { label: 'Number of tests', nilai: p.length, satuan: 'angka' },
           { label: 'Status', nilai: null, satuan: 'angka', catatan: [...new Set(p.map((x) => String(x.sample_status)))].join(', ') },
-          { label: 'Umur terlama', nilai: p.reduce((m, x) => Math.max(m, angka(x.umur_hari) ?? 0), 0) || null, satuan: 'hari' }
+          { label: 'Oldest age', nilai: p.reduce((m, x) => Math.max(m, angka(x.umur_hari) ?? 0), 0) || null, satuan: 'hari' }
         ]
       },
       ...p.map((x) => ({
         jenis: 'tabel' as const,
         judul: `${x.test} — ${x.category}${x.is_rns ? ' (RNS)' : ''}`,
-        kolom: [{ label: 'Tahap' }, { label: 'Waktu', kanan: true }],
+        kolom: [{ label: 'Stage' }, { label: 'Time', kanan: true }],
         baris: ((Array.isArray(x.jejak) ? x.jejak : []) as J[]).map((t): Sel[] => [String(t.tahap), t.waktu ? String(t.waktu).replace('T', ' ').slice(0, 16) : '—'])
       }))
     ],
     catatan: [
-      'Jejak hanya memuat tahap yang benar-benar terjadi; tahap yang tidak muncul belum terjadi ATAU tidak berlaku untuk pemeriksaan itu.',
+      'The trail only lists stages that actually happened; a stage that does not appear has not happened yet OR does not apply to that test.',
       ...(Array.isArray(j.tahapTidakTersedia) && j.tahapTidakTersedia.length
-        ? [`Tahap ${j.tahapTidakTersedia.join(', ')} tidak tersedia di sumber data saat ini — bukan berarti belum terjadi.`]
+        ? [`Stage ${j.tahapTidakTersedia.join(', ')} is not available in the data source at the moment — that does not mean it has not happened.`]
         : [])
     ]
   }
@@ -132,34 +132,34 @@ function rns(j: J): KartuVisual | null {
   const perPersen = (Array.isArray(j.peringkatPerPersen) ? j.peringkatPerPersen : []) as J[]
   return {
     tool: 'lab_rns',
-    judul: 'RNS — Sampel yang Diambil Ulang',
+    judul: 'RNS — Recollected Samples',
     sub: [SUMBER, kesegaran(j)].filter(Boolean).join(' · '),
     panel: [
       {
         jenis: 'kpi',
         item: [
           { label: 'Total RNS', nilai: angka(r.total), satuan: 'angka' },
-          { label: 'Pengganti sudah datang', nilai: angka(r.penggantiDatang), satuan: 'angka' },
-          { label: 'Masih menunggu pengganti', nilai: angka(r.masihMenunggu), satuan: 'angka', arah: (angka(r.masihMenunggu) ?? 0) > 0 ? 'turun' : undefined, catatan: 'paling perlu ditindaklanjuti' },
-          { label: 'Tunggu pengganti (median)', nilai: angka(r.tungguMedianHari), satuan: 'hari', catatan: angka(r.tungguP90Hari) !== null ? `p90 ${String(r.tungguP90Hari).replace('.', ',')} hari` : undefined }
+          { label: 'Replacement arrived', nilai: angka(r.penggantiDatang), satuan: 'angka' },
+          { label: 'Still waiting for replacement', nilai: angka(r.masihMenunggu), satuan: 'angka', arah: (angka(r.masihMenunggu) ?? 0) > 0 ? 'turun' : undefined, catatan: 'needs the most follow-up' },
+          { label: 'Wait for replacement (median)', nilai: angka(r.tungguMedianHari), satuan: 'hari', catatan: angka(r.tungguP90Hari) !== null ? `p90 ${String(r.tungguP90Hari)} days` : undefined }
         ]
       },
       {
         jenis: 'batang',
-        judul: 'Terbanyak per JUMLAH',
+        judul: 'Most by COUNT',
         satuan: 'angka',
-        baris: perJumlah.map((b) => ({ label: String(b.test), nilai: angka(b.rns) ?? 0, catatan: `dari ${b.total}` }))
+        baris: perJumlah.map((b) => ({ label: String(b.test), nilai: angka(b.rns) ?? 0, catatan: `of ${b.total}` }))
       },
       {
         jenis: 'tabel',
-        judul: 'Tertinggi per PERSEN (rasio terhadap volume)',
-        kolom: [{ label: 'Pemeriksaan' }, { label: 'RNS', kanan: true }, { label: 'Volume', kanan: true }, { label: 'Rasio', kanan: true }],
+        judul: 'Highest by PERCENT (ratio to volume)',
+        kolom: [{ label: 'Test' }, { label: 'RNS', kanan: true }, { label: 'Volume', kanan: true }, { label: 'Ratio', kanan: true }],
         baris: perPersen.map((b) => [String(b.test), n(b.rns), n(b.total), { nilai: angka(b.persen), satuan: 'persen' }])
       }
     ],
     catatan: [
-      `${r.hasilKeluarTanpaPengganti ?? 0} RNS hasilnya keluar tanpa catatan sampel pengganti; ${r.batal ?? 0} dibatalkan.`,
-      '"Terbanyak" per jumlah dan per persen adalah dua peringkat berbeda; peringkat persen hanya untuk pemeriksaan bervolume cukup.'
+      (r.hasilKeluarTanpaPengganti ?? 0) + ' RNS had results released without a replacement sample on record; ' + (r.batal ?? 0) + ' were cancelled.',
+      '"Most" by count and by percent are two different rankings; the percent ranking only covers tests with enough volume.'
     ]
   }
 }
@@ -167,32 +167,32 @@ function rns(j: J): KartuVisual | null {
 function tat(j: J): KartuVisual | null {
   if (!Array.isArray(j.baris)) return null
   const baris = j.baris as J[]
-  const per = j.dikelompokkanPer === 'test' ? 'pemeriksaan' : 'kategori'
+  const per = j.dikelompokkanPer === 'test' ? 'test' : 'category'
   const cakupan = /^(\d+) baris ikut dihitung untuk tahap ini; (\d+) baris TIDAK bisa dihitung/.exec(String(j.catatanCakupan ?? ''))
   return {
     tool: 'lab_tat',
-    judul: `TAT — ${j.tahapLabel ?? j.tahap} per ${per}`,
+    judul: 'TAT — ' + (j.tahapLabel ?? j.tahap) + ' by ' + per,
     sub: [SUMBER, kesegaran(j)].filter(Boolean).join(' · '),
     panel: [
       {
         jenis: 'batang',
-        judul: 'Median (hari)',
+        judul: 'Median (days)',
         satuan: 'hari',
         baris: baris.map((b) => ({ label: String(b.kelompok), nilai: angka(b.median) ?? 0, catatan: `n=${b.n}` }))
       },
       {
         jenis: 'tabel',
-        judul: 'Sebaran waktu',
-        kolom: [{ label: per.charAt(0).toUpperCase() + per.slice(1) }, { label: 'Sampel', kanan: true }, { label: 'Median', kanan: true }, { label: 'p90', kanan: true }, { label: 'Terlama', kanan: true }],
+        judul: 'Time distribution',
+        kolom: [{ label: per.charAt(0).toUpperCase() + per.slice(1) }, { label: 'Samples', kanan: true }, { label: 'Median', kanan: true }, { label: 'p90', kanan: true }, { label: 'Longest', kanan: true }],
         baris: baris.map((b) => [String(b.kelompok), n(b.n), hari(b.median), hari(b.p90), hari(b.terlama)])
       }
     ],
     catatan: [
-      ...(cakupan ? [`${cakupan[1]} baris dihitung; ${cakupan[2]} baris tidak bisa dihitung (ujung tahapnya kosong) — itu BUKAN nol dan bukan keterlambatan.`] : []),
-      'p90 = 90% sampel selesai dalam waktu ini atau lebih cepat.',
+      ...(cakupan ? [`${cakupan[1]} lines counted; ${cakupan[2]} lines could not be calculated (the stage endpoint is empty) — that is NOT zero and not a delay.`] : []),
+      'p90 = 90% of samples finish within this time or faster.',
       // catatanTahap ditulis untuk MODEL (berisi larangan) — diringkas untuk pembaca.
-      ...(/HARI KALENDER/.test(String(j.catatanTahap ?? '')) ? ['Tahap ini dihitung dalam hari kalender (sumbernya tidak menyimpan jam).'] : []),
-      ...(/TIDAK berlaku untuk semua kategori/.test(String(j.catatanTahap ?? '')) ? ['Tahap ini tidak dilalui semua pemeriksaan (mis. HPV DNA & LBC) — yang tidak melewatinya tidak dihitung.'] : [])
+      ...(/HARI KALENDER/.test(String(j.catatanTahap ?? '')) ? ['This stage is counted in calendar days (the source does not store the time of day).'] : []),
+      ...(/TIDAK berlaku untuk semua kategori/.test(String(j.catatanTahap ?? '')) ? ['Not every test passes through this stage (e.g. HPV DNA & LBC) — tests that skip it are not counted.'] : [])
     ]
   }
 }

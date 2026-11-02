@@ -45,7 +45,7 @@ export function PilihAnggota({
       {terpilih.length > 0 && (
         <div className="psn-chip-baris">
           {terpilih.map((u) => (
-            <button key={u} className="psn-chip" onClick={() => alih(u)} title={`Batalkan ${u}`}>
+            <button key={u} className="psn-chip" onClick={() => alih(u)} title={`Remove ${u}`}>
               <Avatar nama={u} ukuran={20} />
               {u}
               <IconClose size={11} />
@@ -59,7 +59,7 @@ export function PilihAnggota({
         <input
           value={cari}
           onChange={(e) => setCari(e.target.value)}
-          placeholder="Cari nama rekan"
+          placeholder="Search teammates"
           autoFocus
         />
       </div>
@@ -67,7 +67,7 @@ export function PilihAnggota({
       <div className="psn-pilih-daftar">
         {calon.length === 0 && (
           <p className="psn-kosong">
-            {rekan.length === 0 ? 'Belum ada rekan lain.' : 'Tidak ada yang cocok.'}
+            {rekan.length === 0 ? 'No other teammates yet.' : 'No matches.'}
           </p>
         )}
         {calon.map((r) => {

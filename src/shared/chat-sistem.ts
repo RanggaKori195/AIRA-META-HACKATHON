@@ -22,8 +22,8 @@ export function teksSistem(
 ): string {
   const aku = saya.toLowerCase()
   const siapa = (x: string | null, awal: boolean): string => {
-    if (!x) return awal ? 'Seseorang' : 'seseorang'
-    if (x.toLowerCase() === aku) return awal ? 'Kamu' : 'kamu'
+    if (!x) return awal ? 'Someone' : 'someone'
+    if (x.toLowerCase() === aku) return awal ? 'You' : 'you'
     return x
   }
   const P = siapa(pelaku, true)
@@ -32,26 +32,26 @@ export function teksSistem(
 
   switch (jenis) {
     case 'buat':
-      return `${P} membuat grup ini`
+      return `${P} created this group`
     case 'tambah':
-      return `${P} menambahkan ${T}`
+      return `${P} added ${T}`
     case 'keluar':
-      return `${P} keluar dari grup`
+      return `${P} left the group`
     case 'keluarkan':
-      return `${P} mengeluarkan ${T}`
+      return `${P} removed ${T}`
     case 'jadi_admin':
-      return `${P} menjadikan ${T} admin`
+      return `${P} made ${T} an admin`
     case 'lepas_admin':
-      return `${P} mencabut status admin ${T}`
+      return `${P} removed admin status from ${T}`
     case 'admin_otomatis':
       // Terjadi saat admin terakhir keluar. Tidak ada "pelaku" yang benar untuk
       // dituliskan — menyebut orang yang keluar sebagai pelaku menyesatkan.
-      return `${TAwal} sekarang admin grup`
+      return TAwal === 'You' ? 'You are now a group admin' : `${TAwal} is now a group admin`
     case 'ganti_nama':
       // Untuk jenis ini `target` berisi NAMA BARU grup, bukan username.
-      return `${P} mengganti nama grup menjadi “${target ?? ''}”`
+      return `${P} renamed the group to “${target ?? ''}”`
     default:
-      return 'Ada perubahan pada grup'
+      return 'The group was changed'
   }
 }
 

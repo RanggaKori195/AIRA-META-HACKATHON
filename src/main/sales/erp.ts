@@ -65,7 +65,10 @@ export function erpNote(scope: ErpScope, basisKey: string, rangeFrom?: string): 
 }
 
 const ERP_WORD = /\b(erp|orlan\s?soft|erp)\b/i
-const NEGATIVE = /\b(belum|blm|tidak|belom|gagal|failed|pending|outstanding|unbridg\w*)\b/i
+// English negation (final review 2 Nov 2026): "sales not yet in the ERP" / "orders missing from the ERP"
+// were read as 'erp' — the exact opposite set of rows.
+const NEGATIVE =
+  /\b(belum|blm|tidak|belom|gagal|failed|pending|outstanding|unbridg\w*|not|missing|haven't|hasn't|isn't|aren't|wasn't|weren't)\b/i
 
 /**
  * Guard di level KODE (bukan imbauan di prompt): kalau user menyebut ERP/ERP,

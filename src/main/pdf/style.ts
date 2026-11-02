@@ -42,12 +42,9 @@ export function halamanHtml(isiHtml: string, opsi: OpsiGaya = {}): string {
   html, body { margin: 0; padding: 0; }
 
   body {
-    /* company serif font disalin ke folder yang sama dengan halaman ini sebelum
-       dicetak (lihat fonts.ts). Segoe UI jadi cadangan bila berkasnya tidak
-       ketemu — dokumen tetap terbit, hanya hurufnya berbeda. Font TIDAK pernah
-       diambil dari internet: gateway the company whitelist internal, jadi itu pasti
-       gagal dan menahan pencetakan. */
-    font-family: 'company serif font', 'Segoe UI', system-ui, serif;
+    /* System font (Segoe UI); Chromium embeds it in the PDF. Fonts are never
+       fetched from the internet: that would hold up printing when offline. */
+    font-family: 'Segoe UI', system-ui, sans-serif;
     font-size: 10.5pt;
     line-height: 1.55;
     color: #23221f;
@@ -162,11 +159,11 @@ export function kakiHalaman(catatan?: string, fontDataUrl?: string | null): stri
   // halaman masih Segoe UI, terlihat dari daftar font yang tertanam di PDF.
   // Karena itu fontnya ditanam ulang di sini sebagai data URL.
   const gaya = fontDataUrl
-    ? `<style>@font-face{font-family:'company serif font';src:url('${fontDataUrl}') format('woff2');font-weight:400;}</style>`
+    ? `<style>@font-face{font-family:'AIRA Doc';src:url('${fontDataUrl}') format('woff2');font-weight:400;}</style>`
     : ''
-  return `${gaya}<div style="font-family:'company serif font','Segoe UI',serif;font-size:8pt;color:#6d6a62;width:100%;padding:0 16mm;display:flex;justify-content:space-between;">
+  return `${gaya}<div style="font-family:'Segoe UI',system-ui,sans-serif;font-size:8pt;color:#6d6a62;width:100%;padding:0 16mm;display:flex;justify-content:space-between;">
     <span>${kiri}</span>
-    <span>Halaman <span class="pageNumber"></span> dari <span class="totalPages"></span></span>
+    <span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
   </div>`
 }
 

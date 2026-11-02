@@ -97,13 +97,13 @@ export function ProfilPanel({
             {item.jenis === 'orang' ? (
               <>
                 {jabatanRekan(item.rekan) && <span>{jabatanRekan(item.rekan)}</span>}
-                <span className="psn-profil-org">AIRA · the lab the company</span>
+                <span className="psn-profil-org">AIRA · AI Lab Assistant</span>
                 <span className={`psn-profil-status${online ? ' online' : ''}`}>
                   <i /> {online ? 'Online' : 'Offline'}
                 </span>
               </>
             ) : (
-              <span>{item.grup.aktif ? `${item.grup.jumlahAnggota} anggota` : 'Kamu sudah bukan anggota'}</span>
+              <span>{item.grup.aktif ? `${item.grup.jumlahAnggota} members` : 'You are no longer a member'}</span>
             )}
           </div>
 
@@ -118,7 +118,7 @@ export function ProfilPanel({
               <span>
                 <IconTelepon />
               </span>
-              Panggilan
+              Call
             </button>
             <button disabled title={BELUM_ADA_PANGGILAN}>
               <span>
@@ -129,33 +129,33 @@ export function ProfilPanel({
             <button
               onClick={() => (diGrup ? window.dispatchEvent(new Event(EVENT_INFO_GRUP)) : onTambahOrang())}
               disabled={diGrup && !item.grup.aktif}
-              title={diGrup ? 'Tambah anggota' : `Buat grup bersama ${nama}`}
+              title={diGrup ? 'Add members' : `Create a group with ${nama}`}
             >
               <span>
                 <IconTambahOrang />
               </span>
-              Tambahkan
+              Add
             </button>
           </div>
 
           {item.jenis === 'orang' ? (
             <>
-              <h5>Tentang</h5>
+              <h5>About</h5>
               <ul className="psn-profil-fakta">
                 <li>
                   <IconUsers size={15} /> {labelRole(item.rekan.role) || '—'}
                   {item.rekan.divisi ? ` · ${item.rekan.divisi}` : ''}
                 </li>
                 <li>
-                  <IconClock size={15} /> {online ? 'Sedang online' : statusOrang(item.rekan)}
+                  <IconClock size={15} /> {online ? 'Online now' : statusOrang(item.rekan)}
                 </li>
               </ul>
 
-              <h5>Grup bersama{bersama ? ` (${bersama.length})` : ''}</h5>
+              <h5>Shared groups{bersama ? ` (${bersama.length})` : ''}</h5>
               {bersama === null ? (
-                <p className="psn-profil-kosong">Memuat…</p>
+                <p className="psn-profil-kosong">Loading…</p>
               ) : bersama.length === 0 ? (
-                <p className="psn-profil-kosong">Belum ada grup yang sama.</p>
+                <p className="psn-profil-kosong">No shared groups yet.</p>
               ) : (
                 <ul className="psn-profil-grup">
                   {bersama.map((g) => (
@@ -163,7 +163,7 @@ export function ProfilPanel({
                       <Avatar nama={g.nama} grup ukuran={36} />
                       <span>
                         <strong>{g.nama}</strong>
-                        <small>{g.jumlahAnggota} anggota</small>
+                        <small>{g.jumlahAnggota} members</small>
                       </span>
                     </li>
                   ))}
@@ -172,9 +172,9 @@ export function ProfilPanel({
             </>
           ) : (
             <>
-              <h5>Anggota{anggota ? ` (${anggota.length})` : ''}</h5>
+              <h5>Members{anggota ? ` (${anggota.length})` : ''}</h5>
               {anggota === null ? (
-                <p className="psn-profil-kosong">Memuat…</p>
+                <p className="psn-profil-kosong">Loading…</p>
               ) : (
                 <ul className="psn-profil-grup">
                   {anggota.map((a) => (
@@ -184,7 +184,7 @@ export function ProfilPanel({
                         <strong>{a.username}</strong>
                         <small>
                           {labelRole(a.role)}
-                          {a.peran === 'admin' ? ' · admin grup' : ''}
+                          {a.peran === 'admin' ? ' · group admin' : ''}
                         </small>
                       </span>
                     </li>
@@ -197,12 +197,12 @@ export function ProfilPanel({
       ) : (
         <div className="psn-profil-isi">
           {berkas.length === 0 ? (
-            <p className="psn-profil-kosong">Belum ada berkas di percakapan ini.</p>
+            <p className="psn-profil-kosong">No files in this conversation yet.</p>
           ) : (
             <ul className="psn-profil-berkas">
               {berkas.map((p) => (
                 <li key={p.id}>
-                  <button onClick={() => void window.aira.chatSimpanLampiran(p.id)} title="Simpan berkas">
+                  <button onClick={() => void window.aira.chatSimpanLampiran(p.id)} title="Save file">
                     <span className="psn-lampiran-ikon">
                       <IconAttach size={15} />
                     </span>
@@ -217,7 +217,7 @@ export function ProfilPanel({
               ))}
             </ul>
           )}
-          <p className="psn-profil-kosong">Hanya berkas dari pesan yang sedang dimuat di percakapan ini.</p>
+          <p className="psn-profil-kosong">Only files from the messages currently loaded in this conversation.</p>
         </div>
       )}
     </aside>

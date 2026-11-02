@@ -201,7 +201,7 @@ function applyBundledCredentials(): void {
 }
 
 // Wajib di Windows agar notifikasi tampil dengan nama & ikon aplikasi.
-app.setAppUserModelId('co.id.company.aira')
+app.setAppUserModelId('ai.aira.hackathon')
 
 app.whenReady().then(() => {
   // Hackathon build: refuse to run at all if ANY database variable points off this machine —

@@ -32,7 +32,7 @@ import {
   IconUser,
   IconZap
 } from '../components/Icons'
-import lambang from '../assets/aira-mark.png'
+import lambang from '../assets/mascot/idle.png'
 
 // Layar "Gambar" — pembuat gambar old-image-model + galeri milik user (27 Sep 2026,
 // permintaan user: "seperti Images di Codex").
@@ -50,6 +50,11 @@ interface Gaya {
   keterangan: string
   /** Ditempelkan di BELAKANG kalimat user — kalimat user tetap yang utama. */
   akhiran: string
+  /**
+   * Akhiran versi lama (bahasa Indonesia) yang mungkin tersimpan di prompt gambar
+   * lama. HANYA untuk mengenali label gaya — tidak pernah ditempelkan lagi.
+   */
+  akhiranLama: string
 }
 
 /**
@@ -60,50 +65,59 @@ interface Gaya {
 const GAYA: Gaya[] = [
   {
     id: 'slide',
-    judul: 'Ilustrasi slide',
-    keterangan: 'Flat, bersih, cocok untuk presentasi',
+    judul: 'Slide illustration',
+    keterangan: 'Flat and clean, great for presentations',
     akhiran:
+      'modern flat illustration style, clean, dark green #2f6f3e and teal with white accents, plain background, no text',
+    akhiranLama:
       'gaya ilustrasi flat modern, bersih, warna hijau tua #2f6f3e dan hijau tosca dengan aksen putih, latar polos, tanpa tulisan'
   },
   {
     id: 'ikon',
-    judul: 'Ikon',
-    keterangan: 'Satu objek sederhana, garis tegas',
-    akhiran: 'ikon sederhana satu objek, gaya garis tebal, warna hijau #2f6f3e, latar putih polos, tanpa tulisan'
+    judul: 'Icon',
+    keterangan: 'One simple object, bold lines',
+    akhiran: 'simple single-object icon, bold line style, green #2f6f3e, plain white background, no text',
+    akhiranLama: 'ikon sederhana satu objek, gaya garis tebal, warna hijau #2f6f3e, latar putih polos, tanpa tulisan'
   },
   {
     id: 'poster',
-    judul: 'Poster acara',
-    keterangan: 'Komposisi menarik untuk pengumuman',
+    judul: 'Event poster',
+    keterangan: 'An eye-catching layout for announcements',
     akhiran:
+      'eye-catching office event poster, tidy composition, green and white colors, empty space for a title, no small text',
+    akhiranLama:
       'poster acara kantor yang menarik, komposisi rapi, warna hijau dan putih, ruang kosong untuk judul, tanpa tulisan kecil'
   },
   {
     id: 'foto',
-    judul: 'Foto realistis',
-    keterangan: 'Seperti foto studio',
-    akhiran: 'foto realistis kualitas studio, pencahayaan lembut, latar bersih'
+    judul: 'Realistic photo',
+    keterangan: 'Like a studio photo',
+    akhiran: 'realistic studio-quality photo, soft lighting, clean background',
+    akhiranLama: 'foto realistis kualitas studio, pencahayaan lembut, latar bersih'
   },
   {
     id: 'infografis',
-    judul: 'Latar infografis',
-    keterangan: 'Latar untuk ditimpa teks sendiri',
+    judul: 'Infographic background',
+    keterangan: 'A backdrop for your own text',
     akhiran:
+      'abstract infographic background, subtle geometric pattern, soft green colors, lots of empty space, no text',
+    akhiranLama:
       'latar infografis abstrak, pola geometris halus, warna hijau lembut, banyak ruang kosong, tanpa tulisan'
   },
   {
     id: 'kartun',
-    judul: 'Kartun',
-    keterangan: 'Lucu dan ramah',
-    akhiran: 'ilustrasi kartun lucu dan ramah, warna cerah lembut, garis bersih'
+    judul: 'Cartoon',
+    keterangan: 'Cute and friendly',
+    akhiran: 'cute and friendly cartoon illustration, soft bright colors, clean lines',
+    akhiranLama: 'ilustrasi kartun lucu dan ramah, warna cerah lembut, garis bersih'
   }
 ]
 
 const UKURAN: Array<{ nilai: string; label: string; tag: string }> = [
-  { nilai: '512x512', label: 'Persegi · 1:1 (cepat)', tag: 'Persegi 1:1' },
-  { nilai: '1024x1024', label: 'Persegi · 1:1 (tajam)', tag: 'Persegi 1:1' },
-  { nilai: '1536x1024', label: 'Lanskap · 3:2', tag: 'Lanskap 3:2' },
-  { nilai: '1024x1536', label: 'Potret · 2:3', tag: 'Potret 2:3' }
+  { nilai: '512x512', label: 'Square · 1:1 (fast)', tag: 'Square 1:1' },
+  { nilai: '1024x1024', label: 'Square · 1:1 (sharp)', tag: 'Square 1:1' },
+  { nilai: '1536x1024', label: 'Landscape · 3:2', tag: 'Landscape 3:2' },
+  { nilai: '1024x1536', label: 'Portrait · 2:3', tag: 'Portrait 2:3' }
 ]
 
 /**
@@ -112,33 +126,33 @@ const UKURAN: Array<{ nilai: string; label: string; tag: string }> = [
  * membakar kuota untuk gambar yang tidak diminta siapa pun.
  */
 const IDE: Array<{ judul: string; prompt: string; gaya: string; ikon: JSX.Element }> = [
-  { judul: 'Produk lab', prompt: 'Tabung reaksi dan mikroskop di meja laboratorium yang bersih', gaya: 'slide', ikon: <IconFlask size={17} /> },
-  { judul: 'Ilustrasi lucu', prompt: 'Maskot tabung reaksi dengan wajah lucu dan tangan melambai', gaya: 'kartun', ikon: <IconSmile size={17} /> },
-  { judul: 'Foto realistis', prompt: 'Anjing golden retriever dengan ekspresi ceria', gaya: 'foto', ikon: <IconImage size={17} /> },
-  { judul: 'Ikon', prompt: 'Ikon kantong darah untuk layanan donor', gaya: 'ikon', ikon: <IconGrid size={17} /> },
-  { judul: 'Poster', prompt: 'Poster acara donor darah di kantor', gaya: 'poster', ikon: <IconFileText size={17} /> }
+  { judul: 'Lab product', prompt: 'A test tube and a microscope on a clean laboratory bench', gaya: 'slide', ikon: <IconFlask size={17} /> },
+  { judul: 'Cute illustration', prompt: 'A test tube mascot with a cute face and a waving hand', gaya: 'kartun', ikon: <IconSmile size={17} /> },
+  { judul: 'Realistic photo', prompt: 'A golden retriever with a cheerful expression', gaya: 'foto', ikon: <IconImage size={17} /> },
+  { judul: 'Icon', prompt: 'A blood bag icon for a donation service', gaya: 'ikon', ikon: <IconGrid size={17} /> },
+  { judul: 'Poster', prompt: 'A poster for a blood donation event at the office', gaya: 'poster', ikon: <IconFileText size={17} /> }
 ]
 
 /** Tab "Inspirasi": kalimat contoh yang sudah jelas (subjek + gaya + latar). */
 const INSPIRASI = [
-  'Ilustrasi flat seorang analis lab memegang pipet, latar putih bersih',
-  'Foto realistis rak sampel darah di laboratorium dengan pencahayaan lembut',
-  'Latar abstrak hijau lembut dengan pola molekul untuk slide pembuka',
-  'Ikon sederhana mikroskop dengan garis tebal warna hijau',
-  'Kartun kucing lucu memakai jas lab dan kacamata pelindung',
-  'Poster edukasi cuci tangan yang benar untuk staf lab'
+  'Flat illustration of a lab analyst holding a pipette, clean white background',
+  'Realistic photo of a rack of blood samples in a laboratory with soft lighting',
+  'Soft green abstract background with a molecule pattern for an opening slide',
+  'Simple microscope icon with bold green lines',
+  'Cartoon of a cute cat wearing a lab coat and safety goggles',
+  'Educational poster on proper handwashing for lab staff'
 ]
 
 const TIPS_PROMPT = [
-  { judul: 'Jelaskan subjek dengan detail', ket: 'mis. objek, warna, suasana', ikon: <IconUser size={17} /> },
-  { judul: 'Tentukan gaya gambar', ket: 'mis. foto realistis, ilustrasi, ikon', ikon: <IconPalette size={17} /> },
-  { judul: 'Sebutkan latar atau konteks', ket: 'mis. di lab, di taman, di kantor', ikon: <IconImage size={17} /> },
-  { judul: 'Gunakan kata sifat', ket: 'mis. cerah, profesional, minimalis', ikon: <IconTag size={17} /> },
-  { judul: 'Tentukan rasio gambar', ket: 'mis. persegi, lanskap, potret', ikon: <IconCrop size={17} /> }
+  { judul: 'Describe the subject in detail', ket: 'e.g. object, color, mood', ikon: <IconUser size={17} /> },
+  { judul: 'Choose an image style', ket: 'e.g. realistic photo, illustration, icon', ikon: <IconPalette size={17} /> },
+  { judul: 'Mention the setting or context', ket: 'e.g. in the lab, in a park, at the office', ikon: <IconImage size={17} /> },
+  { judul: 'Use adjectives', ket: 'e.g. bright, professional, minimalist', ikon: <IconTag size={17} /> },
+  { judul: 'Pick an aspect ratio', ket: 'e.g. square, landscape, portrait', ikon: <IconCrop size={17} /> }
 ]
 
 const waktu = (ms: number): string =>
-  new Date(ms).toLocaleString('id-ID', {
+  new Date(ms).toLocaleString('en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -148,12 +162,12 @@ const waktu = (ms: number): string =>
 
 function sejak(ms: number): string {
   const menit = Math.max(0, Math.round((Date.now() - ms) / 60_000))
-  if (menit < 1) return 'baru saja'
-  if (menit < 60) return `${menit} menit yang lalu`
+  if (menit < 1) return 'just now'
+  if (menit < 60) return menit + ' min ago'
   const jam = Math.round(menit / 60)
-  if (jam < 24) return `${jam} jam yang lalu`
+  if (jam < 24) return jam + ' h ago'
   const hari = Math.round(jam / 24)
-  if (hari < 30) return `${hari} hari yang lalu`
+  if (hari < 30) return hari + ' d ago'
   return waktu(ms)
 }
 
@@ -169,11 +183,19 @@ function bersihkanError(err: unknown): string {
  */
 function uraiPrompt(prompt: string): { inti: string; gaya: Gaya | null } {
   for (const g of GAYA) {
-    const akhir = `. ${g.akhiran}`
-    if (prompt.endsWith(akhir)) return { inti: prompt.slice(0, -akhir.length), gaya: g }
+    // Akhiran Inggris (baru) DAN Indonesia (prompt lama yang sudah tersimpan).
+    for (const teks of [g.akhiran, g.akhiranLama]) {
+      const akhir = `. ${teks}`
+      if (prompt.endsWith(akhir)) return { inti: tampilkanInti(prompt.slice(0, -akhir.length)), gaya: g }
+    }
   }
-  return { inti: prompt, gaya: null }
+  return { inti: tampilkanInti(prompt), gaya: null }
 }
+
+/** Awalan "Gambar unggahan: " ditulis main process; di layar tampil dalam bahasa Inggris. */
+const AWALAN_UNGGAH_LAMA = /^Gambar unggahan: /
+const AWALAN_UNGGAH = 'Uploaded image: '
+const tampilkanInti = (inti: string): string => inti.replace(AWALAN_UNGGAH_LAMA, AWALAN_UNGGAH)
 
 /** Label rasio untuk kartu; null bila ukurannya tidak tercatat (gambar lama dari chat). */
 const tagUkuran = (u: string): string | null =>
@@ -184,8 +206,8 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
   const [gaya, setGaya] = useState<string | null>(null)
   const [ukuran, setUkuran] = useState('512x512')
   const [jumlah, setJumlah] = useState(1)
-  const [tab, setTab] = useState<'buatanku' | 'inspirasi' | 'gaya'>('buatanku')
-  const [urut, setUrut] = useState<'baru' | 'lama'>('baru')
+  const [tab, setTab] = useState<'mine' | 'inspiration' | 'styles'>('mine')
+  const [urut, setUrut] = useState<'newest' | 'oldest'>('newest')
   const [item, setItem] = useState<ItemGaleri[]>([])
   const [adaLagi, setAdaLagi] = useState(false)
   const [cari, setCari] = useState('')
@@ -264,7 +286,7 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
       if (!baru) return
       setItem((l) => [baru, ...l])
       setDasar(baru)
-      setTab('buatanku')
+      setTab('mine')
       requestAnimationFrame(() => kotak.current?.focus())
     } catch (err) {
       setError(bersihkanError(err))
@@ -287,7 +309,7 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
     const lengkap = g ? `${inti}. ${g.akhiran}` : inti
     setError(null)
     setSedangBuat(dasar ? 1 : jumlah)
-    setTab('buatanku')
+    setTab('mine')
     try {
       if (dasar) {
         const baru = await window.aira.galeriUbah({ id: dasar.id, prompt: lengkap })
@@ -308,11 +330,11 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
   const unduh = async (g: ItemGaleri): Promise<void> => {
     setMenu(null)
     const p = await window.aira.galeriSimpan(g.id)
-    if (p) setPesan(`Tersimpan di ${p}`)
+    if (p) setPesan(`Saved to ${p}`)
   }
 
   const perkiraan = ukuran === '512x512' ? 2 : ukuran === '1024x1024' ? 8 : 13
-  const tampil = urut === 'baru' ? item : [...item].reverse()
+  const tampil = urut === 'newest' ? item : [...item].reverse()
   // Riwayat prompt = kalimat UNIK dari galeri milik user, terbaru dulu.
   const riwayat = item.filter((g, i) => item.findIndex((x) => x.prompt === g.prompt) === i)
 
@@ -322,14 +344,14 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
         <section className="gambar-hero">
           <div className="gambar-hero-teks">
             <span className="hero-lencana">
-              <IconSparkle size={14} /> AI Agent Internal the company
+              <IconSparkle size={14} /> AI Lab Assistant
             </span>
             <h1>
-              Buat Gambar dengan <span>AIRA</span>
+              Create Images with <span>AIRA</span>
             </h1>
             <p>
-              Ubah ide dan imajinasi Anda menjadi gambar berkualitas tinggi. Jelaskan gambar yang ingin
-              dibuat, pilih pengaturan, lalu biarkan AIRA mewujudkannya.
+              Turn your ideas and imagination into high-quality images. Describe the image you want,
+              pick your settings, and let AIRA bring it to life.
             </p>
           </div>
           {/* Hiasan: dua ubin (gambar + lambang AIRA) di atas pita hijau + kilau. */}
@@ -364,13 +386,13 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
             <div className="gambar-dasar">
               {dasar.thumb ? <img src={dasar.thumb} alt="" /> : <span className="riwayat-kosong" />}
               <span>
-                <strong>Gambar yang akan diubah</strong>
+                <strong>Image to be edited</strong>
                 <span>
-                  {dasar.sumber === 'unggah' ? dasar.prompt.replace(/^Gambar unggahan: /, '') : uraiPrompt(dasar.prompt).inti}
-                  {' — '}tulis perubahan yang diinginkan. Hasilnya disimpan sebagai gambar baru; yang ini tetap ada.
+                  {dasar.sumber === 'unggah' ? dasar.prompt.replace(AWALAN_UNGGAH_LAMA, '').replace(/^Uploaded image: /, '') : uraiPrompt(dasar.prompt).inti}
+                  {' — '}describe the change you want. The result is saved as a new image; this one stays.
                 </span>
               </span>
-              <button className="btn-mini" title="Batal mengubah gambar ini" onClick={() => setDasar(null)}>
+              <button className="btn-mini" title="Cancel editing this image" onClick={() => setDasar(null)}>
                 <IconClose size={14} />
               </button>
             </div>
@@ -382,8 +404,8 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
             maxLength={900}
             placeholder={
               dasar
-                ? 'Jelaskan perubahan yang diinginkan… (mis. ganti latarnya jadi putih polos, jadikan gaya kartun, tambahkan jas lab)'
-                : 'Jelaskan gambar yang ingin dibuat… (mis. tabung reaksi di meja lab, anjing bermain di taman, ilustrasi kucing lucu, poster edukasi, dll)'
+                ? 'Describe the change you want… (e.g. make the background plain white, switch to a cartoon style, add a lab coat)'
+                : 'Describe the image you want to create… (e.g. a test tube on a lab bench, a dog playing in a park, a cute cat illustration, an educational poster)'
             }
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => {
@@ -396,7 +418,7 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
           <div className="gambar-komposer-bawah">
             <button
               className="btn-attach gambar-lampir"
-              title="Unggah gambar dari komputer (PNG/JPG) untuk diubah AIRA"
+              title="Upload an image from your computer (PNG/JPG) for AIRA to edit"
               disabled={mengunggah || sedangBuat > 0}
               onClick={() => void unggah()}
             >
@@ -408,7 +430,7 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
             />
             <label
               className={`gambar-pilih ${dasar ? 'terkunci' : ''}`}
-              title={dasar ? 'Mengubah gambar memakai rasio gambar asalnya' : 'Ukuran & rasio'}
+              title={dasar ? 'Editing keeps the original image ratio' : 'Size & ratio'}
             >
               <IconCrop size={16} />
               <select value={ukuran} disabled={!!dasar} onChange={(e) => setUkuran(e.target.value)}>
@@ -419,26 +441,26 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                 ))}
               </select>
             </label>
-            <label className="gambar-pilih" title="Gaya gambar">
+            <label className="gambar-pilih" title="Image style">
               <IconPalette size={16} />
               <select value={gaya ?? ''} onChange={(e) => setGaya(e.target.value || null)}>
-                <option value="">Gaya: Otomatis</option>
+                <option value="">Style: Auto</option>
                 {GAYA.map((g) => (
                   <option key={g.id} value={g.id}>
-                    Gaya: {g.judul}
+                    Style: {g.judul}
                   </option>
                 ))}
               </select>
             </label>
             <label
               className={`gambar-pilih ${dasar ? 'terkunci' : ''}`}
-              title={dasar ? 'Mengubah gambar menghasilkan satu gambar' : 'Berapa variasi'}
+              title={dasar ? 'Editing produces a single image' : 'How many variations'}
             >
               <IconLayers size={16} />
               <select value={dasar ? 1 : jumlah} disabled={!!dasar} onChange={(e) => setJumlah(Number(e.target.value))}>
                 {[1, 2, 3, 4].map((n) => (
                   <option key={n} value={n}>
-                    {n} gambar
+                    {n} {n === 1 ? 'image' : 'images'}
                   </option>
                 ))}
               </select>
@@ -450,19 +472,19 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
               onClick={() => void buat()}
             >
               {sedangBuat > 0 ? <IconSpinner size={16} /> : <IconSparkle size={16} />}
-              {sedangBuat > 0 ? `${dasar ? 'Mengubah' : 'Membuat'}… ${detik} dtk` : dasar ? 'Ubah Gambar' : 'Buat Gambar'}
+              {sedangBuat > 0 ? (dasar ? 'Editing' : 'Creating') + '… ' + detik + 's' : dasar ? 'Edit Image' : 'Create Image'}
               {sedangBuat === 0 && <IconArrowRight size={15} />}
             </button>
           </div>
         </div>
         <p className="gambar-catatan">
-          Dibuat oleh AIRA — bukan foto asli dan bukan aset resmi the company. Tulisan di dalam gambar sering
-          salah eja; periksa sebelum dipakai.
+          Created by AIRA — not a real photograph and not an official brand asset. Text inside images is often
+          misspelled; check it before use.
         </p>
 
         <div className="gambar-ide">
           <strong>
-            <IconZap size={17} /> Coba ide ini
+            <IconZap size={17} /> Try an idea
           </strong>
           {IDE.map((i) => (
             <button key={i.judul} onClick={() => isi(i.prompt, i.gaya)} title={i.prompt}>
@@ -477,38 +499,38 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
         <div className="gambar-tab">
           {(
             [
-              ['buatanku', 'Buatanku'],
-              ['inspirasi', 'Inspirasi'],
-              ['gaya', 'Gaya']
+              ['mine', 'My images'],
+              ['inspiration', 'Inspiration'],
+              ['styles', 'Styles']
             ] as const
           ).map(([id, label]) => (
             <button key={id} className={`gambar-tab-btn ${tab === id ? 'aktif' : ''}`} onClick={() => setTab(id)}>
               {label}
             </button>
           ))}
-          {tab === 'buatanku' && (
+          {tab === 'mine' && (
             <>
               <label className="gambar-cari">
                 <IconSearch size={15} />
                 <input
                   value={cari}
                   maxLength={100}
-                  placeholder="Cari di keterangan gambar..."
+                  placeholder="Search image descriptions..."
                   onChange={(e) => setCari(e.target.value)}
                 />
               </label>
-              <label className="gambar-pilih gambar-urut" title="Urutan">
+              <label className="gambar-pilih gambar-urut" title="Sort order">
                 <IconSort size={15} />
-                <select value={urut} onChange={(e) => setUrut(e.target.value as 'baru' | 'lama')}>
-                  <option value="baru">Terbaru</option>
-                  <option value="lama">Terlama</option>
+                <select value={urut} onChange={(e) => setUrut(e.target.value as 'newest' | 'oldest')}>
+                  <option value="newest">Newest</option>
+                  <option value="oldest">Oldest</option>
                 </select>
               </label>
             </>
           )}
         </div>
 
-        {tab === 'gaya' ? (
+        {tab === 'styles' ? (
           <div className="gambar-grid">
             {GAYA.map((g) => (
               <button
@@ -516,7 +538,7 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                 className={`gambar-gaya ${gaya === g.id ? 'aktif' : ''}`}
                 onClick={() => {
                   setGaya(g.id)
-                  setTab('buatanku')
+                  setTab('mine')
                   kotak.current?.focus()
                 }}
               >
@@ -525,12 +547,12 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
               </button>
             ))}
           </div>
-        ) : tab === 'inspirasi' ? (
+        ) : tab === 'inspiration' ? (
           <div className="gambar-grid">
             {INSPIRASI.map((t) => (
               <button key={t} className="gambar-gaya" onClick={() => isi(t, null)}>
                 <strong>
-                  <IconBulb size={15} /> Ide
+                  <IconBulb size={15} /> Idea
                 </strong>
                 <span>{t}</span>
               </button>
@@ -543,8 +565,8 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                 <div key={`muat-${i}`} className="gambar-kartu memuat">
                   <IconSpinner size={20} />
                   <span>
-                    Membuat… {detik} dtk
-                    {detik > perkiraan * 2 && ' (lebih lama dari biasanya)'}
+                    Creating… {detik}s
+                    {detik > perkiraan * 2 && ' (taking longer than usual)'}
                   </span>
                 </div>
               ))}
@@ -556,12 +578,12 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                       {g.thumb ? (
                         <img src={g.thumb} alt={u.inti} loading="lazy" />
                       ) : (
-                        <span className="gambar-hilang">Berkas sudah tidak ada</span>
+                        <span className="gambar-hilang">File no longer exists</span>
                       )}
                     </button>
                     <button
                       className="gambar-kartu-menu"
-                      title="Pilihan lain"
+                      title="More options"
                       onClick={(e) => {
                         e.stopPropagation()
                         setMenu((m) => (m === g.id ? null : g.id))
@@ -577,13 +599,13 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                             setDibuka(g)
                           }}
                         >
-                          Buka &amp; ubah
+                          Open &amp; edit
                         </button>
                         <button disabled={g.hilang} onClick={() => pakaiSebagaiDasar(g)}>
-                          Ubah dengan AI
+                          Edit with AI
                         </button>
                         <button disabled={g.hilang} onClick={() => void unduh(g)}>
-                          Unduh
+                          Download
                         </button>
                         <button
                           onClick={() => {
@@ -591,7 +613,7 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                             isi(u.inti, u.gaya?.id ?? null)
                           }}
                         >
-                          Pakai lagi prompt-nya
+                          Reuse this prompt
                         </button>
                         <button
                           onClick={() => {
@@ -599,7 +621,7 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                             setHapus(g)
                           }}
                         >
-                          Hapus
+                          Delete
                         </button>
                       </div>
                     )}
@@ -607,7 +629,7 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                       <strong title={u.inti}>{u.inti}</strong>
                       <div className="gambar-tag">
                         <span className="tag-gaya">
-                          {u.gaya ? u.gaya.judul : g.sumber === 'chat' ? 'Dari chat' : g.sumber === 'unggah' ? 'Unggahan' : 'Otomatis'}
+                          {u.gaya ? u.gaya.judul : g.sumber === 'chat' ? 'From chat' : g.sumber === 'unggah' ? 'Upload' : 'Auto'}
                         </span>
                         {tagUkuran(g.ukuran) && <span>{tagUkuran(g.ukuran)}</span>}
                       </div>
@@ -615,7 +637,7 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                         <span>
                           <IconClock size={13} /> {sejak(g.dibuat)}
                         </span>
-                        <button className="btn-mini" title="Unduh" disabled={g.hilang} onClick={() => void unduh(g)}>
+                        <button className="btn-mini" title="Download" disabled={g.hilang} onClick={() => void unduh(g)}>
                           <IconDownload size={15} />
                         </button>
                       </div>
@@ -627,13 +649,13 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
             {item.length === 0 && sedangBuat === 0 && (
               <p className="hint gambar-kosong">
                 {cari.trim()
-                  ? `Tidak ada gambar yang keterangannya memuat “${cari.trim()}”.`
-                  : 'Belum ada gambar. Tulis apa yang ingin dibuat di atas, atau coba salah satu ide.'}
+                  ? 'No images have a description containing “' + cari.trim() + '”.'
+                  : 'No images yet. Describe what you want above, or try one of the ideas.'}
               </p>
             )}
             {adaLagi && (
               <button className="btn-teks gambar-lagi" onClick={() => void lanjut()}>
-                Muat lebih banyak
+                Load more
               </button>
             )}
           </>
@@ -644,13 +666,13 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconBulb size={17} /> Tips prompt
+              <IconBulb size={17} /> Prompt tips
             </h4>
             <button className="beranda-tautan" onClick={onPanduan}>
-              Lihat semua <IconArrowRight size={14} />
+              View all <IconArrowRight size={14} />
             </button>
           </div>
-          <p className="panel-kosong">Gunakan prompt yang jelas untuk hasil gambar terbaik.</p>
+          <p className="panel-kosong">Use a clear prompt for the best results.</p>
           <ul className="daftar-tips">
             {TIPS_PROMPT.map((t) => (
               <li key={t.judul}>
@@ -667,23 +689,23 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconHistory size={17} /> Riwayat prompt
+              <IconHistory size={17} /> Prompt history
             </h4>
             {riwayat.length > 4 && (
               <button className="beranda-tautan" onClick={() => setSemuaRiwayat((x) => !x)}>
-                {semuaRiwayat ? 'Lebih sedikit' : 'Lihat semua'} <IconArrowRight size={14} />
+                {semuaRiwayat ? 'Show less' : 'View all'} <IconArrowRight size={14} />
               </button>
             )}
           </div>
           {riwayat.length === 0 ? (
-            <p className="panel-kosong">Prompt yang pernah kamu pakai akan muncul di sini.</p>
+            <p className="panel-kosong">Prompts you have used will appear here.</p>
           ) : (
             <ul className="daftar-riwayat">
               {riwayat.slice(0, semuaRiwayat ? 20 : 4).map((g) => {
                 const u = uraiPrompt(g.prompt)
                 return (
                   <li key={g.id}>
-                    <button onClick={() => isi(u.inti, u.gaya?.id ?? null)} title="Pakai lagi prompt ini">
+                    <button onClick={() => isi(u.inti, u.gaya?.id ?? null)} title="Reuse this prompt">
                       {g.thumb ? <img src={g.thumb} alt="" /> : <span className="riwayat-kosong" />}
                       <span>
                         <strong>{u.inti}</strong>
@@ -692,10 +714,10 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
                     </button>
                     <button
                       className="btn-mini"
-                      title="Salin prompt"
+                      title="Copy prompt"
                       onClick={() => {
                         window.aira.copyText(g.prompt)
-                        setPesan('Prompt disalin.')
+                        setPesan('Prompt copied.')
                       }}
                     >
                       <IconCopy size={14} />
@@ -710,11 +732,11 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
 
       {hapus && (
         <ConfirmDialog
-          title="Hapus gambar ini dari galeri?"
+          title="Delete this image from the gallery?"
           body={
             hapus.sumber === 'chat'
-              ? 'Hanya catatannya di galeri yang dihapus. Berkasnya tetap ada di folder tempat AIRA menyimpannya.'
-              : 'Berkasnya dipindah ke Recycle Bin — masih bisa dikembalikan dari sana.'
+              ? 'Only its gallery entry is removed. The file itself stays in the folder where AIRA saved it.'
+              : 'The file is moved to the Recycle Bin — you can still restore it from there.'
           }
           onCancel={() => setHapus(null)}
           onConfirm={() => {
@@ -809,12 +831,12 @@ function Lightbox({
     <>
     <div className="lightbox" onClick={onTutup}>
       <div className="lightbox-isi" onClick={(e) => e.stopPropagation()}>
-        <button className="btn-mini lightbox-tutup" title="Tutup (Esc)" onClick={onTutup}>
+        <button className="btn-mini lightbox-tutup" title="Close (Esc)" onClick={onTutup}>
           <IconClose size={16} />
         </button>
         <div className="lightbox-gambar">
           {item.hilang ? (
-            <span className="gambar-hilang">Berkas gambar ini sudah dihapus atau dipindahkan.</span>
+            <span className="gambar-hilang">This image file has been deleted or moved.</span>
           ) : penuh ? (
             <img src={penuh} alt={item.prompt} />
           ) : (
@@ -824,47 +846,47 @@ function Lightbox({
         <div className="lightbox-sisi">
           <p className="lightbox-prompt">{item.prompt}</p>
           <p className="hint">
-            {item.ukuran} · {waktu(item.dibuat)} · {item.sumber === 'chat' ? 'dibuat di chat' : 'dibuat di layar Gambar'}
+            {item.ukuran} · {waktu(item.dibuat)} · {item.sumber === 'chat' ? 'created in chat' : 'created on the Images screen'}
           </p>
           <div className="lightbox-aksi">
             <button
               className="btn-teks"
               disabled={item.hilang}
               onClick={() =>
-                void window.aira.galeriSimpan(item.id).then((p) => p && setPesan(`Tersimpan di ${p}`))
+                void window.aira.galeriSimpan(item.id).then((p) => p && setPesan(`Saved to ${p}`))
               }
             >
-              <IconDownload size={14} /> Unduh
+              <IconDownload size={14} /> Download
             </button>
             <button className="btn-teks" disabled={item.hilang} onClick={() => void window.aira.revealFile(item.path)}>
-              <IconFolder size={14} /> Tampilkan di folder
+              <IconFolder size={14} /> Show in folder
             </button>
             <button className="btn-teks" onClick={() => window.aira.copyText(item.prompt)}>
-              <IconCopy size={14} /> Salin keterangan
+              <IconCopy size={14} /> Copy description
             </button>
             <button className="btn-teks" onClick={() => onPakaiLagi(item.prompt)}>
-              <IconPencil size={14} /> Pakai lagi
+              <IconPencil size={14} /> Reuse
             </button>
             <button className="btn-teks bahaya" onClick={() => setKonfirmasi(true)}>
-              <IconTrash size={14} /> Hapus
+              <IconTrash size={14} /> Delete
             </button>
           </div>
 
           {!item.hilang && (
             <div className="lightbox-ubah">
-              <label htmlFor="ubah-gambar">Ubah gambar ini</label>
+              <label htmlFor="ubah-gambar">Edit this image</label>
               <textarea
                 id="ubah-gambar"
                 rows={2}
                 value={ubah}
                 maxLength={900}
-                placeholder="mis. ganti latarnya jadi biru muda"
+                placeholder="e.g. make the background light blue"
                 onChange={(e) => setUbah(e.target.value)}
               />
               <button className="btn-send" disabled={!ubah.trim() || sibuk} onClick={() => void jalankanUbah()}>
-                {sibuk ? 'Mengubah…' : 'Ubah'}
+                {sibuk ? 'Editing…' : 'Edit'}
               </button>
-              <p className="hint">Hasilnya disimpan sebagai gambar baru; yang ini tetap ada.</p>
+              <p className="hint">The result is saved as a new image; this one stays.</p>
             </div>
           )}
           {pesan && <p className="hint">{pesan}</p>}
@@ -874,11 +896,11 @@ function Lightbox({
 
       {konfirmasi && (
         <ConfirmDialog
-          title="Hapus gambar ini dari galeri?"
+          title="Delete this image from the gallery?"
           body={
             item.sumber === 'chat'
-              ? 'Hanya catatannya di galeri yang dihapus. Berkasnya tetap ada di folder tempat AIRA menyimpannya.'
-              : 'Berkasnya dipindah ke Recycle Bin — masih bisa dikembalikan dari sana.'
+              ? 'Only its gallery entry is removed. The file itself stays in the folder where AIRA saved it.'
+              : 'The file is moved to the Recycle Bin — you can still restore it from there.'
           }
           onCancel={() => setKonfirmasi(false)}
           onConfirm={() => {

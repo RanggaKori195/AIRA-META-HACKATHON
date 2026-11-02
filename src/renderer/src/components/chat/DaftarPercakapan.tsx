@@ -90,14 +90,14 @@ export function DaftarPercakapan({
                     : jabatanRekan(item.rekan)
                   : ''}
             </span>
-            {nonaktif && <span className="psn-item-tanda">keluar</span>}
+            {nonaktif && <span className="psn-item-tanda">left</span>}
             {favorit.has(item.kunci) && (
-              <span className="psn-item-fav" title="Favorit">
+              <span className="psn-item-fav" title="Favorite">
                 <IconStar size={12} />
               </span>
             )}
             {senyap(item) && (
-              <span className="psn-item-senyap" title="Notifikasi dimatikan">
+              <span className="psn-item-senyap" title="Notifications off">
                 <IconBellOff size={12} />
               </span>
             )}
@@ -105,7 +105,7 @@ export function DaftarPercakapan({
               <span className="psn-item-belum">{belum > 99 ? '99+' : belum}</span>
             ) : (
               disematkan.has(item.kunci) && (
-                <span className="psn-item-pin" title="Disematkan">
+                <span className="psn-item-pin" title="Pinned">
                   <IconPin />
                 </span>
               )
@@ -117,10 +117,10 @@ export function DaftarPercakapan({
   }
 
   const TAB: Array<{ id: SaringPesan; label: string }> = [
-    { id: 'semua', label: 'Semua' },
-    { id: 'belum', label: 'Belum dibaca' },
-    { id: 'grup', label: 'Grup' },
-    { id: 'favorit', label: 'Favorit' }
+    { id: 'semua', label: 'All' },
+    { id: 'belum', label: 'Unread' },
+    { id: 'grup', label: 'Groups' },
+    { id: 'favorit', label: 'Favorites' }
   ]
 
   const kosong = sematan.length === 0 && terbaru.length === 0 && lain.length === 0
@@ -130,14 +130,14 @@ export function DaftarPercakapan({
       <div className="psn-cari-baris">
         <div className="psn-cari">
           <IconSearch size={15} />
-          <input value={cari} onChange={(e) => setCari(e.target.value)} placeholder="Cari percakapan atau orang..." />
+          <input value={cari} onChange={(e) => setCari(e.target.value)} placeholder="Search conversations or people..." />
           {cari && (
-            <button className="psn-cari-hapus" onClick={() => setCari('')} title="Kosongkan">
+            <button className="psn-cari-hapus" onClick={() => setCari('')} title="Clear">
               ×
             </button>
           )}
         </div>
-        <button className="psn-ikon psn-ikon-kotak" onClick={onGrupBaru} title="Buat grup baru">
+        <button className="psn-ikon psn-ikon-kotak" onClick={onGrupBaru} title="Create a new group">
           <IconUsers size={17} />
           <span className="psn-ikon-plus">+</span>
         </button>
@@ -160,46 +160,46 @@ export function DaftarPercakapan({
       {setelan && !setelan.sudahDitanya && !setelan.autoStart && (
         <div className="psn-tawar">
           <p>
-            Supaya pesan tetap masuk, AIRA perlu menyala. Nyalakan otomatis saat Windows login? AIRA
-            berjalan diam di tray, tidak membuka jendela.
+            To keep receiving messages, AIRA needs to be running. Start it automatically when Windows
+            signs in? AIRA runs quietly in the tray without opening a window.
           </p>
           <div className="psn-tawar-tombol">
             <button className="psn-tombol-utama kecil" onClick={() => onAutoStart(true)}>
-              Nyalakan
+              Turn on
             </button>
             <button className="psn-tombol-biasa kecil" onClick={() => onAutoStart(false)}>
-              Nanti
+              Later
             </button>
           </div>
         </div>
       )}
 
       <div className="psn-daftar">
-        {sematan.length > 0 && <div className="psn-bagian">Disematkan</div>}
+        {sematan.length > 0 && <div className="psn-bagian">Pinned</div>}
         {sematan.map(baris)}
 
-        {terbaru.length > 0 && <div className="psn-bagian">Terbaru</div>}
+        {terbaru.length > 0 && <div className="psn-bagian">Recent</div>}
         {terbaru.map(baris)}
 
-        {lain.length > 0 && <div className="psn-bagian">{terbaru.length > 0 ? 'Rekan lain' : 'Rekan'}</div>}
+        {lain.length > 0 && <div className="psn-bagian">{terbaru.length > 0 ? 'Other teammates' : 'Teammates'}</div>}
         {lain.map(baris)}
 
         {kosong && (
           <p className="psn-kosong">
             {cari
-              ? `Tidak ada yang cocok dengan “${cari}”.`
+              ? `Nothing matches “${cari}”.`
               : saring === 'belum'
-                ? 'Semua pesan sudah dibaca.'
+                ? 'All messages are read.'
                 : saring === 'grup'
-                  ? 'Belum ada grup. Buat lewat ikon di sebelah kotak cari.'
+                  ? 'No groups yet. Create one with the icon next to the search box.'
                   : saring === 'favorit'
-                    ? 'Belum ada favorit. Tandai lewat menu ⋮ di percakapan.'
-                    : 'Belum ada rekan lain yang terdaftar.'}
+                    ? 'No favorites yet. Mark one from the ⋮ menu in a conversation.'
+                    : 'No other teammates are registered yet.'}
           </p>
         )}
       </div>
 
-      <div className="psn-kaki-catatan">Chat internal AIRA · bukan saluran rahasia</div>
+      <div className="psn-kaki-catatan">AIRA internal chat · not a confidential channel</div>
     </div>
   )
 }

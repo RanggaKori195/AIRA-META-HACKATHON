@@ -135,36 +135,36 @@ export function orderIdBukanDariUser(
   const inti = (s: string): string => s.toLowerCase().replace(/^["'`“”‘’]+|["'`“”‘’]+$/g, '').replace(/\.+$/, '')
   if (inti(userText).includes(inti(id))) return null
   return (
-    `Order ID "${id}" TIDAK ada di pesan user yang sekarang. JANGAN memakai Order ID dari giliran ` +
-    'sebelumnya atau menebaknya. Tanyakan ke user Order ID mana yang dimaksud (boleh menawarkan ID ' +
-    'yang tadi dibahas sebagai pilihan), lalu tunggu jawabannya.'
+    `Order ID "${id}" is NOT in the user's current message. Do NOT use an Order ID from a previous ` +
+    'turn or guess one. Ask the user which Order ID they mean (you may offer the ID discussed earlier ' +
+    'as an option), then wait for the answer.'
   )
 }
 
 const rentang = (a: string | null, b: string | null): string | null =>
-  !a ? null : !b || a === b ? a : `${a} s/d ${b}`
+  !a ? null : !b || a === b ? a : `${a} to ${b}`
 
 /** Status bridging untuk satu sisi (order / invoice) dalam kalimat yang bisa dikutip. */
 function statusErp(sukses: number, gagal: number, total: number, orderDari: string | null, sisi: string): string {
   if (total === 0) return '-'
   const belum = total - sukses - gagal
-  if (sukses === total) return `sudah masuk ERP (${sukses}/${total} pemeriksaan)`
+  if (sukses === total) return `already in the ERP (${sukses}/${total} tests)`
   const bagian: string[] = []
-  if (sukses > 0) bagian.push(`${sukses} sudah masuk`)
-  if (gagal > 0) bagian.push(`${gagal} GAGAL di-bridging`)
-  if (belum > 0) bagian.push(`${belum} belum diproses`)
-  let s = `${bagian.join(', ')} (dari ${total} pemeriksaan)`
+  if (sukses > 0) bagian.push(`${sukses} already in`)
+  if (gagal > 0) bagian.push(gagal + ' FAILED bridging')
+  if (belum > 0) bagian.push(belum + ' not processed yet')
+  let s = `${bagian.join(', ')} (of ${total} tests)`
   if (belum > 0 && orderDari && orderDari < ERP_BRIDGING_START) {
-    s += `; order ini sebelum bridging ${sisi} ERP berjalan penuh (${ERP_BRIDGING_START}), jadi "belum diproses" wajar`
+    s += `; this order predates full ${sisi} bridging to the ERP (${ERP_BRIDGING_START}), so "not processed yet" is expected`
   }
   return s
 }
 
 const CATATAN_BATAS =
-  'Tool ini SENGAJA hanya memberi status (masuk/diakui/hasil/bridging). Data pasien, jenis ' +
-  'pemeriksaan, harga/nett, pelanggan, dan nomor invoice TIDAK tersedia di sini — jangan ' +
-  'menebak atau menyebutnya. Posisi SAMPEL di lab (sudah sampai tahap mana) juga tidak dijawab ' +
-  'tool ini; ada di menu "Tanya TAT Sample" bagi yang punya aksesnya.'
+  'This tool DELIBERATELY only gives status (received/recognized/result/bridging). Patient data, test ' +
+  'type, price/nett, customer, and invoice number are NOT available here — do not ' +
+  'guess or mention them. The SAMPLE position in the lab (which stage it has reached) is not answered ' +
+  'by this tool either; it is in the "Ask Sample TAT" menu for those with access.'
 
 /**
  * Menyusun hasil tool. Kalimat ringkas DISUSUN KODE (`ringkasan`) supaya model tinggal
@@ -176,22 +176,22 @@ export function susunStatusOrderId(
   dataTerbaru: string | null
 ): Record<string, unknown> {
   const kesegaran = dataTerbaru
-    ? `SalesRepository bukan real-time: order terbaru di tabel bertanggal ${dataTerbaru}.`
-    : 'SalesRepository bukan real-time.'
+    ? `SalesRepository is not real-time: the newest order in the table is dated ${dataTerbaru}.`
+    : 'SalesRepository is not real-time.'
 
   if (ringkas.length === 0) {
     return {
       ditemukan: false,
       order_id: diminta,
-      ringkasan: `Order ID ${diminta} BELUM ADA di SalesRepository.`,
+      ringkasan: `Order ID ${diminta} is NOT in SalesRepository yet.`,
       sebabMungkin: [
-        'transaksinya belum tersinkron ke SalesRepository (data tidak real-time)',
-        'Order ID salah ketik — periksa lagi angka/hurufnya',
-        'order belum dibuat di sistem lab'
+        'the transaction has not synced to SalesRepository yet (data is not real-time)',
+        'the Order ID has a typo — check the digits/letters again',
+        'the order has not been created in the lab system'
       ],
       catatan:
-        'Sampaikan apa adanya: TIDAK ditemukan bukan berarti datanya hilang. Jangan menebak status, ' +
-        'tanggal, atau isi order. ' +
+        'Report it as is: NOT found does not mean the data is lost. Do not guess the status, ' +
+        'dates, or order contents. ' +
         CATATAN_BATAS,
       catatanKesegaran: kesegaran
     }
@@ -202,16 +202,16 @@ export function susunStatusOrderId(
     const total = r.item_diakui
     let status: string
     if (total === 0) {
-      status = `ADA di SalesRepository, tapi transfernya DIBATALKAN (${r.item_batal} pemeriksaan) — tidak dihitung sebagai order maupun sales.`
+      status = `It IS in SalesRepository, but its transfer was CANCELLED (${r.item_batal} tests) — it is not counted as an order or as sales.`
     } else if (r.item_hasil === total) {
-      status = `Sudah masuk dan SUDAH diakui sebagai sales: hasil/invoice keluar untuk semua ${total} pemeriksaan.`
+      status = `Received and ALREADY recognized as sales: results/invoice released for all ${total} tests.`
     } else if (r.item_hasil === 0) {
-      status = `Sudah masuk sebagai ORDER (${total} pemeriksaan), tapi hasil/invoice BELUM keluar — belum dihitung sebagai sales.`
+      status = `Received as an ORDER (${total} tests), but results/invoice are NOT released yet — not counted as sales yet.`
     } else {
-      status = `Sudah masuk sebagai order; hasil/invoice baru keluar untuk ${r.item_hasil} dari ${total} pemeriksaan.`
+      status = `Received as an order; results/invoice are released for only ${r.item_hasil} of ${total} tests.`
     }
     if (total > 0 && r.item_batal > 0) {
-      status += ` Selain itu ${r.item_batal} pemeriksaan lain di Order ID ini dibatalkan transfernya.`
+      status += ` In addition, ${r.item_batal} other tests in this Order ID had their transfer cancelled.`
     }
     // Kegagalan bridging wajib terbaca di kalimat ringkas — itu justru yang dicari orang yang
     // bertanya "sudah masuk ERP?" (live-check 2 Okt: dulu hanya ada di rincian).
@@ -220,25 +220,25 @@ export function susunStatusOrderId(
       const sisi = [
         r.order_erp_gagal > 0 ? `${r.order_erp_gagal} order` : null,
         r.invoice_erp_gagal > 0 ? `${r.invoice_erp_gagal} invoice` : null
-      ].filter(Boolean).join(' dan ')
-      status += ` Perhatian: ${sisi} GAGAL di-bridging ke ERP.`
+      ].filter(Boolean).join(' and ')
+      status += ` Attention: ${sisi} FAILED bridging to the ERP.`
     }
     return {
       order_id: r.order_id,
-      ...(r.order_id !== diminta ? { dicocokkanSebagai: `ditulis "${diminta}", di data tercatat "${r.order_id}"` } : {}),
+      ...(r.order_id !== diminta ? { dicocokkanSebagai: `written as "${diminta}", recorded in the data as "${r.order_id}"` } : {}),
       status,
       diakui: total > 0,
       jumlahPemeriksaan: total,
       pemeriksaanDibatalkan: r.item_batal,
       tanggalOrderMasuk: rentang(r.order_dari, r.order_sampai),
-      hasilInvoice: total === 0 ? '-' : `${r.item_hasil} dari ${total} pemeriksaan`,
+      hasilInvoice: total === 0 ? '-' : `${r.item_hasil} of ${total} tests`,
       tanggalHasilInvoice: rentang(r.hasil_dari, r.hasil_sampai),
       orderDiERP: statusErp(r.order_erp_sukses, r.order_erp_gagal, total, r.order_dari, 'order'),
       // Sisi invoice dihitung dari pemeriksaan yang hasilnya SUDAH keluar — yang belum keluar
       // memang belum bisa di-bridging, dan menyebutnya "belum diproses" menyesatkan.
       invoiceDiERP:
         total > 0 && r.item_hasil === 0
-          ? 'belum ada — hasil/invoice belum keluar'
+          ? 'none yet — results/invoice not released'
           : statusErp(r.invoice_erp_sukses, r.invoice_erp_gagal, r.item_hasil, r.order_dari, 'invoice'),
       terakhirDiperbarui: r.diperbarui
     }
@@ -247,9 +247,9 @@ export function susunStatusOrderId(
   return {
     ditemukan: true,
     order_id: diminta,
-    ringkasan: hasil.length === 1 ? hasil[0].status : `Ada ${hasil.length} Order ID yang cocok — sebutkan masing-masing.`,
+    ringkasan: hasil.length === 1 ? hasil[0].status : `${hasil.length} Order IDs match — report each one.`,
     hasil,
-    catatanAngka: '"pemeriksaan" = baris pemeriksaan dalam satu Order ID (satu order bisa berisi beberapa).',
+    catatanAngka: '"tests" = test lines within one Order ID (one order can contain several).',
     catatan: CATATAN_BATAS,
     catatanKesegaran: kesegaran
   }

@@ -65,19 +65,19 @@ describe('suara / periksaWav', () => {
   test('bukan WAV ditolak sebelum menyentuh whisper', () => {
     const h = periksaWav(new Uint8Array(100))
     assert.equal(h.ok, false)
-    if (!h.ok) assert.match(h.alasan, /bukan berkas WAV/)
+    if (!h.ok) assert.match(h.alasan, /not a WAV file/)
   })
 
   test('rekaman kosong ditolak dengan alasan yang bisa dibaca orang', () => {
     const h = periksaWav(buatWav(0.05))
     assert.equal(h.ok, false)
-    if (!h.ok) assert.match(h.alasan, /terlalu pendek/)
+    if (!h.ok) assert.match(h.alasan, /too short/)
   })
 
   test('rekaman melebihi batas ditolak', () => {
     const h = periksaWav(buatWav(MAKS_DETIK + 10))
     assert.equal(h.ok, false)
-    if (!h.ok) assert.match(h.alasan, /melebihi batas/)
+    if (!h.ok) assert.match(h.alasan, /exceeds the/)
   })
 })
 
@@ -177,7 +177,7 @@ describe('suara / catatanTranskrip', () => {
     // pemakaian kedua, jadi panjangnya melemahkan gunanya sendiri.
     const c = catatanTranskrip('berapa sales bulan ini')
     assert.ok(c.length <= 90, `terlalu panjang (${c.length}): ${c}`)
-    assert.match(c, /belum dikoreksi/)
+    assert.match(c, /not yet corrected/)
   })
 
   test('TIDAK memuat angka durasi — itu milik log, bukan layar', () => {
@@ -187,11 +187,11 @@ describe('suara / catatanTranskrip', () => {
   test('penjelasan panjang tetap ada, tapi di tooltip', () => {
     // Sebabnya tidak boleh hilang, hanya pindah tempat.
     assert.match(PENJELASAN_DIKTE, /ERP/)
-    assert.match(PENJELASAN_DIKTE, /the lab/)
+    assert.match(PENJELASAN_DIKTE, /Order ID/)
   })
 
   test('hasil kosong memberi langkah, bukan sekadar "gagal"', () => {
-    assert.match(catatanTranskrip(''), /mikrofon/)
+    assert.match(catatanTranskrip(''), /microphone/)
   })
 })
 

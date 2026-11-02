@@ -41,11 +41,11 @@ interface Props {
 }
 
 const MODE_LABEL: Record<ChatMode, string> = {
-  general: 'Task Baru',
-  sales: 'Tanya Data Sales',
+  general: 'New Task',
+  sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
-  lab: 'Tanya TAT Sample',
-  onedrive: 'Tanya Microsoft 365'
+  lab: 'Ask Sample TAT',
+  onedrive: 'Ask Microsoft 365'
 }
 
 interface Gaya {
@@ -57,37 +57,37 @@ interface Gaya {
 }
 
 const GAYA: Record<string, Gaya> = {
-  mulai: { ikon: (s) => <IconPlay size={s} />, warna: 'hijau', sub: 'Pengenalan dan langkah pertama', kategori: 'Panduan dasar' },
-  menu: { ikon: (s) => <IconGrid size={s} />, warna: 'hijau', sub: 'Semua menu dan fungsinya', kategori: 'Panduan dasar' },
-  dokumen: { ikon: (s) => <IconFileText size={s} />, warna: 'oranye', sub: 'Membaca, meringkas, mencari isi', kategori: 'Berkas' },
-  laporan: { ikon: (s) => <IconPresentation size={s} />, warna: 'biru', sub: 'Word, PDF, Excel, PowerPoint', kategori: 'Dokumen jadi' },
-  'kerja-lain': { ikon: (s) => <IconCode size={s} />, warna: 'ungu', sub: 'Cari informasi, analisis, dan kode', kategori: 'Kerja lainnya' },
-  ingatan: { ikon: (s) => <IconHistory size={s} />, warna: 'oranye', sub: 'Percakapan lama dan konteks', kategori: 'Riwayat' },
-  jadwal: { ikon: (s) => <IconCalendar size={s} />, warna: 'biru', sub: 'Minta AIRA mengerjakan otomatis', kategori: 'Otomatis' },
-  pemantau: { ikon: (s) => <IconBell size={s} />, warna: 'kuning', sub: 'Pemberitahuan otomatis', kategori: 'Otomatis' },
-  'suara-chat': { ikon: (s) => <IconChat size={s} />, warna: 'merah', sub: 'Kerja bareng dan input suara', kategori: 'Kolaborasi' },
-  tips: { ikon: (s) => <IconBulb size={s} />, warna: 'kuning', sub: 'Tips menulis pertanyaan yang efektif', kategori: 'Tips' },
-  batas: { ikon: (s) => <IconAlert size={s} />, warna: 'merah', sub: 'Batasan dan hal yang tidak tersedia', kategori: 'Batasan' },
-  masalah: { ikon: (s) => <IconHelp size={s} />, warna: 'nila', sub: 'Jawaban keliru atau menu tidak muncul', kategori: 'Bantuan' }
+  mulai: { ikon: (s) => <IconPlay size={s} />, warna: 'hijau', sub: 'Introduction and first steps', kategori: 'Basics' },
+  menu: { ikon: (s) => <IconGrid size={s} />, warna: 'hijau', sub: 'All menus and what they do', kategori: 'Basics' },
+  files: { ikon: (s) => <IconFileText size={s} />, warna: 'oranye', sub: 'Read, summarize, work with content', kategori: 'Files' },
+  reports: { ikon: (s) => <IconPresentation size={s} />, warna: 'biru', sub: 'Word, PDF, Excel, PowerPoint', kategori: 'Finished documents' },
+  'kerja-lain': { ikon: (s) => <IconCode size={s} />, warna: 'ungu', sub: 'Find information, analysis, and code', kategori: 'Other work' },
+  ingatan: { ikon: (s) => <IconHistory size={s} />, warna: 'oranye', sub: 'Old conversations and context', kategori: 'History' },
+  schedule: { ikon: (s) => <IconCalendar size={s} />, warna: 'biru', sub: 'Ask AIRA to work automatically', kategori: 'Automation' },
+  pemantau: { ikon: (s) => <IconBell size={s} />, warna: 'kuning', sub: 'Automatic alerts', kategori: 'Automation' },
+  'suara-chat': { ikon: (s) => <IconChat size={s} />, warna: 'merah', sub: 'Working together and voice input', kategori: 'Collaboration' },
+  tips: { ikon: (s) => <IconBulb size={s} />, warna: 'kuning', sub: 'Tips for writing effective questions', kategori: 'Tips' },
+  batas: { ikon: (s) => <IconAlert size={s} />, warna: 'merah', sub: 'Limits and what is not available', kategori: 'Limits' },
+  masalah: { ikon: (s) => <IconHelp size={s} />, warna: 'nila', sub: 'Wrong answer or missing menu', kategori: 'Help' }
 }
 
-const GAYA_LAIN: Gaya = { ikon: (s) => <IconBook size={s} />, warna: 'hijau', kategori: 'Panduan' }
+const GAYA_LAIN: Gaya = { ikon: (s) => <IconBook size={s} />, warna: 'hijau', kategori: 'Guide' }
 
 const TIPS_CEPAT = [
-  'Gunakan kalimat yang jelas dan spesifik',
-  'Sertakan konteks (tujuan, periode, format)',
-  'Lampirkan dokumen atau sebutkan lokasi berkasnya',
-  'Bisa minta hasil dalam format Word, Excel, PDF, atau PowerPoint',
-  'Kalau hasil belum sesuai, minta revisi dengan kalimat tambahan'
+  'Use clear, specific sentences',
+  'Include context (goal, period, format)',
+  'Attach the document or say where the file is',
+  'You can ask for the result as Word, Excel, PDF, or PowerPoint',
+  'If the result is off, ask for a revision with an extra sentence'
 ]
 
 /** Topik → bagian panduan yang MEMANG ada. Yang bagiannya tidak ada, tidak ditampilkan. */
 const TOPIK = [
-  { judul: 'Cara membuat presentasi dari dokumen', id: 'laporan' },
-  { judul: 'Membaca dan meringkas berkas', id: 'dokumen' },
-  { judul: 'Menjadwalkan laporan rutin', id: 'jadwal' },
-  { judul: 'Mencari percakapan lama', id: 'ingatan' },
-  { judul: 'Kalau jawaban AIRA keliru', id: 'masalah' }
+  { judul: 'How to make a presentation from a document', id: 'reports' },
+  { judul: 'Reading and summarizing files', id: 'files' },
+  { judul: 'Scheduling a recurring report', id: 'schedule' },
+  { judul: 'Finding old conversations', id: 'ingatan' },
+  { judul: 'When AIRA’s answer is wrong', id: 'masalah' }
 ]
 
 function IconPlay({ size = 18 }: { size?: number }): JSX.Element {
@@ -110,13 +110,13 @@ function IconChevron(): JSX.Element {
 /** Ikon & judul pendek kartu contoh — dikenali dari kata di kalimatnya, bukan ditebak isinya. */
 function gayaContoh(q: string): { ikon: JSX.Element; warna: string; judul: string } {
   const k = q.toLowerCase()
-  if (/presentasi|slide|ppt/.test(k)) return { ikon: <IconPresentation size={20} />, warna: 'oranye', judul: 'Buat presentasi' }
-  if (/excel|tabel|grafik/.test(k)) return { ikon: <IconTable size={20} />, warna: 'hijau', judul: 'Rapikan tabel & grafik' }
-  if (/^cari|cari |temukan/.test(k)) return { ikon: <IconSearch size={20} />, warna: 'oranye', judul: 'Cari berkas' }
-  if (/ringkas|rangkum|poin/.test(k)) return { ikon: <IconFileText size={20} />, warna: 'ungu', judul: 'Ringkas dokumen' }
-  if (/sales|penjualan|omzet/.test(k)) return { ikon: <IconTable size={20} />, warna: 'biru', judul: 'Data sales' }
-  if (/jadwal|setiap|tiap/.test(k)) return { ikon: <IconCalendar size={20} />, warna: 'biru', judul: 'Jadwalkan' }
-  return { ikon: <IconChat size={20} />, warna: 'hijau', judul: 'Contoh pertanyaan' }
+  if (/presentation|slide|ppt/.test(k)) return { ikon: <IconPresentation size={20} />, warna: 'oranye', judul: 'Create a presentation' }
+  if (/excel|table|chart/.test(k)) return { ikon: <IconTable size={20} />, warna: 'hijau', judul: 'Tidy tables & charts' }
+  if (/^(find|search|list)|find |search /.test(k)) return { ikon: <IconSearch size={20} />, warna: 'oranye', judul: 'Find files' }
+  if (/summarize|summary|points/.test(k)) return { ikon: <IconFileText size={20} />, warna: 'ungu', judul: 'Summarize a document' }
+  if (/sales|revenue/.test(k)) return { ikon: <IconTable size={20} />, warna: 'biru', judul: 'Sales data' }
+  if (/schedule|every|weekly|daily/.test(k)) return { ikon: <IconCalendar size={20} />, warna: 'biru', judul: 'Schedule it' }
+  return { ikon: <IconChat size={20} />, warna: 'hijau', judul: 'Example question' }
 }
 
 /** "Judul. Keterangan…" → judul tebal + keterangan, seperti langkah di mockup. */
@@ -135,10 +135,10 @@ function pecahLangkah(teks: string): { judul: string; ket: string } {
 /** Ikon langkah dikenali dari katanya (pilih/tulis/berkas/baca), bukan dari urutan. */
 function ikonLangkah(teks: string): JSX.Element {
   const k = teks.toLowerCase()
-  if (/pilih|klik|buka/.test(k)) return <IconStar size={18} />
-  if (/tulis|ketik|kalimat/.test(k)) return <IconChat size={18} />
-  if (/berkas|folder|seret|lampir/.test(k)) return <IconFileText size={18} />
-  if (/baca|koreksi|periksa/.test(k)) return <IconCheck size={18} />
+  if (/pick|click|open/.test(k)) return <IconStar size={18} />
+  if (/write|type|sentence/.test(k)) return <IconChat size={18} />
+  if (/file|folder|drag|attach/.test(k)) return <IconFileText size={18} />
+  if (/read|correct|check/.test(k)) return <IconCheck size={18} />
   return <IconArrowRight size={18} />
 }
 
@@ -206,9 +206,9 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
     return (
       <div className="panduan">
         <div className="panduan-kosong">
-          Panduan tidak bisa dimuat: {error}
+          The guide could not be loaded: {error}
           <br />
-          Laporkan lewat menu Masukan &amp; Usulan bila terus terjadi.
+          Report it through the Feedback menu if it keeps happening.
         </div>
       </div>
     )
@@ -217,7 +217,7 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
   if (!bagian) {
     return (
       <div className="panduan">
-        <div className="panduan-kosong">Memuat panduan…</div>
+        <div className="panduan-kosong">Loading the guide…</div>
       </div>
     )
   }
@@ -228,7 +228,7 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
 
   const tanyaLangsung = (): void => {
     const q = cari.trim()
-    onAjukan('general', q ? `Bagaimana cara ${q} di AIRA?` : 'Apa saja yang bisa AIRA bantu untuk pekerjaan saya?')
+    onAjukan('general', q ? `How do I ${q} in AIRA?` : 'What can AIRA help me with in my work?')
   }
 
   return (
@@ -238,12 +238,12 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
           <IconBook size={28} />
         </span>
         <div className="pdx-hero-teks">
-          <span className="pdx-lencana">Pusat bantuan</span>
-          <h1>Panduan AIRA</h1>
+          <span className="pdx-lencana">Help center</span>
+          <h1>AIRA Guide</h1>
           <p>
-            Temukan cara terbaik menggunakan AIRA untuk pekerjaan sehari-hari.
+            Find the best way to use AIRA for your everyday work.
             <br />
-            Menu yang disebut di sini adalah menu yang benar-benar terbuka untuk akunmu.
+            The menus mentioned here are the ones actually open to your account.
           </p>
           <div className="pdx-cari">
             <IconSearch size={17} />
@@ -251,11 +251,11 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
               ref={kotakCari}
               value={cari}
               onChange={(e) => setCari(e.target.value)}
-              placeholder="Cari di panduan… (mis. ppt, excel, jadwal, laporan)"
-              aria-label="Cari di panduan"
+              placeholder="Search the guide… (e.g. ppt, excel, schedule, report)"
+              aria-label="Search the guide"
             />
             {cari ? (
-              <button className="pdx-cari-hapus" onClick={() => setCari('')} title="Kosongkan">
+              <button className="pdx-cari-hapus" onClick={() => setCari('')} title="Clear">
                 ×
               </button>
             ) : (
@@ -287,8 +287,8 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
       </header>
 
       <div className="pdx-badan">
-        <nav className="pdx-kartu pdx-nav" aria-label="Daftar panduan">
-          <div className="pdx-nav-judul">Daftar panduan</div>
+        <nav className="pdx-kartu pdx-nav" aria-label="Guide list">
+          <div className="pdx-nav-judul">Guide list</div>
           {terlihat.map((b) => {
             const g = gaya(b.id)
             return (
@@ -304,9 +304,9 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
           })}
           {terlihat.length === 0 && (
             <div className="pdx-nav-kosong">
-              Tidak ada bagian yang cocok dengan “{cari}”.
+              No section matches “{cari}”.
               <br />
-              Tanyakan saja langsung ke AIRA — ia membaca panduan yang sama.
+              Just ask AIRA directly — it reads the same guide.
             </div>
           )}
         </nav>
@@ -322,7 +322,7 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
               ))}
             </>
           ) : (
-            <p className="pdx-ringkas">Pilih salah satu panduan di sebelah kiri.</p>
+            <p className="pdx-ringkas">Pick a guide on the left.</p>
           )}
         </article>
 
@@ -333,8 +333,8 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
                 <IconBulb size={20} />
               </span>
               <span>
-                <strong>Tips cepat</strong>
-                <small>Cara sederhana untuk hasil yang lebih baik.</small>
+                <strong>Quick tips</strong>
+                <small>Simple ways to get better results.</small>
               </span>
             </div>
             <ul>
@@ -356,7 +356,7 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
                   <IconStar size={20} />
                 </span>
                 <span>
-                  <strong>Topik pilihan</strong>
+                  <strong>Featured topics</strong>
                 </span>
               </div>
               <ol className="pdx-topik">
@@ -379,19 +379,19 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
                 <IconHelp size={20} />
               </span>
               <span>
-                <strong>Butuh bantuan?</strong>
-                <small>Tidak menemukan jawaban yang kamu cari?</small>
+                <strong>Need help?</strong>
+                <small>Can’t find the answer you are looking for?</small>
               </span>
             </div>
             <button className="pdx-tanya" onClick={tanyaLangsung}>
-              <IconChat size={16} /> Tanya langsung ke AIRA <IconArrowRight size={15} />
+              <IconChat size={16} /> Ask AIRA directly <IconArrowRight size={15} />
             </button>
             <div className="pdx-bantu-bawah">
               <button onClick={() => { setCari(''); buka('tips') }}>
-                <IconBook size={18} /> Lihat cara bertanya yang bagus
+                <IconBook size={18} /> See how to ask good questions
               </button>
               <button onClick={onMasukan}>
-                <IconHelp size={18} /> Ajukan pertanyaan baru
+                <IconHelp size={18} /> Ask a new question
               </button>
             </div>
           </div>
@@ -448,7 +448,7 @@ function Blok({ blok, onAjukan }: { blok: PanduanBlok; onAjukan: Props['onAjukan
     return (
       <div className="pdx-batas">
         <div className="pdx-batas-judul">
-          <IconAlert size={16} /> Yang perlu kamu tahu batasnya
+          <IconAlert size={16} /> Limits you should know about
         </div>
         <ul>
           {blok.butir.map((x, j) => (
@@ -460,8 +460,8 @@ function Blok({ blok, onAjukan }: { blok: PanduanBlok; onAjukan: Props['onAjukan
   }
   return (
     <div className="pdx-contoh">
-      <h4>Contoh pertanyaan</h4>
-      <p>Klik salah satu untuk langsung bertanya di {MODE_LABEL[blok.mode]}.</p>
+      <h4>Example questions</h4>
+      <p>Click one to ask right away in {MODE_LABEL[blok.mode]}.</p>
       <div className="pdx-contoh-grid">
         {blok.contoh.map((q) => {
           const g = gayaContoh(q)

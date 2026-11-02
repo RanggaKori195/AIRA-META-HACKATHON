@@ -54,96 +54,96 @@ interface Kelompok {
  */
 const KELOMPOK: Kelompok[] = [
   {
-    judul: 'Ringkasan & Perbandingan',
+    judul: 'Summary & Comparison',
     ikon: <IconChart size={18} />,
     warna: 'hijau',
     contoh: [
-      'Berapa sales hari ini?',
-      'Sales bulan ini dibanding bulan lalu',
-      'Tren penjualan harian bulan ini',
-      'YTD tahun ini dibanding tahun lalu',
-      'Buatkan laporan penjualan bulan ini',
-      'Buatkan laporan penjualan bulan ini versi Excel'
+      "What are today's sales?",
+      'Sales this month vs last month',
+      'Daily sales trend this month',
+      'YTD this year vs last year',
+      'Create a sales report for this month',
+      'Create a sales report for this month as an Excel file'
     ]
   },
   {
-    judul: 'Pemeriksaan',
+    judul: 'Tests',
     ikon: <IconCalendar size={18} />,
     warna: 'biru',
     contoh: [
-      'Pemeriksaan apa yang paling laris bulan ini?',
-      'Item apa yang trennya menurun?',
-      'Kategori layanan apa yang paling besar bulan ini?',
-      'Pemeriksaan apa yang paling sepi bulan ini?'
+      'Which tests sold the most this month?',
+      'Which items are trending down?',
+      'Which service category is the largest this month?',
+      'Which tests sold the least this month?'
     ]
   },
   {
-    judul: 'Pelanggan',
+    judul: 'Customers',
     ikon: <IconUsers size={18} />,
     warna: 'ungu',
     contoh: [
-      '10 pelanggan terbesar 30 hari terakhir',
-      'Pelanggan mana yang ordernya turun drastis?',
-      'Pelanggan baru 90 hari terakhir siapa saja?',
-      'Pelanggan mana yang berhenti order?'
+      'Top 10 customers in the last 30 days',
+      'Which customers have had a sharp drop in orders?',
+      'Who are the new customers in the last 90 days?',
+      'Which customers stopped ordering?'
     ]
   },
   {
-    judul: 'Wilayah',
+    judul: 'Regions',
     ikon: <IconPin size={18} />,
     warna: 'oranye',
     contoh: [
-      'Provinsi mana yang terbesar bulan ini?',
-      'Sales per jenis pelanggan bulan ini',
-      'Berapa sales di Jawa Barat bulan ini?'
+      'Which province is the largest this month?',
+      'Sales by customer type this month',
+      'What are the sales in West Java this month?'
     ]
   },
   {
     // Ditambahkan 21 Agu 2026. Tanpa dicontohkan di sini, tool ramalan praktis
     // tidak akan pernah ditemukan user.
-    judul: 'Proyeksi & Ramalan',
+    judul: 'Projection & Forecast',
     ikon: <IconTrend size={18} />,
     warna: 'merah',
     contoh: [
-      'Proyeksi tutup bulan ini berapa?',
-      'Prediksi penjualan 3 bulan ke depan',
-      'Pemeriksaan apa yang sedang naik?'
+      'What is the projected month-end close?',
+      'Forecast sales for the next 3 months',
+      'Which tests are trending up?'
     ]
   },
   {
-    judul: 'ERP (ERP)',
+    judul: 'ERP',
     ikon: <IconDatabase size={18} />,
     warna: 'hijau',
-    contoh: ['Sales order ERP bulan ini', 'Order yang belum masuk ERP bulan ini']
+    contoh: ['ERP sales orders this month', 'Orders not yet in the ERP this month']
   }
 ]
 
 const POPULER: Array<{ judul: string; tanya: string; ket: string; ikon: JSX.Element; warna: string }> = [
   {
-    judul: 'Berapa sales hari ini?',
-    tanya: 'Berapa sales hari ini?',
-    ket: 'Total penjualan hari ini dengan perbandingannya.',
+    judul: "What are today's sales?",
+    tanya: "What are today's sales?",
+    ket: 'Total sales today with a comparison.',
     ikon: <IconChart size={22} />,
     warna: 'hijau'
   },
   {
-    judul: 'Sales bulan ini dibanding bulan lalu',
-    tanya: 'Sales bulan ini dibanding bulan lalu',
-    ket: 'Perbandingan periode sepadan bulan lalu.',
+    judul: 'Sales this month vs last month',
+    tanya: 'Sales this month vs last month',
+    ket: 'Comparison with the equivalent period last month.',
     ikon: <IconCalendar size={22} />,
     warna: 'biru'
   },
   {
-    judul: 'Sales per wilayah',
-    tanya: 'Provinsi mana yang terbesar bulan ini?',
-    ket: 'Provinsi dengan penjualan terbesar bulan ini.',
+    judul: 'Sales by region',
+    tanya: 'Which province is the largest this month?',
+    ket: 'The province with the highest sales this month.',
     ikon: <IconTrend size={22} />,
     warna: 'ungu'
   },
   {
-    judul: 'Top 10 pelanggan',
-    tanya: '10 pelanggan terbesar 30 hari terakhir',
-    ket: 'Pelanggan terbesar 30 hari terakhir.',
+    judul: 'Top 10 customers',
+    tanya: 'Top 10 customers in the last 30 days',
+    ket: 'Largest customers in the last 30 days.',
     ikon: <IconStar size={22} />,
     warna: 'kuning'
   }
@@ -153,13 +153,13 @@ const POPULER: Array<{ judul: string; tanya: string; ket: string; ikon: JSX.Elem
  * Periode yang DITEMPELKAN ke kalimat saat dikirim — terlihat utuh di gelembung
  * chat, jadi user tahu persis apa yang ditanyakan. Tidak ada filter tersembunyi.
  */
-const PERIODE = ['hari ini', 'kemarin', 'minggu ini', 'bulan ini', 'bulan lalu', 'tahun ini (YTD)']
+const PERIODE = ['today', 'yesterday', 'this week', 'this month', 'last month', 'this year (YTD)']
 
 const TIPS = [
-  'Gunakan bahasa yang jelas dan spesifik',
-  'Sebutkan periode waktu',
-  'Minta laporan PDF/Word/Excel bila perlu tabel & grafik',
-  'Kombinasikan dengan filter (wilayah, pemeriksaan, pelanggan)'
+  'Use clear, specific wording',
+  'State the time period',
+  'Ask for a PDF/Word/Excel report if you need tables & charts',
+  'Combine with filters (region, test, customer)'
 ]
 
 function IconPin({ size = 16 }: { size?: number }): JSX.Element {
@@ -173,13 +173,13 @@ function IconPin({ size = 16 }: { size?: number }): JSX.Element {
 
 function sejak(ms: number): string {
   const menit = Math.max(0, Math.round((Date.now() - ms) / 60_000))
-  if (menit < 1) return 'baru saja'
-  if (menit < 60) return `${menit} menit yang lalu`
+  if (menit < 1) return 'just now'
+  if (menit < 60) return menit + ' min ago'
   const jam = Math.round(menit / 60)
-  if (jam < 24) return `${jam} jam yang lalu`
+  if (jam < 24) return jam + ' h ago'
   const hari = Math.round(jam / 24)
-  if (hari < 30) return `${hari} hari yang lalu`
-  return new Date(ms).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+  if (hari < 30) return hari + ' d ago'
+  return new Date(ms).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export default function SalesHome({
@@ -224,7 +224,7 @@ export default function SalesHome({
   const submit = (): void => {
     const trimmed = text.trim()
     if (!trimmed) return
-    onSubmit(periode && !trimmed.toLowerCase().includes(periode.toLowerCase()) ? `${trimmed} (periode: ${periode})` : trimmed)
+    onSubmit(periode && !trimmed.toLowerCase().includes(periode.toLowerCase()) ? trimmed + ' (period: ' + periode + ')' : trimmed)
     setText('')
   }
 
@@ -236,12 +236,12 @@ export default function SalesHome({
     status === null
       ? null
       : !status.terkonfigurasi
-        ? { teks: 'Belum dikonfigurasi', kelas: 'gagal', judul: 'Koneksi database sales tidak tertanam di aplikasi ini.' }
+        ? { teks: 'Not configured', kelas: 'gagal', judul: 'The sales database connection is not built into this app.' }
         : status.keadaan === 'terhubung'
-          ? { teks: 'Terhubung', kelas: 'ok', judul: `Query terakhir berhasil, ${sejak(status.waktu!)}.` }
+          ? { teks: 'Connected', kelas: 'ok', judul: 'Last query succeeded, ' + sejak(status.waktu!) + '.' }
           : status.keadaan === 'gagal'
-            ? { teks: 'Tidak terhubung', kelas: 'gagal', judul: `Koneksi terakhir gagal, ${sejak(status.waktu!)}. Periksa VPN/jaringan the company.` }
-            : { teks: 'Belum diperiksa', kelas: 'belum', judul: 'Belum ada query sejak AIRA dibuka.' }
+            ? { teks: 'Not connected', kelas: 'gagal', judul: 'Last connection failed, ' + sejak(status.waktu!) + '. Check your VPN/network.' }
+            : { teks: 'Not checked yet', kelas: 'belum', judul: 'No queries since AIRA was opened.' }
 
   return (
     <div className="sales-baru">
@@ -251,10 +251,10 @@ export default function SalesHome({
             <IconChart size={28} />
           </span>
           <div className="sales-kepala-teks">
-            <h1>Tanya Data Sales</h1>
+            <h1>Ask Sales Data</h1>
             <p>
-              Tanyakan pertanyaan seputar data penjualan — AIRA mengambil angkanya langsung dari database dan
-              menjelaskannya, bukan perkiraan.
+              Ask questions about sales data — AIRA pulls the numbers straight from the database and
+              explains them, no guesswork.
             </p>
           </div>
           {/* Hiasan: kartu grafik kecil, meniru mockup. */}
@@ -270,7 +270,7 @@ export default function SalesHome({
             <path d="M188 16 L204 16 L204 32" fill="none" stroke="#3fae63" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
           <div className="sales-titik3" onClick={(e) => e.stopPropagation()}>
-            <button className="btn-mini" title="Pilihan" onClick={() => setMenu((x) => !x)}>
+            <button className="btn-mini" title="Options" onClick={() => setMenu((x) => !x)}>
               <IconMore size={16} />
             </button>
             {menu && (
@@ -281,7 +281,7 @@ export default function SalesHome({
                     onPanduan()
                   }}
                 >
-                  Panduan menu ini
+                  Guide for this menu
                 </button>
               </div>
             )}
@@ -291,7 +291,7 @@ export default function SalesHome({
         <div className="task-box sales-kotak">
           <textarea
             ref={kotak}
-            placeholder="Tulis pertanyaan Anda tentang data sales..."
+            placeholder="Type your question about sales data..."
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
@@ -304,13 +304,13 @@ export default function SalesHome({
           />
           <div className="row">
             <div className="row-left">
-              <span className="gambar-pilih sales-sumber" title="Menu ini hanya membaca database penjualan (SalesRepository)">
-                <IconDatabase size={16} /> Sumber: SalesRepository
+              <span className="gambar-pilih sales-sumber" title="This menu only reads the sales database (SalesRepository)">
+                <IconDatabase size={16} /> Source: SalesRepository
               </span>
-              <label className="gambar-pilih" title="Periode ditempelkan ke pertanyaanmu saat dikirim">
+              <label className="gambar-pilih" title="The period is appended to your question when sent">
                 <IconCalendar size={16} />
                 <select value={periode} onChange={(e) => setPeriode(e.target.value)}>
-                  <option value="">Periode</option>
+                  <option value="">Period</option>
                   {PERIODE.map((p) => (
                     <option key={p} value={p}>
                       {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -323,7 +323,7 @@ export default function SalesHome({
               {/* Hasil dikte DISISIPKAN ke kotak teks, tidak dikirim otomatis. */}
               <TombolDikte onTeks={(t) => setText((s) => (s.trim() ? `${s.trim()} ${t}` : t))} />
               <button className="btn-send sales-tanya" disabled={!text.trim()} onClick={submit}>
-                Tanya <IconArrowRight size={15} />
+                Ask <IconArrowRight size={15} />
               </button>
             </div>
           </div>
@@ -331,11 +331,11 @@ export default function SalesHome({
 
         <div className="beranda-kepala">
           <h3>
-            <IconZap size={17} /> Contoh pertanyaan populer
+            <IconZap size={17} /> Popular example questions
           </h3>
-          <span>Klik salah satu untuk langsung bertanya</span>
-          <button className="beranda-tautan" onClick={() => setDibuka(dibuka === 'semua' ? null : 'semua')}>
-            {dibuka === 'semua' ? 'Ringkas contoh' : 'Lihat semua contoh'} <IconArrowRight size={14} />
+          <span>Click one to ask right away</span>
+          <button className="beranda-tautan" onClick={() => setDibuka(dibuka === 'all' ? null : 'all')}>
+            {dibuka === 'all' ? 'Collapse examples' : 'Show all examples'} <IconArrowRight size={14} />
           </button>
         </div>
         <div className="sales-populer">
@@ -351,12 +351,12 @@ export default function SalesHome({
         </div>
 
         <div className="beranda-kepala">
-          <h3>Kategori Pertanyaan</h3>
-          <span className="sales-kanan-teks">Pilih kategori atau langsung ketik pertanyaan</span>
+          <h3>Question Categories</h3>
+          <span className="sales-kanan-teks">Pick a category or type your question</span>
         </div>
         <div className="sales-kategori">
           {KELOMPOK.map((k) => {
-            const semua = dibuka === 'semua' || dibuka === k.judul
+            const semua = dibuka === 'all' || dibuka === k.judul
             return (
               <section key={k.judul} className="kartu-kategori">
                 <h4>
@@ -370,9 +370,9 @@ export default function SalesHome({
                     </button>
                   ))}
                 </div>
-                {k.contoh.length > 3 && dibuka !== 'semua' && (
+                {k.contoh.length > 3 && dibuka !== 'all' && (
                   <button className="beranda-tautan kategori-lagi" onClick={() => setDibuka(semua ? null : k.judul)}>
-                    {semua ? 'Lebih sedikit' : `Lihat semua (${k.contoh.length})`} <IconArrowRight size={13} />
+                    {semua ? 'Show less' : 'View all (' + k.contoh.length + ')'} <IconArrowRight size={13} />
                   </button>
                 )}
               </section>
@@ -385,18 +385,18 @@ export default function SalesHome({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconInfo size={17} /> Tentang Menu Ini
+              <IconInfo size={17} /> About This Menu
             </h4>
           </div>
           <p className="panel-kosong">
-            AIRA memakai data transaksi dari SalesRepository untuk menjawab pertanyaan tentang penjualan,
-            pelanggan, pemeriksaan, dan wilayah. Angkanya dihitung sistem dari database (ringkasan, tanpa data
-            pasien); sales dihitung dari tanggal hasil/invoice. Hasil bisa diminta sebagai laporan PDF, Word,
-            atau Excel lengkap dengan grafik.
+            AIRA uses transaction data from SalesRepository to answer questions about sales,
+            customers, tests, and regions. Figures are calculated by the system from the database (summaries only, no
+            patient data); sales are counted from the result/invoice date. Results can be requested as a PDF, Word,
+            or Excel report complete with charts.
           </p>
           <div className="kartu-panel-kepala sales-sumber-kepala">
             <h4>
-              <IconDatabase size={17} /> Sumber Data
+              <IconDatabase size={17} /> Data Source
             </h4>
           </div>
           <div className="sales-sumber-baris">
@@ -414,7 +414,7 @@ export default function SalesHome({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconBook size={17} /> Tips Menggunakan
+              <IconBook size={17} /> Usage Tips
             </h4>
           </div>
           <ul className="sales-tips">
@@ -432,16 +432,16 @@ export default function SalesHome({
         <div className="kartu-panel">
           <div className="kartu-panel-kepala">
             <h4>
-              <IconHistory size={17} /> Pertanyaan Terakhir
+              <IconHistory size={17} /> Recent Questions
             </h4>
             {riwayat.length > 4 && (
               <button className="beranda-tautan" onClick={() => setSemuaRiwayat((x) => !x)}>
-                {semuaRiwayat ? 'Lebih sedikit' : 'Lihat semua'}
+                {semuaRiwayat ? 'Show less' : 'View all'}
               </button>
             )}
           </div>
           {riwayat.length === 0 ? (
-            <p className="panel-kosong">Pertanyaan yang kamu ajukan di menu ini akan muncul di sini.</p>
+            <p className="panel-kosong">Questions you ask in this menu will appear here.</p>
           ) : (
             <ul className="sales-riwayat">
               {riwayat.slice(0, semuaRiwayat ? 15 : 4).map((s) => (

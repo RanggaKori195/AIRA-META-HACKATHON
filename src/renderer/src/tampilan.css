@@ -7,7 +7,7 @@
  * (menu-item, task-box, btn-send, …) ikut serasi tanpa disentuh satu per satu.
  * ====================================================================== */
 :root {
-  /* Antarmuka memakai sans seperti mockup. company serif font tetap dipakai DOKUMEN
+  /* Antarmuka memakai sans seperti mockup. Dokumen juga memakai font sistem
      (PDF/Word) lewat stylesheet cetaknya sendiri — aturan 20 tidak berubah. */
   --font-utama: 'Segoe UI', 'Segoe UI Variable', system-ui, sans-serif;
   --bg: #f5f7f5;
@@ -2524,7 +2524,7 @@
   }
 }
 
-/* ---------- layar awal Ask Master Data (mockup keenam, 29 Sep 2026) ---------- */
+/* ---------- layar awal Tanya Data Master Data (mockup keenam, 29 Sep 2026) ---------- */
 .inno-kepala {
   min-height: 130px;
   align-items: center;

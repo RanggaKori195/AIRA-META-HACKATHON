@@ -46,18 +46,18 @@ export function BuatGrup({
         <button
           className="psn-ikon"
           onClick={langkah === 1 ? onBatal : () => setLangkah(1)}
-          title="Kembali"
+          title="Back"
         >
           <IconBack size={16} />
         </button>
         <div className="psn-kepala-teks">
-          <strong>{langkah === 1 ? 'Tambah anggota grup' : 'Grup baru'}</strong>
+          <strong>{langkah === 1 ? 'Add group members' : 'New group'}</strong>
           <span>
             {langkah === 1
               ? terpilih.length === 0
-                ? 'Pilih minimal satu rekan'
-                : `${terpilih.length} dipilih`
-              : `${terpilih.length + 1} anggota termasuk kamu`}
+                ? 'Pick at least one teammate'
+                : `${terpilih.length} selected`
+              : `${terpilih.length + 1} members including you`}
           </span>
         </div>
       </div>
@@ -71,7 +71,7 @@ export function BuatGrup({
               disabled={terpilih.length === 0}
               onClick={() => setLangkah(2)}
             >
-              Lanjut
+              Next
             </button>
           </div>
         </>
@@ -82,12 +82,12 @@ export function BuatGrup({
               <IconUsers size={28} />
             </span>
             <label className="psn-label">
-              Nama grup
+              Group name
               <input
                 value={nama}
                 maxLength={60}
                 onChange={(e) => setNama(e.target.value)}
-                placeholder="mis. Tim Lab Molekuler"
+                placeholder="e.g. Molecular Lab Team"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && nama.trim() && !sibuk) void buat()
@@ -96,8 +96,8 @@ export function BuatGrup({
               <span className="psn-hitung">{nama.trim().length}/60</span>
             </label>
             <p className="psn-catatan">
-              Kamu otomatis jadi admin. Anggota yang ditambahkan kelak hanya melihat pesan sejak
-              mereka bergabung.
+              You automatically become admin. Members added later only see messages from when they
+              joined.
             </p>
             {/*
               ⚠️ Kalimat ini WAJIB ada di titik orang membuat tempat bicara baru.
@@ -106,8 +106,8 @@ export function BuatGrup({
               salah (lihat CLAUDE.md aturan 62).
             */}
             <p className="psn-catatan psn-catatan-waspada">
-              Chat AIRA adalah saluran kerja internal, bukan saluran rahasia. Jangan kirim kata
-              sandi atau data pribadi pasien.
+              AIRA chat is an internal work channel, not a confidential one. Do not send passwords
+              or patient personal data.
             </p>
             {galat && <p className="psn-galat">{galat}</p>}
           </div>
@@ -117,7 +117,7 @@ export function BuatGrup({
               disabled={!nama.trim() || sibuk}
               onClick={() => void buat()}
             >
-              <IconCheck size={15} /> {sibuk ? 'Membuat…' : 'Buat grup'}
+              <IconCheck size={15} /> {sibuk ? 'Creating…' : 'Create group'}
             </button>
           </div>
         </>

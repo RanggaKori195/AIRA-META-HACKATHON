@@ -1,5 +1,7 @@
 // Nilai-nilai ini disuntikkan saat build dari .env (lihat electron.vite.config.ts).
 // Semua kredensial dibawa oleh aplikasi — user tidak perlu mengisi apa pun.
+import { MUSE, META_ENDPOINT } from './hackathon/models'
+
 declare const __BUNDLED_API_KEY__: string
 declare const __BUNDLED_ENDPOINT__: string
 declare const __BUNDLED_MODEL__: string
@@ -20,9 +22,9 @@ export const BUNDLED = {
   apiKey: safe(typeof __BUNDLED_API_KEY__ !== 'undefined' ? __BUNDLED_API_KEY__ : '', ''),
   endpoint: safe(
     typeof __BUNDLED_ENDPOINT__ !== 'undefined' ? __BUNDLED_ENDPOINT__ : '',
-    'https://gateway.internal.example'
+    META_ENDPOINT
   ),
-  modelId: safe(typeof __BUNDLED_MODEL__ !== 'undefined' ? __BUNDLED_MODEL__ : '', 'old-think-model'),
+  modelId: safe(typeof __BUNDLED_MODEL__ !== 'undefined' ? __BUNDLED_MODEL__ : '', MUSE.agent),
   youKey: safe(typeof __BUNDLED_YOU_KEY__ !== 'undefined' ? __BUNDLED_YOU_KEY__ : '', ''),
   exaKey: safe(typeof __BUNDLED_EXA_KEY__ !== 'undefined' ? __BUNDLED_EXA_KEY__ : '', ''),
   salesDb: safe(typeof __BUNDLED_SALES_DB__ !== 'undefined' ? __BUNDLED_SALES_DB__ : '', ''),

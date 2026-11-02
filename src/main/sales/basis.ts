@@ -17,14 +17,25 @@ export const DEFAULT_BASIS: BasisKey = 'invoice'
 
 /** Menandakan user menanyakan ORDER YANG MASUK. */
 const ORDER_WORDS =
-  /\b(order|orderan|pesanan|registrasi|pendaftaran|sampel masuk|date_received)\b/i
+  /\b(order|orders|orderan|pesanan|registrasi|registrations?|pendaftaran|sampel masuk|samples? received|date_received)\b/i
+
+/**
+ * "order" used as a SORTING word, removed before ORDER_WORDS is tested.
+ *
+ * ⚠️ Final review 2 Nov 2026: "top 10 customers by sales in descending order" / "list items ordered by
+ * revenue" switched to order basis (date_received) — a sales ranking reported on the basis the company
+ * does not recognise (rule 4). Bare "ordered" and "came in" were dropped from ORDER_WORDS for the same
+ * reason ("how much revenue came in"). "sales order by branch" keeps its order meaning (lookbehind).
+ */
+const SORT_PHRASES =
+  /\b(?:in|by)\s+(?:descending|ascending)\s+order(?:\s+of)?\b|\bin\s+order\s+of\b|\b(?<!sales\s)order\s+by\b|\bordered\s+by\b|\bsort(?:ed)?\s+by\b/gi
 
 /** Menandakan user menanyakan invoice/tagihan secara eksplisit. */
-const INVOICE_WORDS = /\b(invoice|invois|faktur|tagihan|billing|ditagih|date_result)\b/i
+const INVOICE_WORDS = /\b(invoice|invoices|invoiced|invois|faktur|tagihan|billing|billed|ditagih|date_result)\b/i
 
 /** Kata penjualan biasa — semuanya berarti penjualan yang DIAKUI (date_result). */
 const SALES_WORDS =
-  /\b(sales|penjualan|omzet|omset|revenue|pendapatan|nett|netto|gross|growth|pertumbuhan|ytd)\b/i
+  /\b(sales|penjualan|omzet|omset|revenue|turnover|income|pendapatan|nett|netto|net|gross|growth|pertumbuhan|ytd)\b/i
 
 /**
  * Menyimpulkan dasar pengakuan dari kalimat user.
@@ -35,7 +46,7 @@ const SALES_WORDS =
  * kata "sales", sedangkan "sales invoice ERP" adalah pertanyaan invoice.
  */
 export function basisFromText(text: string): BasisKey | null {
-  const adaOrder = ORDER_WORDS.test(text)
+  const adaOrder = ORDER_WORDS.test(text.replace(SORT_PHRASES, ' '))
   const adaInvoice = INVOICE_WORDS.test(text)
   if (adaOrder && !adaInvoice) return 'order'
   if (adaInvoice) return 'invoice'

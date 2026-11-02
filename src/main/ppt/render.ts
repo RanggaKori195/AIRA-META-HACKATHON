@@ -123,7 +123,7 @@ export async function tulisPresentasi(
   const pptx = new PptxGenJS()
   pptx.layout = 'LAYOUT_16x9'
   pptx.author = opsi.penulis ?? 'AIRA'
-  pptx.company = 'the lab'
+  pptx.company = 'AIRA'
   if (opsi.judulDokumen) pptx.title = opsi.judulDokumen
   pptx.theme = { headFontFace: FONT.judul, bodyFontFace: FONT.isi }
 
@@ -796,7 +796,7 @@ function susunCatatan(k: Konteks, spec: SlideSpec[]): string[] {
   const catatan: string[] = []
   catatan.push(
     `Presentasi berisi ${k.nomor} slide dari ${spec.length} slide yang diminta, ` +
-      'memakai template korporat the company (16:9).'
+      'using the AIRA presentation theme (16:9).'
   )
   if (k.dipecah.length) {
     catatan.push(
@@ -811,7 +811,7 @@ function susunCatatan(k: Konteks, spec: SlideSpec[]): string[] {
     catatan.push(
       `${k.gambarDipakai} slide memakai ILUSTRASI BUATAN AIRA (gambar AI). Sampaikan itu ke user ` +
         'dengan menyebut pembuatnya "AIRA" saja, tanpa nama model atau gateway: ' +
-        'gambarnya bukan foto asli dan bukan aset resmi the company, jadi jangan dipakai sebagai bukti ' +
+        'the images are not real photos and not official assets, so they must not be used as evidence ' +
         'atau dokumentasi.'
     )
   }
@@ -827,11 +827,11 @@ function susunCatatan(k: Konteks, spec: SlideSpec[]): string[] {
   catatan.push(
     `Teks memakai font ${FONT.judul} dan ${FONT.bagian}. Font TIDAK ikut tertanam di dalam berkas ` +
       '.pptx (berkas Office hanya menyimpan nama font), jadi di komputer yang tidak memasang font ' +
-      'the company, PowerPoint akan menggantinya sendiri.'
+      'tersebut, PowerPoint akan menggantinya sendiri.'
   )
   for (const m of k.aset.masalah) catatan.push(`PERHATIAN: ${m}.`)
   if (!k.aset.masalah.length) {
-    catatan.push('Semua gambar latar template the company berhasil dipasang.')
+    catatan.push('All theme background images were applied.')
   }
   catatan.push(
     'Jangan menyatakan ada isi yang terpotong atau dihilangkan di luar yang disebutkan di catatan ini.'

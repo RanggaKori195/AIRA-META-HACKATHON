@@ -58,18 +58,62 @@ export function blockDocSearchForSales(toolName: string, userText: string): stri
  * seperti "halo, berapa sales bulan ini" tetap kena guard.
  */
 const BASA_BASI =
-  /^(\W*)(halo|hallo|hai|hi|hei|hello|pagi|selamat\s+(pagi|siang|sore|malam)|assalamu?'?alaikum|siapa\s+kamu|kamu\s+siapa|kenalan|perkenalkan|kamu\s+bisa\s+apa|apa\s+(saja\s+)?yang\s+bisa\s+kamu|bisa\s+bantu\s+apa|fungsi\s*(mu|kamu)|terima\s*kasih|makasih|thanks|thank\s+you|oke?|sip|mantap|siap|baik|test|tes)\b/i
+  /^(\W*)(halo|hallo|hai|hi|hei|hello|pagi|selamat\s+(pagi|siang|sore|malam)|assalamu?'?alaikum|siapa\s+kamu|kamu\s+siapa|kenalan|perkenalkan|kamu\s+bisa\s+apa|apa\s+(saja\s+)?yang\s+bisa\s+kamu|bisa\s+bantu\s+apa|fungsi\s*(mu|kamu)|terima\s*kasih|makasih|thanks|thank\s+you|oke?|sip|mantap|siap|baik|test|tes|hey|good\s+(morning|afternoon|evening)|who\s+are\s+you|what\s+(can|do)\s+you\s+do|how\s+can\s+you\s+help|nice\s+to\s+meet\s+you|okay|great|cool)\b/i
 
 /** Kosakata yang menandakan kalimat itu sebenarnya meminta data. */
 const MINTA_DATA =
-  /\b(sales|penjualan|omzet|omset|revenue|pendapatan|invoice|order|transaksi|pelanggan|customer|item|produk|pemeriksaan|harga|price|laporan|report|target|proyeksi|ramalan|forecast|tren|trend|growth|ytd|bulan|tahun|kuartal|cabang|wilayah|provinsi|kota|berapa|analisa|analisis|tat|backlog)\b/i
+  /\b(sales|penjualan|omzet|omset|revenue|pendapatan|invoice|order|transaksi|pelanggan|customer|item|produk|pemeriksaan|harga|price|laporan|report|target|proyeksi|ramalan|forecast|tren|trend|growth|ytd|bulan|tahun|kuartal|cabang|wilayah|provinsi|kota|berapa|analisa|analisis|tat|backlog|orders?|customers?|items?|products?|tests|prices?|reports?|months?|years?|quarters?|weeks?|branch(es)?|regions?|provinces?|cit(y|ies)|how\s+(many|much)|analy[sz]e|analysis|samples?|today|yesterday|stock|reagents?)\b/i
 
 /** Batas panjang. Kalimat panjang yang diawali "halo" hampir selalu tetap berisi pertanyaan. */
 const MAKS_BASA_BASI = 120
 
 /**
+ * tool_choice for one model call. A pure greeting in a data menu gets NO tools on the first call: with tools
+ * offered, Muse Wonder answered "hi, who are you?" by also pulling today's sales (measured 2 Nov 2026) —
+ * a database query and seconds of latency for a greeting.
+ */
+export function toolChoiceUntuk(o: {
+  paksa: boolean
+  mode: string | undefined
+  pertanyaan: string
+  iterasi: number
+}): 'auto' | 'required' | 'none' {
+  if (o.paksa) return 'required'
+  const modeData = o.mode === 'sales' || o.mode === 'masterdata' || o.mode === 'lab'
+  if (o.iterasi === 0 && modeData && sapaanUtuh(o.pertanyaan)) return 'none'
+  return 'auto'
+}
+
+/**
+ * One greeting / small-talk phrase, anchored on BOTH ends (checked per chunk by `sapaanUtuh`).
+ *
+ * ⚠️ Final review 2 Nov 2026: `toolChoiceUntuk` used `hanyaBasaBasi`, which only looks at how the message
+ * STARTS. "great, now break it down by payer" / "ok, and the top 5?" / "oke, kalau Surabaya?" — follow-ups
+ * that begin with a courtesy word — were sent with NO tools, so the model answered a data follow-up from
+ * memory. Removing tools is a guard that FORCES behaviour, so it must only fire when the whole message is
+ * a greeting.
+ */
+const FRASA_SAPAAN =
+  /^(?:halo|hallo|hai|hi|hei|hey|hello|pagi|selamat\s+(?:pagi|siang|sore|malam)|assalamu'?alaikum|siapa\s+kamu|kamu\s+siapa|kenalan(?:\s+dong)?|perkenalkan(?:\s+diri(?:mu)?)?|kamu\s+bisa\s+apa(?:\s+saja)?|apa\s+(?:saja\s+)?yang\s+bisa\s+kamu(?:\s+(?:lakukan|bantu|kerjakan))?|bisa\s+bantu\s+apa(?:\s+saja)?|fungsi\s*(?:mu|kamu)\s*(?:apa)?|terima\s*kasih|makasih|thanks|thank\s+you|oke?|okay|sip|mantap|siap|baik|test|tes|good\s+(?:morning|afternoon|evening)|who\s+are\s+you|what\s+(?:can|do)\s+you\s+do|how\s+can\s+you\s+help(?:\s+me)?|nice\s+to\s+meet\s+you|great|cool)(?:\s+(?:aira|there|team|kak|semua|all))?$/i
+
+/**
+ * True only when EVERY chunk of the message (split on punctuation) is a greeting phrase:
+ * "hi, who are you?" → true; "hi, what about RSUP Kariadi?" → false.
+ */
+export function sapaanUtuh(teks: string): boolean {
+  const t = teks.trim()
+  if (!t || t.length > MAKS_BASA_BASI) return false
+  const potongan = t
+    .split(/[^\p{L}\p{N}\s']+/u)
+    .map((k) => k.trim().replace(/\s+/g, ' '))
+    .filter(Boolean)
+  return potongan.length > 0 && potongan.every((k) => FRASA_SAPAAN.test(k))
+}
+
+/**
  * Apakah pesan ini sapaan/basa-basi murni, sehingga jawaban tanpa tool memang
- * yang benar di mode data.
+ * yang benar di mode data. (Dipakai untuk melewati guard anti-halu; untuk
+ * mencabut tool dipakai `sapaanUtuh` yang lebih ketat.)
  */
 export function hanyaBasaBasi(teks: string): boolean {
   const t = teks.trim()

@@ -3,6 +3,7 @@ import { nativeImage } from 'electron'
 import { BUNDLED } from '../bundled-config'
 import { getSecret } from '../secrets'
 import { logger } from '../logger'
+import { MUSE, META_ENDPOINT } from '../hackathon/models'
 import {
   GambarError,
   adalahPng,
@@ -21,7 +22,7 @@ import {
 // ≈ 5,5 MB base64, sementara jendela context 131.072 token (§56). Yang mengalir
 // ke percakapan hanya PATH berkasnya.
 
-export const MODEL_GAMBAR = 'old-image-model'
+export const MODEL_GAMBAR = MUSE.image
 const TIMEOUT_MS = 120_000
 
 /**
@@ -49,7 +50,7 @@ function kunci(): string {
 
 function endpoint(): string {
   if (kunciUji) return kunciUji.endpoint.replace(/\/+$/, '')
-  return (BUNDLED.endpoint || 'https://gateway.internal.example').replace(/\/+$/, '')
+  return (BUNDLED.endpoint || META_ENDPOINT).replace(/\/+$/, '')
 }
 
 export function gambarSiap(): boolean {
@@ -66,8 +67,8 @@ async function minta(url: string, init: RequestInit): Promise<any> {
     const pesan = String(err)
     throw new GambarError(
       pesan.includes('abort')
-        ? `Pembuatan gambar melewati batas ${TIMEOUT_MS / 1000} detik. Coba ukuran lebih kecil.`
-        : 'Gateway gambar tidak terjangkau. Pastikan laptop tersambung ke jaringan the company/VPN.'
+        ? `Image creation exceeded the ${TIMEOUT_MS / 1000}-second limit. Try a smaller size.`
+        : 'The image gateway cannot be reached. Check the network connection.'
     )
   } finally {
     clearTimeout(jam)
@@ -80,7 +81,7 @@ async function minta(url: string, init: RequestInit): Promise<any> {
   try {
     return JSON.parse(teks)
   } catch {
-    throw new GambarError('Balasan gateway gambar bukan JSON yang sah.')
+    throw new GambarError('The image gateway reply is not valid JSON.')
   }
 }
 
@@ -93,18 +94,18 @@ async function minta(url: string, init: RequestInit): Promise<any> {
  */
 function ambilPng(j: any, diminta: UkuranGambar): Buffer[] {
   const data = Array.isArray(j?.data) ? j.data : []
-  if (data.length === 0) throw new GambarError('Gateway tidak mengembalikan gambar satu pun.')
+  if (data.length === 0) throw new GambarError('The gateway returned no image at all.')
   const hasil: Buffer[] = []
   for (const [i, d] of data.entries()) {
     const b64 = typeof d?.b64_json === 'string' ? d.b64_json : null
     if (!b64) {
       throw new GambarError(
-        'Gateway mengembalikan gambar dalam bentuk yang tidak didukung (bukan base64).'
+        'The gateway returned the image in an unsupported form (not base64).'
       )
     }
     const buf = Buffer.from(b64, 'base64')
     if (!adalahPng(buf)) {
-      throw new GambarError('Berkas yang dikembalikan gateway bukan PNG yang sah — tidak disimpan.')
+      throw new GambarError('The file returned by the gateway is not a valid PNG — it was not saved.')
     }
     const dim = dimensiPng(buf)
     const [lebarMinta, tinggiMinta] = diminta.split('x').map(Number)
@@ -124,20 +125,21 @@ export interface PermintaanGambar {
   jumlah?: number
 }
 
+/**
+ * Muse Image returns WebP by default; `output_format: 'png'` gives a real PNG (measured 2 Nov 2026).
+ * The PNG magic-byte check in `ambilPng` stays — a format the API ignores must not be saved as .png.
+ */
+export function imageRequestBody(p: PermintaanGambar): Record<string, unknown> {
+  return { model: MODEL_GAMBAR, prompt: p.prompt, n: p.jumlah ?? 1, size: p.ukuran, output_format: 'png' }
+}
+
 export async function buatGambar(p: PermintaanGambar): Promise<Buffer[]> {
-  if (!gambarSiap()) throw new GambarError('Kunci gateway belum terpasang di aplikasi ini.')
+  if (!gambarSiap()) throw new GambarError('The gateway key is not installed in this app.')
   const t0 = Date.now()
   const j = await minta(`${endpoint()}/v1/images/generations`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${kunci()}` },
-    body: JSON.stringify({
-      model: MODEL_GAMBAR,
-      prompt: p.prompt,
-      n: p.jumlah ?? 1,
-      size: p.ukuran
-      // `response_format`, `output_format`, `quality`, `background` SENGAJA tidak
-      // dikirim: yang pertama ditolak HTTP 500, sisanya diabaikan diam-diam.
-    })
+    body: JSON.stringify(imageRequestBody(p))
   })
   const png = ambilPng(j, p.ukuran)
   logger().info({ ms: Date.now() - t0, ukuran: p.ukuran, jumlah: png.length }, 'gambar dibuat')
@@ -145,11 +147,11 @@ export async function buatGambar(p: PermintaanGambar): Promise<Buffer[]> {
 }
 
 export async function ubahGambar(p: PermintaanGambar & { asal: string }): Promise<Buffer[]> {
-  if (!gambarSiap()) throw new GambarError('Kunci gateway belum terpasang di aplikasi ini.')
+  if (!gambarSiap()) throw new GambarError('The gateway key is not installed in this app.')
   const isi = readFileSync(p.asal)
   if (!adalahPng(isi)) {
     throw new GambarError(
-      `Berkas "${p.asal}" bukan PNG. Gambar yang akan diubah harus PNG — ubah dulu formatnya.`
+      `The file "${p.asal}" is not a PNG. The image to edit must be a PNG — convert its format first.`
     )
   }
   const fd = new FormData()
@@ -157,6 +159,7 @@ export async function ubahGambar(p: PermintaanGambar & { asal: string }): Promis
   fd.append('image', new Blob([new Uint8Array(isi)], { type: 'image/png' }), 'asal.png')
   fd.append('prompt', p.prompt)
   fd.append('size', p.ukuran)
+  fd.append('output_format', 'png')
   const t0 = Date.now()
   const j = await minta(`${endpoint()}/v1/images/edits`, {
     method: 'POST',
@@ -225,11 +228,11 @@ export function siapkanUnggahan(path: string): { png: Buffer; ukuran: string; le
   const besar = statSync(path).size
   if (besar > MAKS_UNGGAH_BYTE) {
     throw new GambarError(
-      `Berkas terlalu besar (${(besar / 1024 / 1024).toFixed(1)} MB). Maksimal ${MAKS_UNGGAH_BYTE / 1024 / 1024} MB.`
+      `The file is too large (${(besar / 1024 / 1024).toFixed(1)} MB). Maximum is ${MAKS_UNGGAH_BYTE / 1024 / 1024} MB.`
     )
   }
   let img = nativeImage.createFromPath(path)
-  if (img.isEmpty()) throw new GambarError('Berkas ini tidak bisa dibaca sebagai gambar. Pakai PNG atau JPG.')
+  if (img.isEmpty()) throw new GambarError('This file cannot be read as an image. Use PNG or JPG.')
   const uk = img.getSize()
   const skala = Math.min(1, SISI_UNGGAH / Math.max(uk.width, uk.height))
   if (skala < 1) {

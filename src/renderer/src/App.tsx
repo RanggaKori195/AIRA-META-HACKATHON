@@ -28,6 +28,9 @@ import Jadwal from './views/Jadwal'
 import type { CredentialRequest } from './components/CredentialCard'
 import ConfirmDialog from './components/ConfirmDialog'
 import { ChatRekan } from './components/ChatRekan'
+import Mascot from './components/mascot/Mascot'
+import { emitMascot, speakAnswer, stopSpeaking } from './components/mascot/voice'
+import { routeChatEvent } from './components/mascot/route'
 import {
   IconArrowRight,
   IconBook,
@@ -48,7 +51,7 @@ import {
   IconSettings,
   IconTrash
 } from './components/Icons'
-import logo from './assets/aira-mark.png'
+import logo from './assets/mascot/idle.png'
 import { afterClosingEvent, afterSessionDeleted } from './run-state'
 import { aksiBoleh } from './components/pemantau-bantu'
 
@@ -58,11 +61,11 @@ const SESI_RINGKAS = 6
 type Phase = 'loading' | 'setup' | 'login' | 'ready'
 
 /** Layar selain percakapan. Bukan `ChatMode` — tidak ada satu pun yang mengirim apa pun ke model. */
-type Layar = 'chat' | 'settings' | 'feedback' | 'panduan' | 'gambar' | 'pustaka' | 'jadwal'
+type Layar = 'chat' | 'settings' | 'feedback' | 'guide' | 'images' | 'library' | 'schedule'
 
 const ROLE_LABELS: Record<AuthSession['role'], string> = {
   super_admin: 'Super Admin',
-  direktur: 'Direktur',
+  direktur: 'Director',
   manager: 'Manager',
   spv: 'SPV',
   staff: 'Staff'
@@ -105,7 +108,7 @@ export default function App(): JSX.Element {
   const [layar, setLayar] = useState<Layar>('chat')
   const showSettings = layar === 'settings'
   const showFeedback = layar === 'feedback'
-  const showPanduan = layar === 'panduan'
+  const showPanduan = layar === 'guide'
   const setelLayar = useCallback(
     (nama: Layar) => (nyala: boolean) =>
       setLayar((kini) => (nyala ? nama : kini === nama ? 'chat' : kini)),
@@ -113,7 +116,7 @@ export default function App(): JSX.Element {
   )
   const setShowSettings = useMemo(() => setelLayar('settings'), [setelLayar])
   const setShowFeedback = useMemo(() => setelLayar('feedback'), [setelLayar])
-  const setShowPanduan = useMemo(() => setelLayar('panduan'), [setelLayar])
+  const setShowPanduan = useMemo(() => setelLayar('guide'), [setelLayar])
   /**
    * Menu "Masukan & Usulan". Bukan `ChatMode` — ia tidak mengirim apa pun ke
    * model, jadi menumpangkannya ke `mode` berarti menambah nilai yang harus
@@ -278,7 +281,7 @@ export default function App(): JSX.Element {
       setStreaming(null)
       setShowSettings(false)
       setAuthNotice(
-        'Sesi kamu berakhir — akun diblokir atau masa berlakunya habis. Hubungi Super Admin.'
+        'Your session has ended — the account was blocked or has expired. Contact a Super Admin.'
       )
     })
   }, [])
@@ -313,9 +316,34 @@ export default function App(): JSX.Element {
     setAuthNotice(null)
   }, [])
 
+  // The assistant message of the run the mascot is following. The mascot's `done`/`error` come from THIS run
+  // whichever screen is open — gating them on the active session left it "Thinking…" forever after the
+  // user moved to Home or another conversation.
+  const trackedRunRef = useRef<string | null>(null)
+
+  // Answer text per message, collected here so the mascot can read the final answer on `done`
+  // (React state may not have rendered the last deltas yet).
+  const answerText = useRef(new Map<string, string>())
+
   // Satu subscription global untuk event streaming dari main process.
   useEffect(() => {
     return window.aira.onChatEvent((event) => {
+      if (event.type === 'content') {
+        answerText.current.set(event.messageId, (answerText.current.get(event.messageId) ?? '') + event.delta)
+      } else if (event.type === 'reset') {
+        answerText.current.delete(event.messageId)
+      }
+      const routed = routeChatEvent(event, {
+        activeSessionId: activeSessionRef.current,
+        trackedMessageId: trackedRunRef.current
+      })
+      for (const m of routed.mascot) emitMascot(m)
+      if (routed.clearTracked) trackedRunRef.current = null
+      if (routed.speak) {
+        const answer = answerText.current.get(event.messageId)
+        if (answer) speakAnswer(answer)
+      }
+      if (event.type === 'done' || event.type === 'error') answerText.current.delete(event.messageId)
       if (event.type === 'reset') {
         setMessages((prev) =>
           prev.map((m) => (m.id === event.messageId ? { ...m, content: '', reasoning: null } : m))
@@ -444,18 +472,27 @@ export default function App(): JSX.Element {
    */
   const handleSend = useCallback(
     async (text: string, paksaModeBaru?: ChatMode) => {
+      stopSpeaking()
+      emitMascot({ t: 'runStart' })
       setStreamError(null)
       const sent = attachments
       setAttachments([])
-      const result = await window.aira.sendChat({
-        sessionId: paksaModeBaru ? null : activeSessionId,
-        text,
-        attachments: sent,
-        mode: paksaModeBaru ?? mode
-      })
+      let result: Awaited<ReturnType<typeof window.aira.sendChat>>
+      try {
+        result = await window.aira.sendChat({
+          sessionId: paksaModeBaru ? null : activeSessionId,
+          text,
+          attachments: sent,
+          mode: paksaModeBaru ?? mode
+        })
+      } catch (err) {
+        emitMascot({ t: 'error' }) // no run exists to end the mascot's "thinking"
+        throw err
+      }
+      trackedRunRef.current = result.assistantMessageId
       const annotations = sent
         .map((a) =>
-          a.kind === 'image' ? `[Gambar terlampir: ${a.name}]` : `[File terlampir: ${a.name}]`
+          a.kind === 'image' ? `[Attached image: ${a.name}]` : `[Attached file: ${a.name}]`
         )
         .join('\n')
       const now = Date.now()
@@ -492,6 +529,7 @@ export default function App(): JSX.Element {
   )
 
   const handleStop = useCallback(() => {
+    stopSpeaking()
     if (streamingId) void window.aira.cancelChat(streamingId)
   }, [streamingId])
 
@@ -507,12 +545,16 @@ export default function App(): JSX.Element {
     const sessionId = activeSessionRef.current
     if (!sessionId) return
     setStreamError(null)
+    stopSpeaking()
+    emitMascot({ t: 'runStart' })
     try {
       const result = await window.aira.retryChat(sessionId)
+      trackedRunRef.current = result.assistantMessageId
       setMessages(await window.aira.getMessages(result.sessionId))
       setStreaming({ messageId: result.assistantMessageId, sessionId: result.sessionId })
       void refreshSessions()
     } catch (err) {
+      emitMascot({ t: 'error' })
       setStreamError(err instanceof Error ? err.message : String(err))
     }
   }, [refreshSessions])
@@ -545,7 +587,7 @@ export default function App(): JSX.Element {
   if (phase === 'loading') {
     return (
       <div className="app">
-        <div className="loading-screen">Memuat AIRA…</div>
+        <div className="loading-screen">Loading AIRA…</div>
       </div>
     )
   }
@@ -584,7 +626,7 @@ export default function App(): JSX.Element {
   }
 
   /** "Beranda" = layar Task Baru yang masih kosong (belum ada percakapan terbuka). */
-  const beranda = layar === 'chat' && mode === 'general' && activeSessionId === null
+  const isHome = layar === 'chat' && mode === 'general' && activeSessionId === null
 
   return (
     <div className="app">
@@ -597,7 +639,7 @@ export default function App(): JSX.Element {
           </div>
         </div>
         <button className="btn-new" onClick={() => startMode('general')}>
-          <IconPlus size={16} /> Task Baru <IconSparkle size={15} />
+          <IconPlus size={16} /> New Task <IconSparkle size={15} />
         </button>
         {/*
           Alat kerja di luar percakapan (ala "Images" di Codex). Terbuka untuk
@@ -605,32 +647,32 @@ export default function App(): JSX.Element {
         */}
         <div className="menu-alat">
           <button
-            className={`menu-item ${beranda ? 'active' : ''}`}
+            className={`menu-item ${isHome ? 'active' : ''}`}
             onClick={() => startMode('general')}
-            title="Halaman utama AIRA"
+            title="AIRA home"
           >
-            <IconHome size={16} /> Beranda
+            <IconHome size={16} /> Home
           </button>
           <button
-            className={`menu-item ${layar === 'gambar' ? 'active' : ''}`}
-            onClick={() => setLayar('gambar')}
-            title="Buat gambar dengan AIRA dan lihat semua gambarmu"
+            className={`menu-item ${layar === 'images' ? 'active' : ''}`}
+            onClick={() => setLayar('images')}
+            title="Create images with AIRA and browse all your images"
           >
-            <IconImage size={16} /> Gambar
+            <IconImage size={16} /> Images
           </button>
           <button
-            className={`menu-item ${layar === 'jadwal' ? 'active' : ''}`}
-            onClick={() => setLayar('jadwal')}
-            title="Tugas yang dijalankan AIRA sendiri pada jam tertentu"
+            className={`menu-item ${layar === 'schedule' ? 'active' : ''}`}
+            onClick={() => setLayar('schedule')}
+            title="Tasks AIRA runs by itself at set times"
           >
-            <IconCalendar size={16} /> Jadwal
+            <IconCalendar size={16} /> Schedule
           </button>
           <button
-            className={`menu-item ${layar === 'pustaka' ? 'active' : ''}`}
-            onClick={() => setLayar('pustaka')}
-            title="Semua berkas yang pernah dibuat AIRA untukmu"
+            className={`menu-item ${layar === 'library' ? 'active' : ''}`}
+            onClick={() => setLayar('library')}
+            title="All files AIRA has created for you"
           >
-            <IconLibrary size={16} /> Pustaka
+            <IconLibrary size={16} /> Library
           </button>
         </div>
         {/*
@@ -642,16 +684,16 @@ export default function App(): JSX.Element {
           <button
             className={`menu-item ${layar === 'chat' && mode === 'sales' ? 'active' : ''}`}
             onClick={() => startMode('sales')}
-            title="Tanya data penjualan langsung dari database"
+            title="Ask about sales data straight from the database"
           >
-            <IconChart size={16} /> Tanya Data Sales
+            <IconChart size={16} /> Ask Sales Data
           </button>
         )}
         {session.menu.includes('masterdata') && (
           <button
             className={`menu-item ${layar === 'chat' && mode === 'masterdata' ? 'active' : ''}`}
             onClick={() => startMode('masterdata')}
-            title="Tanya master data the lab: pelanggan, item, harga, special price, PKS, dokter"
+            title="Ask master data: customers, items, prices, special prices, partnership agreements, doctors"
           >
             <IconDatabase size={16} /> Ask Master Data
           </button>
@@ -660,18 +702,18 @@ export default function App(): JSX.Element {
           <button
             className={`menu-item ${layar === 'chat' && mode === 'lab' ? 'active' : ''}`}
             onClick={() => startMode('lab')}
-            title="Perjalanan sampel: backlog, tahap, TAT, dan RNS"
+            title="Sample journey: backlog, stages, TAT and RNS"
           >
-            <IconSearch size={16} /> Tanya TAT Sample
+            <IconSearch size={16} /> Ask Sample TAT
           </button>
         )}
         {session.menu.includes('onedrive') && (
           <button
             className={`menu-item ${layar === 'chat' && mode === 'onedrive' ? 'active' : ''}`}
             onClick={() => startMode('onedrive')}
-            title="Berkas OneDrive & SharePoint, email Outlook, dan kalender"
+            title="OneDrive & SharePoint files, Outlook email and calendar"
           >
-            <IconFolder size={16} /> Tanya Microsoft 365
+            <IconFolder size={16} /> Ask Microsoft 365
           </button>
         )}
         {/*
@@ -687,9 +729,9 @@ export default function App(): JSX.Element {
             setShowSettings(false)
             setShowPanduan(false)
           }}
-          title="Kirim bug, usulan fitur, atau pertanyaan yang belum bisa dijawab AIRA"
+          title="Send a bug, feature idea, or a question AIRA could not answer"
         >
-          <IconInbox size={16} /> Masukan &amp; Usulan
+          <IconInbox size={16} /> Feedback
         </button>
         {/*
           Panduan — terbuka untuk SEMUA role, sama alasannya dengan Masukan.
@@ -703,9 +745,9 @@ export default function App(): JSX.Element {
             setShowFeedback(false)
             setShowSettings(false)
           }}
-          title="Cara memakai AIRA: menu, berkas, laporan, dan batasnya"
+          title="How to use AIRA: menus, files, reports and limits"
         >
-          <IconBook size={16} /> Panduan
+          <IconBook size={16} /> Guide
         </button>
         <div className="session-list">
           {(semuaSesi ? sessions : sessions.slice(0, SESI_RINGKAS)).map((s) => (
@@ -720,7 +762,7 @@ export default function App(): JSX.Element {
               </button>
               <button
                 className="btn-mini btn-del"
-                title="Hapus riwayat ini"
+                title="Delete this conversation"
                 onClick={() => setConfirmDelete(s)}
               >
                 <IconTrash size={14} />
@@ -729,28 +771,28 @@ export default function App(): JSX.Element {
           ))}
           {sessions.length > SESI_RINGKAS && (
             <button className="lihat-semua-sesi" onClick={() => setSemuaSesi((x) => !x)}>
-              {semuaSesi ? 'Tampilkan lebih sedikit' : 'Lihat semua percakapan'} <IconArrowRight size={13} />
+              {semuaSesi ? 'Show fewer' : 'View all conversations'} <IconArrowRight size={13} />
             </button>
           )}
         </div>
         <div className="workspace">
           <div className="workspace-head">
-            <span>Folder Akses</span>
+            <span>Access Folders</span>
             <button
               className="btn-mini"
-              title="Tambah folder yang boleh diakses AIRA"
+              title="Add a folder AIRA may access"
               onClick={() => void window.aira.addWorkspace().then(setWorkspace)}
             >
               <IconPlus size={14} />
             </button>
           </div>
-          {workspace.length === 0 && <div className="workspace-empty">Belum ada folder</div>}
+          {workspace.length === 0 && <div className="workspace-empty">No folders yet</div>}
           {workspace.map((dir) => (
             <div key={dir} className="workspace-item" title={dir}>
               <span>{dir}</span>
               <button
                 className="btn-mini"
-                title="Cabut akses"
+                title="Revoke access"
                 onClick={() => void window.aira.removeWorkspace(dir).then(setWorkspace)}
               >
                 <IconClose size={14} />
@@ -758,7 +800,7 @@ export default function App(): JSX.Element {
             </div>
           ))}
         </div>
-        <div className="user-bar" title={`Masuk sebagai ${session.username}`}>
+        <div className="user-bar" title={`Signed in as ${session.username}`}>
           <span className="avatar">{session.username.slice(0, 2).toUpperCase()}</span>
           <div className="user-bar-id">
             <strong>{session.username}</strong>
@@ -774,7 +816,7 @@ export default function App(): JSX.Element {
           >
             <IconSettings size={16} />
           </button>
-          <button className="btn-mini" title="Keluar dari AIRA" onClick={() => void handleLogout()}>
+          <button className="btn-mini" title="Sign out of AIRA" onClick={() => void handleLogout()}>
             <IconLogout size={15} />
           </button>
         </div>
@@ -787,7 +829,7 @@ export default function App(): JSX.Element {
 
       {confirmDelete && (
         <ConfirmDialog
-          title="Hapus riwayat ini?"
+          title="Delete this conversation?"
           body={confirmDelete.title}
           onCancel={() => setConfirmDelete(null)}
           onConfirm={() => void handleDeleteSession(confirmDelete.id)}
@@ -801,9 +843,9 @@ export default function App(): JSX.Element {
           fokusPemantau={fokusPemantau}
           onAksiPemantau={jalankanAksiPemantau}
         />
-      ) : layar === 'gambar' ? (
+      ) : layar === 'images' ? (
         <Gambar onPanduan={() => setShowPanduan(true)} />
-      ) : layar === 'pustaka' ? (
+      ) : layar === 'library' ? (
         <Pustaka
           onBukaSesi={(id) => {
             const ada = sessions.find((x) => x.id === id)
@@ -813,7 +855,7 @@ export default function App(): JSX.Element {
             return true
           }}
         />
-      ) : layar === 'jadwal' ? (
+      ) : layar === 'schedule' ? (
         <Jadwal
           menu={session.menu}
           onBukaSesi={(id, m) => {
@@ -917,6 +959,9 @@ export default function App(): JSX.Element {
         ada di layar mana pun — itu gunanya pojok yang menetap.
       */}
       {session && <ChatRekan saya={session.username} />}
+      {session && (
+        <Mascot username={session.username} busy={streamingId !== null} onSend={(text) => void handleSend(text)} />
+      )}
       {/* Muncul hanya saat versi baru sudah terunduh (auto-update). */}
       {session && <SpandukPembaruan />}
     </div>

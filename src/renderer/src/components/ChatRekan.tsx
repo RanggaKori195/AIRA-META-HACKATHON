@@ -179,16 +179,16 @@ export function ChatRekan({ saya }: { saya: string }): JSX.Element | null {
   return (
     <div className="chatr-pojok">
       {buka && (
-        <div className={`psn-panel${besar ? ' besar' : ''}`} role="dialog" aria-label="Pesan">
+        <div className={`psn-panel${besar ? ' besar' : ''}`} role="dialog" aria-label="Messages">
           <header className="psn-panel-kepala">
             <span className="psn-panel-ikon">
               <IconChat size={22} />
             </span>
-            <strong>Pesan</strong>
-            <button className="psn-ikon" onClick={() => setBesar((b) => !b)} title={besar ? 'Perkecil' : 'Perbesar'}>
+            <strong>Messages</strong>
+            <button className="psn-ikon" onClick={() => setBesar((b) => !b)} title={besar ? 'Shrink' : 'Expand'}>
               <IconPerbesar besar={besar} />
             </button>
-            <button className="psn-ikon" onClick={() => setBuka(false)} title="Tutup (Esc)">
+            <button className="psn-ikon" onClick={() => setBuka(false)} title="Close (Esc)">
               <IconClose size={17} />
             </button>
           </header>
@@ -245,11 +245,11 @@ export function ChatRekan({ saya }: { saya: string }): JSX.Element | null {
                   <span className="psn-sambut-ikon">
                     <IconChat size={30} />
                   </span>
-                  <h3>Pesan AIRA</h3>
-                  <p>Pilih percakapan di kiri, atau buat grup baru lewat ikon di sebelah kotak cari.</p>
+                  <h3>AIRA Messages</h3>
+                  <p>Pick a conversation on the left, or create a new group with the icon next to the search box.</p>
                   <p className="psn-sambut-kecil">
-                    {online} rekan sedang online. Pesan untuk rekan yang offline tetap tersimpan dan
-                    sampai saat mereka membuka AIRA.
+                    {online} teammates online. Messages to offline teammates are kept and
+                    delivered when they open AIRA.
                   </p>
                 </div>
               )}
@@ -271,12 +271,12 @@ export function ChatRekan({ saya }: { saya: string }): JSX.Element | null {
       <button
         className={`chatr-tombol${buka ? ' buka' : ''}`}
         onClick={() => setBuka((v) => !v)}
-        title={buka ? 'Tutup pesan (Esc)' : 'Buka pesan'}
+        title={buka ? 'Close messages (Esc)' : 'Open messages'}
       >
         <Avatar nama={saya} ukuran={20} />
-        Pesan
+        Messages
         {online > 0 && (
-          <span className="chatr-hitung" title={`${online} rekan online`}>
+          <span className="chatr-hitung" title={`${online} teammates online`}>
             {online}
           </span>
         )}

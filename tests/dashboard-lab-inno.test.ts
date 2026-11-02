@@ -32,14 +32,14 @@ describe('periode pembanding TAT', () => {
   test('minggu penuh yang sudah lewat -> 7 hari tepat sebelumnya', () => {
     const p = periodeBanding({ dari: '2026-09-21', sampai: '2026-09-27' }, '2026-09-30')
     assert.deepEqual(p.lalu, { dari: '2026-09-14', sampai: '2026-09-20' })
-    assert.match(p.cara, /7 hari tepat sebelumnya/)
+    assert.match(p.cara, /7 days immediately before/)
   })
 
   test('"minggu ini" yang melewati hari ini: dipotong ke hari ini, pembanding hari yang SAMA (layar 30 Sep)', () => {
     const p = periodeBanding({ dari: '2026-09-28', sampai: '2026-10-04' }, '2026-09-30')
     assert.deepEqual(p.kini, { dari: '2026-09-28', sampai: '2026-09-30' })
     assert.deepEqual(p.lalu, { dari: '2026-09-21', sampai: '2026-09-23' })
-    assert.match(p.cara, /3 hari pertama/)
+    assert.match(p.cara, /first 3 days/)
   })
 
   test('"bulan ini" sampai akhir bulan yang belum tiba: dipotong ke hari ini', () => {
@@ -60,9 +60,9 @@ describe('periode pembanding TAT', () => {
 
 describe('TAT: turun = lebih baik, kosong bukan nol', () => {
   test('kalimat selisih', () => {
-    assert.equal(kalimatSelisihHari(3.2, 3.8), '0,6 hari lebih cepat')
-    assert.equal(kalimatSelisihHari(4, 3.5), '0,5 hari lebih lambat')
-    assert.equal(kalimatSelisihHari(2, 2), 'sama')
+    assert.equal(kalimatSelisihHari(3.2, 3.8), '0.6 days faster')
+    assert.equal(kalimatSelisihHari(4, 3.5), '0.5 days slower')
+    assert.equal(kalimatSelisihHari(2, 2), 'same')
     assert.equal(kalimatSelisihHari(null, 2), '—')
   })
 
@@ -89,11 +89,11 @@ describe('TAT: turun = lebih baik, kosong bukan nol', () => {
       rnsLalu: 2,
       rnsMenunggu: 1
     })
-    assert.match(h[0], /3,2 hari — 0,6 hari lebih cepat/)
-    assert.match(h[1], /Order masuk naik 20%/)
-    assert.ok(h.some((x) => /terlama: Histologi/.test(x)), 'kategori 2 sampel tidak boleh jadi "terlama"')
-    assert.ok(h.some((x) => /Perlambatan terbesar: Histologi — 2 hari lebih lambat/.test(x)))
-    assert.ok(h.some((x) => /Backlog saat ini/.test(x)))
+    assert.match(h[0], /3\.2 days — 0\.6 days faster/)
+    assert.match(h[1], /Incoming orders rose 20%/)
+    assert.ok(h.some((x) => /longest median TAT: Histologi/.test(x)), 'kategori 2 sampel tidak boleh jadi "terlama"')
+    assert.ok(h.some((x) => /Largest slowdown: Histologi — 2 days slower/.test(x)))
+    assert.ok(h.some((x) => /Current backlog/.test(x)))
   })
 
   test('saran lanjutan tidak menjanjikan backlog masa lalu', () => {

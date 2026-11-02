@@ -25,7 +25,7 @@ function angka(args: Record<string, unknown>, key: string, bawaan: number, maks:
 export const m365Tools: ToolDefinition[] = [
   {
     name: 'email_daftar',
-    label: 'Daftar Email',
+    label: 'List Emails',
     description:
       'Menampilkan email di kotak masuk user: yang terbaru, yang belum dibaca, atau hasil pencarian. ' +
       'Pakai untuk "email apa saja yang masuk hari ini", "ada yang belum saya baca?", ' +
@@ -49,7 +49,7 @@ export const m365Tools: ToolDefinition[] = [
     tier: 'read',
     timeoutMs: 60_000,
     summarize: (a) =>
-      a.cari ? `Cari email: ${a.cari}` : a.belumDibaca ? 'Email belum dibaca' : 'Email terbaru',
+      a.cari ? 'Search emails: ' + String(a.cari) : a.belumDibaca ? 'Unread emails' : 'Latest emails',
     execute: async (args) => {
       const batas = angka(args, 'batas', 15, 50)
       const hasil = await daftarSurat(
@@ -79,7 +79,7 @@ export const m365Tools: ToolDefinition[] = [
 
   {
     name: 'email_baca',
-    label: 'Baca Email',
+    label: 'Read Email',
     description:
       'Membaca isi lengkap satu email berdasarkan id yang didapat dari email_daftar. ' +
       'Pakai sebelum meringkas, menjawab pertanyaan tentang isinya, atau membuat draf balasan.',
@@ -95,7 +95,7 @@ export const m365Tools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: () => 'Baca isi email',
+    summarize: () => 'Read email content',
     execute: async (args) => {
       const id = teks(args, 'id')
       if (!id) throw new ToolError('id email wajib diisi, disalin dari hasil email_daftar')
@@ -114,7 +114,7 @@ export const m365Tools: ToolDefinition[] = [
 
   {
     name: 'email_draf_balasan',
-    label: 'Buat Draf Balasan',
+    label: 'Create Reply Draft',
     description:
       'Membuat DRAF balasan untuk sebuah email dan menyimpannya di Outlook. TIDAK MENGIRIM apa pun — ' +
       'user yang membuka Outlook, membaca ulang, lalu menekan Send sendiri. ' +
@@ -139,7 +139,7 @@ export const m365Tools: ToolDefinition[] = [
     // olehnya. Persetujuan di sini murah; kejutan di kotak keluar tidak.
     tier: 'write',
     timeoutMs: 60_000,
-    summarize: (a) => `Buat draf balasan email (${String(a.isi ?? '').slice(0, 60)}…)`,
+    summarize: (a) => `Create email reply draft (${String(a.isi ?? '').slice(0, 60)}…)`,
     execute: async (args) => {
       const id = teks(args, 'id')
       const isi = teks(args, 'isi')
@@ -161,7 +161,7 @@ export const m365Tools: ToolDefinition[] = [
 
   {
     name: 'kalender_lihat',
-    label: 'Lihat Kalender',
+    label: 'View Calendar',
     description:
       'Menampilkan jadwal/rapat user pada rentang tanggal tertentu, lengkap dengan jam, lokasi, ' +
       'penyelenggara, peserta, dan agendanya. Pakai untuk "jadwal saya hari ini", ' +
@@ -182,7 +182,7 @@ export const m365Tools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Kalender ${a.dari ?? 'hari ini'}${a.sampai ? ` s/d ${a.sampai}` : ''}`,
+    summarize: (a) => 'Calendar ' + String(a.dari ?? 'today') + (a.sampai ? ' to ' + String(a.sampai) : ''),
     execute: async (args) => {
       const hariIni = jakartaToday()
       const dari = teks(args, 'dari') ?? hariIni

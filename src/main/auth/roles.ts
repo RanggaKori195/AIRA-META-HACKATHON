@@ -12,7 +12,7 @@ export type Role = (typeof ROLES)[number]
 
 export const ROLE_LABELS: Record<Role, string> = {
   super_admin: 'Super Admin',
-  direktur: 'Direktur',
+  direktur: 'Director',
   manager: 'Manager',
   spv: 'SPV',
   staff: 'Staff'
@@ -23,10 +23,10 @@ export const MENUS = MENU_VALUES
 export type Menu = (typeof MENUS)[number]
 
 export const MENU_LABELS: Record<Menu, string> = {
-  sales: 'Tanya Data Sales',
+  sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
-  lab: 'Tanya TAT Sample',
-  onedrive: 'Tanya Microsoft 365'
+  lab: 'Ask Sample TAT',
+  onedrive: 'Ask Microsoft 365'
 }
 
 /**
@@ -103,14 +103,14 @@ export function validasiDivisi(role: Role, divisi: readonly string[]): string | 
   switch (DIVISI_PER_ROLE[role]) {
     case 'tanpa':
       return unik.size > 0
-        ? `${ROLE_LABELS[role]} melihat lintas divisi, jadi tidak perlu dipilihkan divisi.`
+        ? `${ROLE_LABELS[role]} sees across divisions, so no division needs to be chosen.`
         : null
     case 'satu':
-      if (unik.size === 0) return `${ROLE_LABELS[role]} wajib punya satu divisi.`
-      if (unik.size > 1) return `${ROLE_LABELS[role]} hanya boleh satu divisi.`
+      if (unik.size === 0) return `${ROLE_LABELS[role]} must have one division.`
+      if (unik.size > 1) return `${ROLE_LABELS[role]} may only have one division.`
       return null
     case 'banyak':
-      return unik.size === 0 ? `${ROLE_LABELS[role]} wajib punya minimal satu divisi.` : null
+      return unik.size === 0 ? `${ROLE_LABELS[role]} must have at least one division.` : null
   }
 }
 

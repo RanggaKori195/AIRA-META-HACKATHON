@@ -1681,13 +1681,13 @@ describe('context overflow (regresi: user cuma melihat HTTP 400 mentah)', () => 
 
   test('pesan ke user bisa ditindaklanjuti, bukan kode teknis', () => {
     const p = pesanUntukUser('LLM_CONTEXT_OVERFLOW', 'HTTP 400')
-    assert.ok(/terlalu panjang/i.test(p))
-    assert.ok(/Task Baru/.test(p))
+    assert.ok(/too long/i.test(p))
+    assert.ok(/New Task/.test(p))
     assert.ok(!/HTTP|400/.test(p))
   })
-  test('gagal jaringan menyebut VPN, bukan istilah teknis', () => {
+  test('gagal jaringan meminta periksa koneksi, bukan istilah teknis', () => {
     const p = pesanUntukUser('LLM_UNREACHABLE', 'ECONNREFUSED')
-    assert.ok(/jaringan internal|VPN/i.test(p))
+    assert.ok(/network connection/i.test(p))
   })
   test('kode tak dikenal tetap membawa detail teknis untuk ditelusuri', () => {
     assert.ok(pesanUntukUser('INTERNAL_ERROR', 'boom').includes('boom'))

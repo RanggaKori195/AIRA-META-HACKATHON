@@ -72,10 +72,10 @@ const MIME_EKSTENSI: Record<string, string> = {
 }
 
 const TIPS = [
-  { judul: 'Jelaskan konteks', isi: 'Ceritakan apa yang sedang kamu lakukan saat masalah terjadi.' },
-  { judul: 'Sertakan langkah-langkah', isi: 'Tuliskan langkah yang kamu lakukan secara berurutan.' },
-  { judul: 'Lampirkan bukti jika ada', isi: 'Screenshot atau berkas contoh akan sangat membantu.' },
-  { judul: 'Sampaikan harapanmu', isi: 'Jelaskan hasil yang kamu harapkan atau usulan solusinya.' }
+  { judul: 'Explain the context', isi: 'Describe what you were doing when the problem happened.' },
+  { judul: 'Include the steps', isi: 'List the steps you took, in order.' },
+  { judul: 'Attach evidence if you have it', isi: 'A screenshot or a sample file helps a lot.' },
+  { judul: 'Say what you expect', isi: 'Describe the result you expected or suggest a solution.' }
 ]
 
 function IconBug({ size = 16 }: { size?: number }): JSX.Element {
@@ -117,7 +117,7 @@ const IKON_DAMPAK: Record<FeedbackDampak, JSX.Element> = {
 }
 
 const waktuSingkat = (iso: string): string =>
-  new Date(iso).toLocaleString('id-ID', {
+  new Date(iso).toLocaleString('en-US', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -166,11 +166,11 @@ export default function Feedback(): JSX.Element {
     const ekstensi = f.name.split('.').pop()?.toLowerCase() ?? ''
     const mime = f.type || MIME_EKSTENSI[ekstensi] || ''
     if (!Object.values(MIME_EKSTENSI).includes(mime)) {
-      setError('Jenis berkas ini tidak bisa dilampirkan (hanya gambar, PDF, teks, dan dokumen Office).')
+      setError('This file type cannot be attached (images, PDF, text, and Office documents only).')
       return
     }
     if (f.size > MAKS_LAMPIRAN) {
-      setError(`Berkas ${ukuranManusiawi(f.size)} melebihi batas 5 MB.`)
+      setError(`The file (${ukuranManusiawi(f.size)}) exceeds the 5 MB limit.`)
       return
     }
     setError(null)
@@ -201,7 +201,7 @@ export default function Feedback(): JSX.Element {
       setMilikSaya(daftar)
       setIsi('')
       setLampiran(null)
-      setPesan('Terima kasih — masukan kamu sudah terkirim ke tim IT.')
+      setPesan('Thank you — your feedback has been sent to the IT team.')
     } catch (err) {
       setError(bersihkanError(err))
     } finally {
@@ -232,11 +232,11 @@ export default function Feedback(): JSX.Element {
           <IconPesan size={28} />
         </span>
         <div className="fbx-hero-teks">
-          <h1>Masukan &amp; Usulan</h1>
+          <h1>Feedback</h1>
           <p>
-            Sampaikan masukan, laporkan kendala, atau ajukan usulan fitur untuk membuat AIRA lebih baik.
+            Share feedback, report a problem, or suggest a feature to make AIRA better.
             <br />
-            Semua masukan dibaca langsung oleh tim IT dan membantu kami mengembangkan AIRA sesuai kebutuhanmu.
+            Every submission is read directly by the IT team and helps us shape AIRA around your needs.
           </p>
         </div>
         {/* Hiasan: gelembung chat + kartu bola lampu, meniru mockup. */}
@@ -259,52 +259,52 @@ export default function Feedback(): JSX.Element {
           <span className="tile-ikon biru"><IconPesan size={24} /></span>
           <span>
             <strong>{hitung.baru}</strong>
-            <b>Masukan Baru</b>
-            <small>Menunggu diproses</small>
+            <b>New Feedback</b>
+            <small>Waiting to be processed</small>
           </span>
         </div>
         <div className="fbx-stat-kartu oranye">
           <span className="tile-ikon oranye"><IconClock size={24} /></span>
           <span>
             <strong>{hitung.proses}</strong>
-            <b>Sedang Diproses</b>
-            <small>Dalam tindak lanjut</small>
+            <b>In Progress</b>
+            <small>Being followed up</small>
           </span>
         </div>
         <div className="fbx-stat-kartu hijau">
           <span className="tile-ikon hijau"><IconCheck size={24} /></span>
           <span>
             <strong>{hitung.selesai}</strong>
-            <b>Selesai</b>
+            <b>Done</b>
             <small>
-              Telah ditindaklanjuti{hitung.ditolak > 0 ? ` · ${hitung.ditolak} ditolak` : ''}
+              Followed up{hitung.ditolak > 0 ? ' · ' + hitung.ditolak + ' declined' : ''}
             </small>
           </span>
         </div>
       </div>
-      <p className="fbx-cakupan">Angka di atas menghitung masukan yang <strong>kamu</strong> kirim.</p>
+      <p className="fbx-cakupan">The numbers above count the feedback <strong>you</strong> submitted.</p>
 
       <div className="fbx-tengah">
         <section className="fbx-kartu fbx-form">
           <h3>
-            <IconSend size={18} /> Kirim Masukan / Usulan Baru
+            <IconSend size={18} /> Send New Feedback / Suggestion
           </h3>
           <p className="fbx-petunjuk">
-            Mau melaporkan jawaban AIRA yang keliru? Pakai tombol <strong>Laporkan</strong> di jawaban itu —
-            konteksnya ikut terkirim otomatis sehingga jauh lebih mudah ditelusuri.
+            Want to report a wrong AIRA answer? Use the <strong>Report</strong> button on that answer —
+            the context is sent automatically, which makes it much easier to trace.
           </p>
 
-          <label className="fbx-label">Jenis masukan</label>
+          <label className="fbx-label">Feedback type</label>
           <div className="fbx-pil-baris">
             {FEEDBACK_JENIS.map((j) => (
               <button key={j} className={`fbx-pil ${jenis === j ? 'aktif' : ''}`} onClick={() => setJenis(j)}>
-                {IKON_JENIS[j](15)} {j === 'lain' ? 'Lainnya' : FEEDBACK_JENIS_LABELS[j]}
+                {IKON_JENIS[j](15)} {FEEDBACK_JENIS_LABELS[j]}
               </button>
             ))}
           </div>
 
           <label className="fbx-label" htmlFor="fbx-isi">
-            Isi masukan
+            Your feedback
           </label>
           <textarea
             id="fbx-isi"
@@ -312,14 +312,14 @@ export default function Feedback(): JSX.Element {
             rows={4}
             value={isi}
             maxLength={MAKS_ISI}
-            placeholder={'Contoh: Tolong tambahkan pertanyaan "siapa penerima diskon terbesar?"'}
+            placeholder={'Example: please add support for the question "who receives the biggest discount?"'}
             onChange={(e) => setIsi(e.target.value)}
           />
           <div className="fbx-hitung">
             {isi.length}/{MAKS_ISI}
           </div>
 
-          <label className="fbx-label">Seberapa mengganggu?</label>
+          <label className="fbx-label">How disruptive is it?</label>
           <div className="fbx-pil-baris">
             {FEEDBACK_DAMPAK.map((d) => (
               <button
@@ -332,7 +332,7 @@ export default function Feedback(): JSX.Element {
             ))}
           </div>
 
-          <label className="fbx-label">Lampiran (opsional)</label>
+          <label className="fbx-label">Attachment (optional)</label>
           <div className="fbx-bawah">
             <div
               className={`fbx-unggah ${seret ? 'seret' : ''}`}
@@ -359,18 +359,18 @@ export default function Feedback(): JSX.Element {
               {lampiran ? (
                 <span className="fbx-unggah-teks">
                   <strong>📎 {lampiran.nama}</strong>
-                  <small>{ukuranManusiawi(lampiran.data.byteLength)} · klik untuk mengganti</small>
+                  <small>{ukuranManusiawi(lampiran.data.byteLength)} · click to replace</small>
                 </span>
               ) : (
                 <span className="fbx-unggah-teks">
-                  <strong>Klik untuk mengunggah file atau seret ke sini</strong>
-                  <small>Maks. 5 MB (PNG, JPG, PDF, Word, Excel, PowerPoint, teks)</small>
+                  <strong>Click to upload a file or drag it here</strong>
+                  <small>Max. 5 MB (PNG, JPG, PDF, Word, Excel, PowerPoint, text)</small>
                 </span>
               )}
               {lampiran && (
                 <button
                   className="btn-mini"
-                  title="Buang lampiran"
+                  title="Remove attachment"
                   onClick={(e) => {
                     e.stopPropagation()
                     setLampiran(null)
@@ -395,7 +395,7 @@ export default function Feedback(): JSX.Element {
               onClick={() => void kirim()}
               disabled={busy || isi.trim().length === 0}
             >
-              <IconSend size={16} /> {busy ? 'Mengirim…' : 'Kirim masukan'}
+              <IconSend size={16} /> {busy ? 'Sending…' : 'Send feedback'}
             </button>
           </div>
 
@@ -405,9 +405,9 @@ export default function Feedback(): JSX.Element {
 
         <aside className="fbx-kartu fbx-tips">
           <h3>
-            <span className="fbx-tips-ikon"><IconBulb size={18} /></span> Tips menulis masukan
+            <span className="fbx-tips-ikon"><IconBulb size={18} /></span> Tips for writing feedback
           </h3>
-          <p className="fbx-petunjuk">Agar masukanmu lebih mudah dipahami dan cepat ditindaklanjuti tim IT.</p>
+          <p className="fbx-petunjuk">So your feedback is easy to understand and quick for the IT team to act on.</p>
           <ol>
             {TIPS.map((t, i) => (
               <li key={t.judul}>
@@ -430,34 +430,34 @@ export default function Feedback(): JSX.Element {
       <section className="fbx-kartu fbx-riwayat">
         <div className="fbx-riwayat-kepala">
           <h3>
-            <IconList size={18} /> Riwayat masukan saya
+            <IconList size={18} /> My feedback history
           </h3>
           <label className="gambar-pilih">
             <select value={saring} onChange={(e) => setSaring(e.target.value)}>
-              <option value="">Semua status</option>
-              <option value="baru">Baru</option>
-              <option value="dikerjakan">Diproses</option>
-              <option value="selesai">Selesai</option>
-              <option value="ditolak">Ditolak</option>
+              <option value="">All statuses</option>
+              <option value="baru">New</option>
+              <option value="dikerjakan">In progress</option>
+              <option value="selesai">Done</option>
+              <option value="ditolak">Declined</option>
             </select>
           </label>
         </div>
         {tampil.length === 0 ? (
           <p className="panel-kosong">
             {milikSaya.length === 0
-              ? 'Belum ada. Masukan yang kamu kirim akan muncul di sini.'
-              : 'Tidak ada masukan dengan status ini.'}
+              ? 'Nothing yet. Feedback you send will appear here.'
+              : 'No feedback with this status.'}
           </p>
         ) : (
           <table className="fbx-tabel">
             <thead>
               <tr>
-                <th>Tanggal</th>
-                <th>Jenis</th>
-                <th>Isi singkat</th>
-                <th>Prioritas</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Summary</th>
+                <th>Priority</th>
                 <th>Status</th>
-                <th>Aksi</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -489,7 +489,7 @@ export default function Feedback(): JSX.Element {
                     </td>
                     <td className="nowrap">
                       <button className="fbx-lihat" onClick={() => setRinci(f)}>
-                        Lihat <IconChevron />
+                        View <IconChevron />
                       </button>
                     </td>
                   </tr>
@@ -504,7 +504,7 @@ export default function Feedback(): JSX.Element {
         <div className="dialog-backdrop" onClick={() => setRinci(null)}>
           <div className="dialog dialog-lebar" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-head">
-              <h3>Masukan #{rinci.id}</h3>
+              <h3>Feedback #{rinci.id}</h3>
             </div>
             <div className="fbx-rinci">
               <div className="fbx-rinci-meta">
@@ -521,21 +521,21 @@ export default function Feedback(): JSX.Element {
               {rinci.lampiranNama && (
                 <button className="fbx-lihat" onClick={() => void window.aira.feedbackSimpanLampiran(rinci.id)}>
                   📎 {rinci.lampiranNama}
-                  {rinci.lampiranUkuran ? ` (${ukuranManusiawi(rinci.lampiranUkuran)})` : ''} — simpan
+                  {rinci.lampiranUkuran ? ` (${ukuranManusiawi(rinci.lampiranUkuran)})` : ''} — save
                 </button>
               )}
               <div className="fbx-rinci-tanggapan">
-                <strong>Tanggapan tim IT</strong>
+                <strong>IT team response</strong>
                 <p>
                   {rinci.catatanAdmin
                     ? `${rinci.catatanAdmin}${rinci.ditanganiOleh ? ` — ${rinci.ditanganiOleh}` : ''}`
-                    : 'Belum ada tanggapan.'}
+                    : 'No response yet.'}
                 </p>
               </div>
             </div>
             <div className="dialog-actions">
               <button className="btn-send" onClick={() => setRinci(null)}>
-                Tutup
+                Close
               </button>
             </div>
           </div>

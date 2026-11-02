@@ -45,12 +45,12 @@ export default function MemoriPanel(): JSX.Element {
 
   return (
     <section className="card">
-      <h3>Yang diingat AIRA tentang kamu</h3>
+      <h3>What AIRA remembers about you</h3>
       <p className="hint">
-        AIRA mengingat hal yang kamu minta sendiri. Katakan saja di chat, misalnya{' '}
-        <em>“ingat, saya pegang produk Genomics”</em> atau{' '}
-        <em>“ingat, jawab saya selalu pakai tabel”</em>. Yang diingat ikut dipertimbangkan di
-        setiap percakapan berikutnya.
+        AIRA remembers what you ask it to. Just say it in chat, for example{' '}
+        <em>“remember that I own the Genomics product”</em> or{' '}
+        <em>“remember to always answer me with tables”</em>. What it remembers is taken into
+        account in every later conversation.
       </p>
       {/*
         Batas ini disebutkan ke user, bukan disimpan sebagai rahasia teknis.
@@ -58,20 +58,20 @@ export default function MemoriPanel(): JSX.Element {
         fiturnya rusak.
       */}
       <p className="hint">
-        AIRA juga menyimpulkan sendiri beberapa hal dari cara kamu bertanya — yang seperti itu
-        ditandai <span className="tag tag-netral">disimpulkan AIRA</span>. Kalau ada yang keliru,
-        hapus saja; ia tidak akan disimpulkan ulang dari percakapan yang sama.
+        AIRA also infers a few things from the way you ask — those are marked{' '}
+        <span className="tag tag-netral">inferred by AIRA</span>. If something is wrong,
+        just delete it; it will not be inferred again from the same conversation.
       </p>
       <p className="hint">
-        AIRA <strong>tidak</strong> mengingat angka penjualan atau data pasien — angka di
-        database berubah terus, dan angka lama yang diingat akan terdengar seperti fakta yang
-        masih berlaku.
+        AIRA does <strong>not</strong> remember sales figures or patient data — the numbers in
+        the database keep changing, and an old remembered number would sound like a fact that
+        still holds.
       </p>
 
       {error && <div className="error">{error}</div>}
 
       {rows.length === 0 ? (
-        <p className="hint">Belum ada yang diingat.</p>
+        <p className="hint">Nothing remembered yet.</p>
       ) : (
         <ul className="memori-daftar">
           {rows.map((m) => (
@@ -87,14 +87,14 @@ export default function MemoriPanel(): JSX.Element {
                   sesuatu yang dulu ia setujui sendiri.
                 */}
                 {m.sumber === 'otomatis' && (
-                  <span className="tag tag-netral memori-tag" title="Disimpulkan AIRA dari percakapan kamu">
-                    disimpulkan AIRA
+                  <span className="tag tag-netral memori-tag" title="Inferred by AIRA from your conversations">
+                    inferred by AIRA
                   </span>
                 )}
               </span>
               <button
                 className="btn-mini"
-                title="Lupakan ini"
+                title="Forget this"
                 disabled={busy}
                 onClick={() => void hapus(m.id)}
               >

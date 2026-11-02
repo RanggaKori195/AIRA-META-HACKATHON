@@ -63,7 +63,7 @@ function kumpulkanBerkas(akar: string): { berkas: string[]; terpotong: boolean }
 export const simbolTools: ToolDefinition[] = [
   {
     name: 'cari_simbol',
-    label: 'Cari Definisi Kode',
+    label: 'Find Code Definition',
     description:
       'Mencari DEFINISI fungsi, kelas, metode, atau tipe di dalam kode — bukan pemanggilannya. ' +
       'Membaca pohon sintaks, jadi jauh lebih tepat daripada grep untuk pertanyaan ' +
@@ -94,7 +94,7 @@ export const simbolTools: ToolDefinition[] = [
     tier: 'read',
     timeoutMs: 120_000,
     summarize: (a) =>
-      a.nama ? `Cari definisi "${a.nama}" di ${a.path}` : `Daftar definisi di ${a.path}`,
+      a.nama ? 'Find definition "' + String(a.nama) + '" in ' + String(a.path) : `List definitions in ${a.path}`,
     execute: async (args, ctx) => {
       const akar = resolveInBoundary(
         typeof args.path === 'string' ? args.path : '',

@@ -37,7 +37,7 @@ async function main(): Promise<void> {
   // Kredensial dari `.env` — skrip ini tidak melewati build yang menanamnya.
   pakaiKunciUji(
     process.env.AIRA_API_KEY ?? '',
-    process.env.AIRA_ENDPOINT ?? 'https://gateway.internal.example'
+    process.env.AIRA_ENDPOINT ?? 'https://api.meta.ai'
   )
   const dir = mkdtempSync(join(tmpdir(), 'aira-gambar-'))
 
@@ -50,8 +50,9 @@ async function main(): Promise<void> {
   cek('gateway mengembalikan gambar', kecil.length === 1, `${Date.now() - t0} ms`)
   cek('hasilnya PNG sungguhan (magic byte)', adalahPng(kecil[0]))
   cek(
-    'ukurannya sesuai yang diminta',
-    JSON.stringify(dimensiPng(kecil[0])) === JSON.stringify({ lebar: 256, tinggi: 256 }),
+    // Muse Image picks its own resolution (256 asked -> 1600 returned); only the aspect ratio is kept.
+    'square request gives a square image',
+    dimensiPng(kecil[0])?.lebar === dimensiPng(kecil[0])?.tinggi,
     JSON.stringify(dimensiPng(kecil[0]))
   )
 

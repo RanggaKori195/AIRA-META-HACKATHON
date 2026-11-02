@@ -11,14 +11,14 @@ import { langkahGulir, waktuRingkas } from './pemantau-bantu'
 // sendiri hanya jumlah & persen.
 
 const LABEL_HASIL: Record<HasilPemicu, { teks: string; kelas: string }> = {
-  belum: { teks: 'Belum diperiksa', kelas: 'tag-netral' },
+  belum: { teks: 'Not checked yet', kelas: 'tag-netral' },
   normal: { teks: 'Normal', kelas: 'tag-ok' },
-  berbunyi: { teks: 'Perlu perhatian', kelas: 'tag-peringatan' },
-  ditahan: { teks: 'Ditahan', kelas: 'tag-netral' },
-  menunggu: { teks: 'Menunggu data', kelas: 'tag-netral' },
-  libur: { teks: 'Hari libur', kelas: 'tag-netral' },
-  kurang_data: { teks: 'Data kurang', kelas: 'tag-netral' },
-  gagal: { teks: 'Gagal memeriksa', kelas: 'tag-gagal' }
+  berbunyi: { teks: 'Needs attention', kelas: 'tag-peringatan' },
+  ditahan: { teks: 'On hold', kelas: 'tag-netral' },
+  menunggu: { teks: 'Waiting for data', kelas: 'tag-netral' },
+  libur: { teks: 'Holiday', kelas: 'tag-netral' },
+  kurang_data: { teks: 'Not enough data', kelas: 'tag-netral' },
+  gagal: { teks: 'Check failed', kelas: 'tag-gagal' }
 }
 
 interface Props {
@@ -95,13 +95,14 @@ export default function PemantauPanel({ onAksi, fokus }: Props): JSX.Element | n
   const sekarang = Date.now()
   return (
     <section className="card" ref={kartu}>
-      <h3>Pemantau</h3>
+      <h3>Monitor</h3>
       <p className="hint">
-        AIRA memeriksa data secara berkala dan memberi notifikasi bila ada yang perlu ditindaklanjuti. Pemantau
-        hanya membaca; angkanya dihitung kode. Notifikasi hanya berisi jumlah &amp; persen — rinciannya ada di
-        riwayat di bawah. Klik notifikasi untuk membuka menu terkait dengan pertanyaan lanjutan sudah terisi.
+        AIRA checks the data regularly and sends a notification when something needs follow-up. The monitor
+        only reads; the numbers are calculated by code. Notifications only contain counts &amp; percentages — the
+        details are in the history below. Click a notification to open the related menu with a follow-up question
+        already filled in.
       </p>
-      <p className="hint">Pemantau hanya berjalan selama AIRA menyala di laptop ini (termasuk di tray).</p>
+      <p className="hint">The monitor only runs while AIRA is running on this laptop (including in the tray).</p>
       {error && <div className="error">{error}</div>}
       {keadaan !== null && (
         <>
@@ -123,24 +124,24 @@ export default function PemantauPanel({ onAksi, fokus }: Props): JSX.Element | n
                 <span className={`tag ${LABEL_HASIL[p.hasil].kelas}`}>{LABEL_HASIL[p.hasil].teks}</span>
                 <span className="hint">
                   {p.ringkas}
-                  {p.diperiksa !== null && ` Diperiksa ${waktuRingkas(p.diperiksa, sekarang)}.`}
-                  {!p.aktif && ' Notifikasi dimatikan.'}
+                  {p.diperiksa !== null && ` Checked ${waktuRingkas(p.diperiksa, sekarang)}.`}
+                  {!p.aktif && ' Notifications are off.'}
                 </span>
               </div>
               {p.tidakDipantau.length > 0 && (
-                <p className="hint pemantau-tidak">Tidak dipantau: {p.tidakDipantau.join(', ')}.</p>
+                <p className="hint pemantau-tidak">Not monitored: {p.tidakDipantau.join(', ')}.</p>
               )}
             </div>
           ))}
           <button className="btn-send pemantau-periksa" disabled={memeriksa} onClick={() => void periksa()}>
-            {memeriksa ? 'Memeriksa…' : 'Periksa sekarang'}
+            {memeriksa ? 'Checking…' : 'Check now'}
           </button>
           {/* Kena batas sekali per menit: disebut, bukan diam (kalimatnya dari main). */}
           {keadaan.catatanPeriksa && <p className="hint">{keadaan.catatanPeriksa}</p>}
 
-          <h4 className="pemantau-judul-riwayat">Riwayat peringatan</h4>
+          <h4 className="pemantau-judul-riwayat">Alert history</h4>
           {keadaan.riwayat.length === 0 ? (
-            <p className="hint">Belum ada peringatan.</p>
+            <p className="hint">No alerts yet.</p>
           ) : (
             <ul className="memori-daftar">
               {keadaan.riwayat.map((r) => (
@@ -148,7 +149,7 @@ export default function PemantauPanel({ onAksi, fokus }: Props): JSX.Element | n
                   <button
                     className="memori-item pemantau-riwayat"
                     onClick={() => onAksi(r.aksi)}
-                    title={r.aksi.tujuan === 'menu' ? 'Buka menu terkait dengan pertanyaan lanjutan terisi' : undefined}
+                    title={r.aksi.tujuan === 'menu' ? 'Open the related menu with a follow-up question filled in' : undefined}
                   >
                     <span className="pemantau-riwayat-kepala">
                       <strong>{r.judul}</strong>

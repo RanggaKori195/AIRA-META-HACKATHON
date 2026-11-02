@@ -198,7 +198,8 @@ export async function ekstrakMemori(
     mentah = await provider.complete(
       [{ role: 'user', content: promptEkstraksi(pesanUser, sudahAda) }],
       model,
-      300
+      // Muse spends hidden reasoning tokens first: 300 returned empty (finish length, 298 reasoning), 2000 measured 920.
+      2000
     )
   } catch (err) {
     // Gateway tidak terjangkau / model sibuk. Penanda TIDAK dimajukan, jadi

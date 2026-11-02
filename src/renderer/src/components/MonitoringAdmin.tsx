@@ -16,25 +16,32 @@ import type {
 // FeedbackAdmin (panel Settings pernah kosong seluruhnya karena query serentak).
 
 const LABEL_MODE: Record<string, string> = {
-  general: 'Task Baru',
-  sales: 'Tanya Data Sales',
+  general: 'New Task',
+  sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
-  lab: 'Tanya TAT Sample',
-  onedrive: 'Tanya Microsoft 365'
+  lab: 'Ask Sample TAT',
+  onedrive: 'Ask Microsoft 365'
+}
+
+/** Status values come from the database (Indonesian codes); only the label is English. */
+const LABEL_STATUS: Record<string, string> = {
+  selesai: 'completed',
+  gagal: 'failed',
+  dibatalkan: 'cancelled'
 }
 
 const PERIODE: Array<{ hari: 1 | 7 | 30 | 90; label: string }> = [
-  { hari: 1, label: '24 jam' },
-  { hari: 7, label: '7 hari' },
-  { hari: 30, label: '30 hari' },
-  { hari: 90, label: '90 hari' }
+  { hari: 1, label: '24 hours' },
+  { hari: 7, label: '7 days' },
+  { hari: 30, label: '30 days' },
+  { hari: 90, label: '90 days' }
 ]
 
 /** Harus sama dengan RETENSI_PROMPT_HARI di main/monitoring/rules.ts. */
 const RETENSI_HARI = 90
 
 const waktuSingkat = (iso: string): string =>
-  new Date(iso).toLocaleString('id-ID', {
+  new Date(iso).toLocaleString('en-US', {
     day: '2-digit',
     month: 'short',
     hour: '2-digit',
@@ -42,9 +49,9 @@ const waktuSingkat = (iso: string): string =>
   })
 
 const detik = (ms: number | null): string =>
-  ms === null ? '—' : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} dtk`
+  ms === null ? '—' : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`
 
-const angka = (n: number): string => n.toLocaleString('id-ID')
+const angka = (n: number): string => n.toLocaleString('en-US')
 
 export default function MonitoringAdmin(): JSX.Element {
   const [buka, setBuka] = useState(false)
@@ -111,16 +118,16 @@ export default function MonitoringAdmin(): JSX.Element {
   return (
     <section className="card">
       <div className="card-head">
-        <h3>Monitoring pemakaian</h3>
+        <h3>Usage monitoring</h3>
         <button className="btn-teks" onClick={() => setBuka((v) => !v)}>
-          {buka ? 'Tutup' : 'Buka monitoring'}
+          {buka ? 'Close' : 'Open monitoring'}
         </button>
       </div>
 
       {!buka && (
         <p className="hint">
-          Siapa memakai AIRA, kapan, di menu apa, pertanyaan apa, dan alat apa yang dipakai AIRA.
-          Jawaban AIRA dan isi berkas tidak dicatat.
+          Who uses AIRA, when, in which menu, what questions, and which tools AIRA used.
+          AIRA's answers and file contents are not recorded.
         </p>
       )}
 
@@ -141,7 +148,7 @@ export default function MonitoringAdmin(): JSX.Element {
               value={filter.mode ?? ''}
               onChange={(e) => ubah({ mode: (e.target.value || null) as ChatMode | null })}
             >
-              <option value="">Semua menu</option>
+              <option value="">All menus</option>
               {Object.entries(LABEL_MODE).map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
@@ -163,20 +170,20 @@ export default function MonitoringAdmin(): JSX.Element {
               <input
                 value={cariKetik}
                 maxLength={100}
-                placeholder="Cari kata di pertanyaan…"
+                placeholder="Search words in questions…"
                 onChange={(e) => setCariKetik(e.target.value)}
               />
             </form>
             <button className="btn-teks" disabled={busy} onClick={() => void muat(filter)}>
-              {busy ? 'Memuat…' : 'Muat ulang'}
+              {busy ? 'Loading…' : 'Reload'}
             </button>
           </div>
 
           {error && <div className="error">{error}</div>}
           {antrean !== null && antrean > 0 && (
             <p className="hint">
-              {angka(antrean)} catatan dari laptop ini belum terkirim ke server (database tidak
-              terjangkau). Akan dikirim otomatis.
+              {angka(antrean)} records from this laptop have not been sent to the server yet (database
+              unreachable). They will be sent automatically.
             </p>
           )}
 
@@ -185,28 +192,28 @@ export default function MonitoringAdmin(): JSX.Element {
               <div className="mon-kartu">
                 <div>
                   <b>{angka(ringkas.totalPertanyaan)}</b>
-                  <span>pertanyaan</span>
+                  <span>questions</span>
                 </div>
                 <div>
                   <b>{angka(ringkas.penggunaAktif)}</b>
-                  <span>pengguna aktif</span>
+                  <span>active users</span>
                 </div>
                 <div>
                   <b>{angka(ringkas.pakaiTool)}</b>
-                  <span>memakai alat</span>
+                  <span>used tools</span>
                 </div>
                 <div>
                   <b className={ringkas.gagal > 0 ? 'mon-buruk' : ''}>{angka(ringkas.gagal)}</b>
-                  <span>gagal</span>
+                  <span>failed</span>
                 </div>
               </div>
 
               {ringkas.totalPertanyaan === 0 ? (
-                <p className="hint">Belum ada pemakaian tercatat pada saringan ini.</p>
+                <p className="hint">No usage recorded for this filter yet.</p>
               ) : (
                 <div className="mon-grid">
                   <div>
-                    <h4>Per hari</h4>
+                    <h4>Per day</h4>
                     <div className="mon-batang">
                       {ringkas.perHari.map((h) => (
                         <div key={h.tanggal} className="mon-batang-baris">
@@ -215,7 +222,7 @@ export default function MonitoringAdmin(): JSX.Element {
                             <i style={{ width: `${(h.jumlah / maksHari) * 100}%` }} />
                           </span>
                           <span className="mon-nilai">
-                            {h.jumlah} · {h.pengguna} org
+                            {h.jumlah} · {h.pengguna} users
                           </span>
                         </div>
                       ))}
@@ -223,10 +230,10 @@ export default function MonitoringAdmin(): JSX.Element {
                   </div>
 
                   <div>
-                    <h4>Per jam (WIB)</h4>
+                    <h4>Per hour (WIB)</h4>
                     <div className="mon-jam">
                       {ringkas.perJam.map((n, jam) => (
-                        <div key={jam} title={`${String(jam).padStart(2, '0')}:00 — ${n} pertanyaan`}>
+                        <div key={jam} title={`${String(jam).padStart(2, '0')}:00 — ${n} questions`}>
                           <i style={{ height: `${(n / maksJam) * 100}%` }} />
                           {jam % 3 === 0 && <span>{jam}</span>}
                         </div>
@@ -243,9 +250,9 @@ export default function MonitoringAdmin(): JSX.Element {
                       ))}
                     </ul>
 
-                    <h4>Alat yang paling sering dipakai</h4>
+                    <h4>Most used tools</h4>
                     {ringkas.toolTeratas.length === 0 ? (
-                      <p className="hint">Belum ada alat yang dipakai.</p>
+                      <p className="hint">No tools used yet.</p>
                     ) : (
                       <ul className="mon-daftar">
                         {ringkas.toolTeratas.map((t) => (
@@ -262,18 +269,18 @@ export default function MonitoringAdmin(): JSX.Element {
 
               {ringkas.perPengguna.length > 0 && (
                 <>
-                  <h4>Per pengguna</h4>
+                  <h4>Per user</h4>
                   <div className="mon-tabel-wrap">
                     <table className="mon-tabel">
                       <thead>
                         <tr>
-                          <th>Pengguna</th>
-                          <th>Role · divisi</th>
-                          <th>Pertanyaan</th>
-                          <th>Hari aktif</th>
-                          <th>Gagal</th>
-                          <th>Menu tersering</th>
-                          <th>Terakhir</th>
+                          <th>User</th>
+                          <th>Role · division</th>
+                          <th>Questions</th>
+                          <th>Active days</th>
+                          <th>Failed</th>
+                          <th>Top menu</th>
+                          <th>Last</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -282,7 +289,7 @@ export default function MonitoringAdmin(): JSX.Element {
                             <td>
                               <button
                                 className="mon-tautan"
-                                title="Lihat aktivitas orang ini saja"
+                                title="Show only this person's activity"
                                 onClick={() => ubah({ username: p.username })}
                               >
                                 {p.username}
@@ -304,7 +311,7 @@ export default function MonitoringAdmin(): JSX.Element {
             </>
           )}
 
-          <h4>Linimasa{filter.username ? ` — ${filter.username}` : ''}</h4>
+          <h4>Timeline{filter.username ? ` — ${filter.username}` : ''}</h4>
           <div className="fb-daftar">
             {baris.map((a) => (
               <BarisAktivitas key={a.id} a={a} onPilihUser={(u) => ubah({ username: u })} />
@@ -312,16 +319,16 @@ export default function MonitoringAdmin(): JSX.Element {
           </div>
           {adaLagi && (
             <button className="btn-teks" disabled={busy} onClick={() => void lanjut()}>
-              Muat lebih banyak
+              Load more
             </button>
           )}
 
           <p className="hint">
-            Yang dicatat: waktu, menu, model, pertanyaan yang diketik (maks. 2.000 karakter, hal
-            yang tampak seperti kata sandi disamarkan), nama lampiran, alat yang dipakai AIRA, lama
-            proses, dan berhasil/gagal. Jawaban AIRA dan isi berkas TIDAK dicatat. Teks pertanyaan
-            dihapus otomatis sesudah {RETENSI_HARI} hari. Setiap kali panel ini dibuka, namamu
-            tercatat.
+            What is recorded: time, menu, model, the question typed (max 2,000 characters; anything
+            that looks like a password is masked), attachment names, tools AIRA used, processing
+            time, and success/failure. AIRA's answers and file contents are NOT recorded. Question
+            text is deleted automatically after {RETENSI_HARI} days. Every time this panel is
+            opened, your name is recorded.
           </p>
         </>
       )}
@@ -343,7 +350,7 @@ function BarisAktivitas({
   return (
     <div className="fb-item">
       <div className="fb-item-head">
-        <span className={kelasStatus}>{a.status}</span>
+        <span className={kelasStatus}>{LABEL_STATUS[a.status] ?? a.status}</span>
         <button className="mon-tautan" onClick={() => onPilihUser(a.username)}>
           <strong>{a.username}</strong>
         </button>
@@ -352,7 +359,7 @@ function BarisAktivitas({
         <span className="fb-meta">{detik(a.durasiMs)}</span>
         {a.promptTokens !== null && (
           <span className="fb-meta">
-            {angka(a.promptTokens)}+{angka(a.completionTokens ?? 0)} token
+            {angka(a.promptTokens)}+{angka(a.completionTokens ?? 0)} tokens
           </span>
         )}
       </div>
@@ -360,13 +367,13 @@ function BarisAktivitas({
         {a.prompt ?? (
           <span className="hint">
             {kedaluwarsa
-              ? `(teks pertanyaan sudah dihapus — lebih dari ${RETENSI_HARI} hari)`
-              : '(pertanyaan kosong)'}
+              ? `(question text already deleted — older than ${RETENSI_HARI} days)`
+              : '(empty question)'}
           </span>
         )}
       </div>
       {a.lampiran.length > 0 && (
-        <div className="fb-meta">Lampiran: {a.lampiran.join(', ')}</div>
+        <div className="fb-meta">Attachments: {a.lampiran.join(', ')}</div>
       )}
       {a.tools.length > 0 && (
         <div className="mon-alat">
@@ -374,7 +381,7 @@ function BarisAktivitas({
             <span key={t.nama} className={t.gagal > 0 ? 'tag tag-peringatan' : 'tag tag-netral'}>
               {t.nama}
               {t.kali > 1 ? ` ×${t.kali}` : ''}
-              {t.gagal > 0 ? ` (${t.gagal} gagal)` : ''}
+              {t.gagal > 0 ? ` (${t.gagal} failed)` : ''}
             </span>
           ))}
         </div>

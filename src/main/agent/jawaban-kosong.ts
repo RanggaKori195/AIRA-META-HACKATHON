@@ -30,21 +30,21 @@
 
 /** Ditambahkan saat jatah keluaran habis sebelum jawaban sempat ditulis. */
 export const PESAN_TOKEN_HABIS =
-  'AIRA kehabisan jatah keluaran sebelum sempat menulis jawabannya — ' +
-  'seluruh jatah terpakai untuk penalaran internal. Datanya sendiri sudah ' +
-  'terambil (lihat langkah di atas). Coba tanyakan ulang dengan lebih spesifik, ' +
-  'misalnya sebut periode dan jenis rinciannya, supaya penalarannya lebih pendek.'
+  'AIRA ran out of its output allowance before it could write the answer — ' +
+  'the whole allowance went to internal reasoning. The data itself was already ' +
+  'retrieved (see the steps above). Try asking again more specifically, ' +
+  'for example by naming the period and the kind of breakdown, so the reasoning stays shorter.'
 
 /** Ditambahkan saat model berhenti tanpa menulis apa pun, sebab lain. */
 export const PESAN_TANPA_JAWABAN =
-  'AIRA selesai memproses tapi tidak menghasilkan teks jawaban. ' +
-  'Ini bukan hasil yang benar — silakan tanyakan ulang, dan kalau berulang, ' +
-  'laporkan lewat tombol Laporkan.'
+  'AIRA finished processing but did not produce any answer text. ' +
+  'This is not a correct result — please ask again, and if it keeps happening, ' +
+  'report it with the Report button.'
 
 /** Ditambahkan saat tidak ada tool yang jalan DAN tidak ada teks. */
 export const PESAN_KOSONG_TANPA_TOOL =
-  'AIRA tidak menghasilkan jawaban apa pun untuk pertanyaan ini. ' +
-  'Coba ulangi dengan kalimat yang berbeda.'
+  'AIRA did not produce any answer to this question. ' +
+  'Try again with different wording.'
 
 /**
  * Dorongan yang disisipkan ke riwayat saat model berhenti tanpa menulis apa pun,
@@ -60,10 +60,10 @@ export const PESAN_KOSONG_TANPA_TOOL =
  * menjawab akan mengarang, persis yang seluruh arsitektur AIRA hindari.
  */
 export const DORONGAN_JAWAB =
-  'Kamu belum menuliskan jawaban apa pun. Tulis jawabannya sekarang untuk user, ' +
-  'berdasarkan hasil tool yang sudah ada di atas. Jangan memanggil tool lagi. ' +
-  'Kalau hasil tool memang belum cukup untuk menjawab, katakan apa adanya dan ' +
-  'sebutkan apa yang kurang — jangan mengarang angka.'
+  'You have not written any answer yet. Write the answer for the user now, ' +
+  'based on the tool results already above. Do not call any tool again. ' +
+  'If the tool results are really not enough to answer, say so plainly and ' +
+  'state what is missing — do not make up numbers.'
 
 export interface KeadaanAkhir {
   /** Teks jawaban yang terkumpul. */

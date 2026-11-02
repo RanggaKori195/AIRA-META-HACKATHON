@@ -3,6 +3,8 @@ import {
   FEEDBACK_JENIS_LABELS,
   FEEDBACK_STATUS,
   FEEDBACK_STATUS_LABELS,
+  FEEDBACK_DAMPAK_LABELS,
+  type FeedbackDampak,
   type FeedbackJenis,
   type FeedbackRow,
   type FeedbackStatus
@@ -28,19 +30,19 @@ const KELAS_STATUS: Record<string, string> = {
 }
 
 const waktuSingkat = (iso: string): string =>
-  new Date(iso).toLocaleString('id-ID', {
+  new Date(iso).toLocaleString('en-US', {
     day: '2-digit',
     month: 'short',
     hour: '2-digit',
     minute: '2-digit'
   })
 
-type Saring = 'semua' | 'belum' | FeedbackJenis
+type Saring = 'all' | 'unread' | FeedbackJenis
 
 export default function FeedbackAdmin(): JSX.Element {
   const [buka, setBuka] = useState(false)
   const [rows, setRows] = useState<FeedbackRow[]>([])
-  const [saring, setSaring] = useState<Saring>('semua')
+  const [saring, setSaring] = useState<Saring>('all')
   const [rinci, setRinci] = useState<number | null>(null)
   const [catatan, setCatatan] = useState('')
   const [busy, setBusy] = useState(false)
@@ -65,8 +67,8 @@ export default function FeedbackAdmin(): JSX.Element {
   const belumDibaca = useMemo(() => rows.filter((r) => r.status === 'baru').length, [rows])
 
   const tampil = useMemo(() => {
-    if (saring === 'semua') return rows
-    if (saring === 'belum') return rows.filter((r) => r.status === 'baru')
+    if (saring === 'all') return rows
+    if (saring === 'unread') return rows.filter((r) => r.status === 'baru')
     return rows.filter((r) => r.jenis === saring)
   }, [rows, saring])
 
@@ -93,31 +95,31 @@ export default function FeedbackAdmin(): JSX.Element {
     <section className="card">
       <div className="card-head">
         <h3>
-          Masukan dari user{' '}
-          {sudahMuat && belumDibaca > 0 && <span className="tag tag-peringatan">{belumDibaca} baru</span>}
+          Feedback from users{' '}
+          {sudahMuat && belumDibaca > 0 && <span className="tag tag-peringatan">{belumDibaca} new</span>}
         </h3>
         <button className="btn-teks" onClick={() => setBuka((v) => !v)}>
-          {buka ? 'Tutup' : 'Buka daftar'}
+          {buka ? 'Close' : 'Open list'}
         </button>
       </div>
 
       {!buka && (
         <p className="hint">
-          Bug dan usulan yang dikirim user lewat menu Masukan &amp; Usulan atau tombol Laporkan di
-          jawaban AIRA.
+          Bugs and suggestions that users sent through the Feedback screen or the Report button on
+          AIRA's answers.
         </p>
       )}
 
       {buka && (
         <>
           <div className="fb-pilihan">
-            {(['semua', 'belum'] as const).map((s) => (
+            {(['all', 'unread'] as const).map((s) => (
               <button
                 key={s}
                 className={`fb-pil ${saring === s ? 'aktif' : ''}`}
                 onClick={() => setSaring(s)}
               >
-                {s === 'semua' ? 'Semua' : `Belum dibaca (${belumDibaca})`}
+                {s === 'all' ? 'All' : `Unread (${belumDibaca})`}
               </button>
             ))}
             {(Object.keys(FEEDBACK_JENIS_LABELS) as FeedbackJenis[]).map((j) => (
@@ -132,7 +134,7 @@ export default function FeedbackAdmin(): JSX.Element {
           </div>
 
           {error && <div className="error">{error}</div>}
-          {sudahMuat && tampil.length === 0 && <p className="hint">Tidak ada masukan di saringan ini.</p>}
+          {sudahMuat && tampil.length === 0 && <p className="hint">No feedback matches this filter.</p>}
 
           <div className="fb-daftar">
             {tampil.map((f) => (
@@ -147,12 +149,12 @@ export default function FeedbackAdmin(): JSX.Element {
                   </span>
                   <span className="fb-meta">{waktuSingkat(f.createdAt)}</span>
                   <span className="fb-meta">v{f.appVersion ?? '?'}</span>
-                  {f.mode && <span className="fb-meta">mode {f.mode}</span>}
+                  {f.mode && <span className="fb-meta">{`mode ${f.mode}`}</span>}
                 </div>
 
                 <div className="fb-item-jenis">
                   {FEEDBACK_JENIS_LABELS[f.jenis as FeedbackJenis] ?? f.jenis}
-                  {f.dampak && ` · ${f.dampak}`}
+                  {f.dampak && ` · ${FEEDBACK_DAMPAK_LABELS[f.dampak as FeedbackDampak] ?? f.dampak}`}
                 </div>
 
                 <div className="fb-item-isi">{f.isi}</div>
@@ -160,17 +162,17 @@ export default function FeedbackAdmin(): JSX.Element {
                 {f.lampiranNama && (
                   <button
                     className="fb-lihat"
-                    title="Simpan lampiran ke komputer"
+                    title="Save the attachment to this computer"
                     onClick={() => void window.aira.feedbackSimpanLampiran(f.id)}
                   >
                     📎 {f.lampiranNama}
-                    {f.lampiranUkuran ? ` (${Math.max(1, Math.round(f.lampiranUkuran / 1024))} KB)` : ''} — unduh
+                    {f.lampiranUkuran ? ` (${Math.max(1, Math.round(f.lampiranUkuran / 1024))} KB)` : ''} — download
                   </button>
                 )}
 
                 {f.catatanAdmin && (
                   <div className="hint">
-                    Catatan {f.ditanganiOleh ? `(${f.ditanganiOleh})` : ''}: {f.catatanAdmin}
+                    Note {f.ditanganiOleh ? `(${f.ditanganiOleh})` : ''}: {f.catatanAdmin}
                   </div>
                 )}
 
@@ -181,7 +183,7 @@ export default function FeedbackAdmin(): JSX.Element {
                     setCatatan('')
                   }}
                 >
-                  {rinci === f.id ? '▾' : '▸'} Rincian &amp; tindak lanjut
+                  {rinci === f.id ? '▾' : '▸'} Details &amp; follow-up
                 </button>
 
                 {rinci === f.id && (
@@ -189,7 +191,7 @@ export default function FeedbackAdmin(): JSX.Element {
                     <div className="fb-meta">
                       {[f.hostname, f.osUser && `(${f.osUser})`, f.ip].filter(Boolean).join(' ')}
                       {f.model && ` · model ${f.model}`}
-                      {f.sesiId && ` · sesi ${f.sesiId.slice(0, 8)}`}
+                      {f.sesiId && ` · session ${f.sesiId.slice(0, 8)}`}
                     </div>
 
                     {/*
@@ -199,32 +201,32 @@ export default function FeedbackAdmin(): JSX.Element {
                       cuplikannya hilang karena bug.
                     */}
                     {f.pesanId === null ? (
-                      <p className="hint">Masukan umum — tidak terkait satu jawaban tertentu.</p>
+                      <p className="hint">General feedback — not tied to a specific answer.</p>
                     ) : f.sertakanChat ? (
                       <>
-                        <h4>Pertanyaan user</h4>
-                        <pre className="fb-pratinjau">{f.pertanyaan ?? '(tidak ada)'}</pre>
-                        <h4>Jawaban AIRA</h4>
-                        <pre className="fb-pratinjau">{f.jawaban ?? '(tidak ada)'}</pre>
+                        <h4>User's question</h4>
+                        <pre className="fb-pratinjau">{f.pertanyaan ?? '(none)'}</pre>
+                        <h4>AIRA's answer</h4>
+                        <pre className="fb-pratinjau">{f.jawaban ?? '(none)'}</pre>
                       </>
                     ) : (
                       <p className="hint">
-                        User memilih TIDAK menyertakan cuplikan percakapan. Tool di bawah tetap
-                        terkirim.
+                        The user chose NOT to include the conversation excerpt. The tools below were still
+                        sent.
                       </p>
                     )}
 
-                    <h4>Tool yang dipakai</h4>
+                    <h4>Tools used</h4>
                     {f.toolLog && f.toolLog.length > 0 ? (
                       <pre className="fb-pratinjau">
                         {f.toolLog.map((t) => `· ${t.label ?? t.name} ${t.argsSummary}`).join('\n')}
                       </pre>
                     ) : (
-                      <p className="hint">Tidak ada tool yang terpanggil.</p>
+                      <p className="hint">No tools were called.</p>
                     )}
 
                     <label className="fb-label" htmlFor={`fb-cat-${f.id}`}>
-                      Catatan untuk pelapor (opsional — ia melihatnya di menu Masukan)
+                      Note for the reporter (optional — they see it on the Feedback screen)
                     </label>
                     <textarea
                       id={`fb-cat-${f.id}`}

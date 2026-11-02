@@ -81,28 +81,28 @@ describe('calon anggota', () => {
 describe('teks pesan sistem', () => {
   test('"kamu" mengikuti siapa yang membaca', () => {
     // Pesan yang sama, tiga pembaca.
-    assert.equal(teksSistem('tambah', 'andi', 'budi', 'andi'), 'Kamu menambahkan budi')
-    assert.equal(teksSistem('tambah', 'andi', 'budi', 'budi'), 'andi menambahkan kamu')
-    assert.equal(teksSistem('tambah', 'andi', 'budi', 'siti'), 'andi menambahkan budi')
+    assert.equal(teksSistem('tambah', 'andi', 'budi', 'andi'), 'You added budi')
+    assert.equal(teksSistem('tambah', 'andi', 'budi', 'budi'), 'andi added you')
+    assert.equal(teksSistem('tambah', 'andi', 'budi', 'siti'), 'andi added budi')
   })
 
   test('tidak peka huruf besar', () => {
-    assert.equal(teksSistem('keluar', 'Andi', null, 'andi'), 'Kamu keluar dari grup')
+    assert.equal(teksSistem('keluar', 'Andi', null, 'andi'), 'You left the group')
   })
 
   test('pengganti admin otomatis TIDAK menyebut orang yang keluar sebagai pelaku', () => {
     // Menulis "andi menjadikan budi admin" padahal andi sekadar keluar adalah
     // cerita yang tidak pernah terjadi.
     const t = teksSistem('admin_otomatis', 'andi', 'budi', 'siti')
-    assert.equal(t, 'budi sekarang admin grup')
+    assert.equal(t, 'budi is now a group admin')
     assert.ok(!t.includes('andi'))
-    assert.equal(teksSistem('admin_otomatis', 'andi', 'budi', 'budi'), 'Kamu sekarang admin grup')
+    assert.equal(teksSistem('admin_otomatis', 'andi', 'budi', 'budi'), 'You are now a group admin')
   })
 
   test('ganti nama memakai target sebagai NAMA BARU, bukan username', () => {
     assert.equal(
       teksSistem('ganti_nama', 'andi', 'Tim Lab', 'budi'),
-      'andi mengganti nama grup menjadi “Tim Lab”'
+      'andi renamed the group to “Tim Lab”'
     )
   })
 
@@ -193,12 +193,12 @@ describe('notifikasi grup', () => {
           isi: '',
           adaLampiran: false,
           grup: { id: '7', nama: 'Tim Lab' },
-          sistem: 'andi menambahkan kamu'
+          sistem: 'andi added you'
         }
       ],
       false
     )
-    assert.equal(hasil[0].isi, 'andi menambahkan kamu')
+    assert.equal(hasil[0].isi, 'andi added you')
   })
 })
 

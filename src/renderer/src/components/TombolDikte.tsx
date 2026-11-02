@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { IconMic, IconStop } from './Icons'
-import { enkodeWav, gabungPotongan, turunkanSampel, WAV_SAMPLE_RATE } from '@shared/wav'
+import { useRecorder } from './mascot/useRecorder'
 import { PENJELASAN_DIKTE } from '@shared/dikte'
 
 /*
@@ -44,11 +44,7 @@ export function TombolDikte({ onTeks, disabled }: Props): JSX.Element | null {
    */
   const [pesan, setPesan] = useState<{ teks: string; jenis: 'catatan' | 'galat' } | null>(null)
 
-  const ctxRef = useRef<AudioContext | null>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const prosesorRef = useRef<ScriptProcessorNode | null>(null)
-  const potonganRef = useRef<Float32Array[]>([])
-  const lajuRef = useRef<number>(WAV_SAMPLE_RATE)
+  const rekam = useRecorder()
 
   // Tombol disembunyikan sama sekali bila whisper tidak terpasang di laptop ini.
   // Tombol yang ada tapi selalu gagal lebih buruk daripada tombol yang tidak ada
@@ -64,46 +60,26 @@ export function TombolDikte({ onTeks, disabled }: Props): JSX.Element | null {
     }
   }, [])
 
-  /** Melepas mikrofon. Wajib dipanggil di SETIAP jalan keluar. */
-  const bersihkan = useCallback(() => {
-    prosesorRef.current?.disconnect()
-    prosesorRef.current = null
-    // ⚠️ Track WAJIB di-stop, bukan cuma context ditutup. Kalau tidak, lampu
-    // "mikrofon aktif" di Windows tetap menyala sesudah user selesai bicara —
-    // di aplikasi korporat itu terlihat seperti AIRA menyadap diam-diam.
-    streamRef.current?.getTracks().forEach((t) => t.stop())
-    streamRef.current = null
-    void ctxRef.current?.close().catch(() => {})
-    ctxRef.current = null
-  }, [])
-
-  useEffect(() => bersihkan, [bersihkan])
-
   const selesaikan = useCallback(async () => {
-    const potongan = potonganRef.current
-    const laju = lajuRef.current
-    potonganRef.current = []
-    bersihkan()
-
-    if (!potongan.length) {
+    const wav = await rekam.stop()
+    if (!wav) {
       setFase('diam')
-      setPesan({ teks: 'Tidak ada suara yang terekam.', jenis: 'galat' })
+      setPesan({ teks: 'No sound was recorded.', jenis: 'galat' })
       return
     }
     setFase('memproses')
     try {
-      const pcm = turunkanSampel(gabungPotongan(potongan), laju, WAV_SAMPLE_RATE)
-      const hasil = await window.aira.transkripsikanSuara(enkodeWav(pcm))
+      const hasil = await window.aira.transkripsikanSuara(wav)
       if (hasil.teks) onTeks(hasil.teks)
       // Catatan SELALU ditampilkan — user wajib tahu ini belum dikoreksi.
       setPesan({ teks: hasil.catatan, jenis: 'catatan' })
     } catch (e) {
-      setPesan({ teks: e instanceof Error ? e.message : 'Transkripsi gagal.', jenis: 'galat' })
+      setPesan({ teks: e instanceof Error ? e.message : 'Transcription failed.', jenis: 'galat' })
     } finally {
       setFase('diam')
       setDetik(0)
     }
-  }, [bersihkan, onTeks])
+  }, [rekam, onTeks])
 
   // Simpan `selesaikan` terbaru supaya penghitung waktu di bawah tidak
   // memanggil versi lama saat batas MAKS_DETIK tercapai.
@@ -138,70 +114,23 @@ export function TombolDikte({ onTeks, disabled }: Props): JSX.Element | null {
   const mulai = useCallback(async () => {
     setPesan(null)
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          channelCount: 1,
-          // Pembersihan bawaan browser: sangat membantu di ruang kerja terbuka.
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
-      })
-      streamRef.current = stream
-      // Meminta 16 kHz langsung supaya tidak perlu menurunkan laju. Permintaan
-      // ini TIDAK dijamin dituruti — karena itu laju sebenarnya dibaca ulang di
-      // bawah dan `turunkanSampel` tetap dipakai bila berbeda.
-      const ctx = new AudioContext({ sampleRate: WAV_SAMPLE_RATE })
-      ctxRef.current = ctx
-      lajuRef.current = ctx.sampleRate
-
-      const sumber = ctx.createMediaStreamSource(stream)
-      /*
-       * ScriptProcessorNode memang sudah usang, tapi dipilih sadar: AudioWorklet
-       * menuntut modul terpisah yang dimuat lewat URL, dan itu berkelahi dengan
-       * cara Vite membundel renderer. Bebannya kecil (satu kanal, 16 kHz) dan
-       * ia bekerja di semua versi Chromium yang dipakai Electron.
-       */
-      const prosesor = ctx.createScriptProcessor(4096, 1, 1)
-      potonganRef.current = []
-      prosesor.onaudioprocess = (e): void => {
-        // Disalin: buffer milik Web Audio dipakai ulang untuk blok berikutnya.
-        potonganRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)))
-      }
-      sumber.connect(prosesor)
-      prosesor.connect(ctx.destination)
-      prosesorRef.current = prosesor
-
+      await rekam.start()
       setDetik(0)
       setFase('merekam')
     } catch (e) {
-      bersihkan()
       setFase('diam')
-      // Penolakan izin mikrofon adalah sebab terbanyak, dan pesan bawaannya
-      // ("Permission denied") tidak memberi tahu apa yang harus dilakukan.
-      const nama = e instanceof DOMException ? e.name : ''
-      setPesan({
-        jenis: 'galat',
-        teks:
-          nama === 'NotAllowedError'
-            ? 'Izin mikrofon ditolak. Buka Pengaturan Windows > Privasi > Mikrofon, lalu izinkan AIRA.'
-            : nama === 'NotFoundError'
-              ? 'Tidak ada mikrofon yang terdeteksi di laptop ini.'
-              : e instanceof Error
-                ? e.message
-                : 'Mikrofon tidak bisa dibuka.'
-      })
+      setPesan({ jenis: 'galat', teks: e instanceof Error ? e.message : 'The microphone could not be opened.' })
     }
-  }, [bersihkan])
+  }, [rekam])
 
   if (tersedia === false) return null
 
   const judul =
     fase === 'merekam'
-      ? `Berhenti merekam (${detik}/${MAKS_DETIK} dtk)`
+      ? `Stop recording (${detik}/${MAKS_DETIK} s)`
       : fase === 'memproses'
-        ? 'Sedang menyalin suara…'
-        : 'Dikte suara — hasilnya masuk ke kotak teks untuk kamu koreksi dulu'
+        ? 'Transcribing speech…'
+        : 'Voice dictation — the result goes into the text box so you can correct it first'
 
   return (
     <>
@@ -217,12 +146,12 @@ export function TombolDikte({ onTeks, disabled }: Props): JSX.Element | null {
       </button>
       {fase === 'merekam' && (
         <span className="dikte-status" role="status">
-          merekam {detik}s
+          recording {detik}s
         </span>
       )}
       {fase === 'memproses' && (
         <span className="dikte-status" role="status">
-          menyalin…
+          transcribing…
         </span>
       )}
       {pesan && fase === 'diam' && (
@@ -232,7 +161,7 @@ export function TombolDikte({ onTeks, disabled }: Props): JSX.Element | null {
           onClick={() => setPesan(null)}
           // Penjelasan panjangnya di tooltip, bukan di layar — yang di layar
           // cukup peringatan singkatnya (permintaan user 6 Sep 2026).
-          title={pesan.jenis === 'catatan' ? PENJELASAN_DIKTE : 'Klik untuk menutup'}
+          title={pesan.jenis === 'catatan' ? PENJELASAN_DIKTE : 'Click to dismiss'}
         >
           {pesan.teks}
         </span>

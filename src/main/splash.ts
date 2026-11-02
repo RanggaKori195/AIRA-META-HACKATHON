@@ -13,7 +13,7 @@ function logoDataUrl(): string {
   const candidates = [
     join(app.getAppPath(), 'resources', 'icon.png'),
     join(process.resourcesPath ?? '', 'icon.png'),
-    join(app.getAppPath(), 'src', 'renderer', 'src', 'assets', 'aira-logo.png')
+    join(app.getAppPath(), 'src', 'renderer', 'src', 'assets', 'mascot', 'hello.png')
   ]
   for (const file of candidates) {
     try {
@@ -43,9 +43,9 @@ export function showSplash(): void {
   // Splash dimuat dari string HTML, jadi fontnya harus ikut TERTANAM sebagai
   // data URL — tidak ada folder tempat menaruh berkas pendamping. ~37 KB, dan
   // hanya dibaca sekali saat aplikasi dibuka.
-  const font = fontDataUrl('CompanySerif-Regular.woff2')
+  const font = fontDataUrl('')
   const fontCss = font
-    ? `@font-face { font-family:'company serif font'; src:url('${font}') format('woff2'); font-weight:400; font-display:block; }`
+    ? `@font-face { font-family:'AIRA Doc'; src:url('${font}') format('woff2'); font-weight:400; font-display:block; }`
     : ''
 
   const html = `<!doctype html><html><head><meta charset="utf-8" />
@@ -54,7 +54,7 @@ export function showSplash(): void {
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:22px; background:#ffffff; font-family:'company serif font','Segoe UI',system-ui,serif; user-select:none;
+    gap:22px; background:#ffffff; font-family:'Segoe UI',system-ui,sans-serif; user-select:none;
   }
   img { width:230px; animation:rise .6s ease-out; }
   @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }

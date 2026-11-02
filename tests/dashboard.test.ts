@@ -26,6 +26,12 @@ describe('dashboard: kapan muncul', () => {
     }
   })
 
+  test('English comparison questions -> dashboard', () => {
+    for (const k of ['Sales this month vs last month', 'Compare sales this month with last month', 'give me a sales overview', 'how did sales grow this year']) {
+      assert.equal(perluDashboardSales(k), true, k)
+    }
+  })
+
   test('pertanyaan satu angka / daftar / dokumen -> TIDAK', () => {
     for (const k of [
       'Berapa sales hari ini?',
@@ -64,6 +70,7 @@ describe('dashboard: angka', () => {
   test('rentang, 6 bulan mundur (lintas tahun), bulan belum genap', () => {
     assert.deepEqual(bacaRentang('2026-09-01 s/d 2026-09-17'), { from: '2026-09-01', to: '2026-09-17' })
     assert.equal(bacaRentang('bulan ini'), null)
+    assert.deepEqual(bacaRentang('2026-09-01 to 2026-09-17'), { from: '2026-09-01', to: '2026-09-17' })
     assert.equal(awalBulanMundur('2026-09-17', 5), '2026-04-01')
     assert.equal(awalBulanMundur('2026-02-10', 5), '2025-09-01')
     assert.equal(bulanBelumGenap('2026-09-17'), true)
@@ -78,8 +85,8 @@ describe('dashboard: insight dari kode', () => {
     versi: 1 as const,
     dibuat: 0,
     basis: 'invoice',
-    labelKini: 'bulan ini',
-    labelLalu: 'bulan lalu',
+    labelKini: 'this month',
+    labelLalu: 'last month',
     rentangKini: '2026-09-01 s/d 2026-09-17',
     rentangLalu: '2026-08-01 s/d 2026-08-17',
     catatanPeriode: null,
@@ -105,17 +112,17 @@ describe('dashboard: insight dari kode', () => {
 
   test('setiap kalimat memakai angka yang ADA di data', () => {
     const k = susunInsight(dasar)
-    assert.match(k[0], /naik 25% dibanding bulan lalu/)
-    assert.ok(k.some((x) => /Molekuler — 40% dari total nett/.test(x)), k.join(' | '))
+    assert.match(k[0], /up 25% vs last month/)
+    assert.ok(k.some((x) => /Molekuler — 40% of total nett/.test(x)), k.join(' | '))
     // Baris "(…tidak ada di master)" bukan wilayah — yang disebut Jawa Barat.
-    assert.ok(k.some((x) => /Wilayah penyumbang terbesar: Jawa Barat \(30%\)/.test(x)), k.join(' | '))
+    assert.ok(k.some((x) => /Largest contributing region: Jawa Barat \(30%\)/.test(x)), k.join(' | '))
     assert.ok(k.some((x) => /RS B \(\+100%\)/.test(x)), k.join(' | '))
     // Bulan berjalan (sebagian) TIDAK boleh jadi "bulan tertinggi".
     assert.ok(k.some((x) => /Jul 2026/.test(x)), k.join(' | '))
   })
 
   test('saran lanjutan hanya pertanyaan yang ada tool-nya', () => {
-    const s = saranLanjutanSales('bulan ini')
+    const s = saranLanjutanSales('this month')
     assert.ok(s.length >= 4)
     assert.ok(!s.some((x) => /detail transaksi|nama pasien/i.test(x)))
   })
@@ -160,4 +167,15 @@ describe('sales_compare: pembanding ditentukan kalimat user', () => {
     assert.deepEqual(applyComparePeriod('sales_summary', { period: 'this_month' }, 'bulan lalu'), { period: 'this_month' })
     assert.deepEqual(applyComparePeriod('sales_compare', { period: 'this_month' }, 'sales naik?'), { period: 'this_month' })
   })
+})
+
+test('dashboard row markers from the region query read in English', async () => {
+  const { labelData } = await import('../src/main/sales/display-en')
+  assert.equal(labelData('(pelanggan tidak ada di master)'), '(customer not in master)')
+  assert.equal(labelData('(provinsi tidak diisi)'), '(province not filled in)')
+  assert.equal(labelData('(tipe tidak diisi)'), '(type not filled in)')
+  assert.equal(labelData('Jawa Barat'), 'Jawa Barat')
+  const s = (await import('fs')).readFileSync('src/main/dashboard/sales.ts', 'utf8')
+  assert.match(s, /nama: labelData\(r\.kategori/)
+  assert.doesNotMatch((await import('fs')).readFileSync('src/renderer/src/components/DashboardJawaban.tsx', 'utf8'), /`Rp /)
 })

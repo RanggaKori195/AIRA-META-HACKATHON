@@ -100,9 +100,9 @@ export function sisaGiliranUntukPercobaan(percobaan: number): number {
 
 /** Pesan yang ditempelkan ke jawaban saat riwayat dipangkas — user berhak tahu. */
 export const CATATAN_DIPANGKAS =
-  'Percakapan ini sudah terlalu panjang untuk diproses sekaligus, jadi bagian awalnya ' +
-  'dikesampingkan agar pertanyaan terakhir tetap bisa dijawab. Bila jawabannya terasa ' +
-  'kehilangan konteks, mulai percakapan baru dan sebutkan ulang hal-hal pentingnya.'
+  'This conversation has grown too long to process in one go, so its earliest part was ' +
+  'set aside so the latest question could still be answered. If the answer seems to ' +
+  'have lost context, start a new conversation and restate the important points.'
 
 /**
  * Pesan gagal dalam bahasa manusia + saran tindakan. Kode teknisnya tetap dicatat di
@@ -112,24 +112,28 @@ export function pesanUntukUser(code: string, message: string): string {
   switch (code) {
     case 'LLM_CONTEXT_OVERFLOW':
       return (
-        'Percakapan ini terlalu panjang untuk diproses model, bahkan setelah bagian awalnya ' +
-        'dipangkas. Mulai percakapan baru lewat "Task Baru", lalu sebutkan kembali hal-hal ' +
-        'penting yang masih dibutuhkan. Melampirkan file yang sangat besar juga bisa menjadi penyebabnya.'
+        'This conversation is too long for the model to process, even after its earliest part ' +
+        'was trimmed. Start a new conversation with "New Task", then restate the important points ' +
+        'you still need. Attaching a very large file can also be the cause.'
       )
     case 'LLM_UNREACHABLE':
       return (
-        'Tidak bisa menghubungi server AI the company. Pastikan kamu terhubung ke jaringan internal ' +
-        'the company — dari luar kantor perlu VPN.'
+        'Cannot reach the AI server. Check your network connection.'
       )
     case 'LLM_AUTH_FAILED':
-      return 'Server AI menolak kredensial aplikasi. Hubungi tim IT untuk memperbarui kunci akses.'
+      return 'The AI server rejected the app credentials. Contact the IT team to renew the access key.'
     case 'LLM_RATE_LIMITED':
-      return 'Server AI sedang menerima terlalu banyak permintaan. Coba lagi sebentar lagi.'
+      return 'The AI server is receiving too many requests. Try again in a moment.'
+    case 'LLM_TRUNCATED':
+      return (
+        'The AI model used up its output limit before it wrote anything (its internal reasoning took ' +
+        'all of it). Try again, and ask for something narrower if it keeps happening.'
+      )
     case 'LLM_CANCELLED':
-      return 'Permintaan dihentikan.'
+      return 'The request was stopped.'
     case 'LLM_BAD_RESPONSE':
-      return `Server AI mengembalikan jawaban yang tidak dikenali. Detail teknis: ${message}`
+      return `The AI server returned a response that was not recognised. Technical details: ${message}`
     default:
-      return `Terjadi kesalahan yang tidak terduga. Detail teknis: ${message}`
+      return `An unexpected error occurred. Technical details: ${message}`
   }
 }

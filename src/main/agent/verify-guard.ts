@@ -56,7 +56,7 @@ const STEM_UJI =
 // Kata pendek yang berbahaya bila dilonggarkan tetap `\b`: "tes" akan menjaring
 // "testimoni", "bug" menjaring "bugar".
 const KONTEKS_KODE =
-  /\b(kode|koding|coding|source|script|skrip|program|fungsi|function|method|berkas|file|perintah|command|terminal|typescript|javascript|error|exception|syntax|sintaks|compile|kompilasi|output|debug)\w*|\b(class|node|npm|npx|tsc|tsx|bug|test|tes|build|exit code|hasilnya)\b/i
+  /\b(kode|koding|code|coding|source|script|skrip|program|fungsi|function|method|berkas|file|perintah|command|terminal|typescript|javascript|error|exception|syntax|sintaks|compile|kompilasi|output|debug)\w*|\b(class|node|npm|npx|tsc|tsx|bug|test|tes|build|exit code|hasilnya)\b/i
 
 /**
  * Penanda bahwa pengujiannya SUDAH SELESAI dan BERHASIL.
@@ -90,6 +90,18 @@ const KLAIM_SELESAI = new RegExp(
 )
 
 /**
+ * English claim: "I/we" + an explicit PAST-TENSE test verb, followed within a few words by a RESULT
+ * ("… and it works", "… without errors"), or "all (the) tests passed".
+ *
+ * ⚠️ Final review 2 Nov 2026: the first English branch anchored on bare "have/has" and on the stems
+ * `run`/`verif`/`execut`/`validat`, and deleted TRUE sentences — "The function has runtime complexity
+ * O(n)", "I have created a test file", "I've added validation", "I ran into a limitation". A guard that
+ * deletes the truth is worse than none (rule 26), so subject, verb AND result must all be there.
+ */
+const KLAIM_EN =
+  /\b(?:I|we)(?:'ve|\s+have)?(?:\s+(?:also|already|successfully|just))?\s+(?:tested|ran|executed|verified|run)\b.{0,60}?(?:(?:\band\s+|,\s*)(?:it\s+|they\s+|everything\s+)?(?:works|worked|passed|passes|runs\s+fine)\b|\bwithout\s+(?:any\s+)?errors?\b)|\ball\s+(?:\w+\s+){0,2}(?:tests\s+)?passed\b/i
+
+/**
  * Penyangkalan — "belum saya uji" JUGA memuat "saya" dan "uji", tapi maknanya
  * kebalikannya dan justru kalimat jujur yang harus DIPERTAHANKAN.
  *
@@ -97,13 +109,13 @@ const KLAIM_SELESAI = new RegExp(
  * tertangkap ("error" bukan kata kerja uji).
  */
 const PENYANGKALAN = new RegExp(
-  `\\b(?:belum|tidak|tanpa|jangan|bukan)\\s+(?:\\w+\\s+){0,2}${STEM_UJI}`,
+  `\\b(?:belum|tidak|tanpa|jangan|bukan|not|never|haven't|hasn't|didn't|without)\\s+(?:\\w+\\s+){0,2}(?:${STEM_UJI}|ran\\b|run\\b|executed\\b|verified\\b)`,
   'i'
 )
 
 /** Kalimat yang MENYURUH user menguji — itu jujur, jangan dibuang. */
 const ARAHAN_KE_USER =
-  /\b(silakan|silahkan|kamu bisa|anda bisa|bisa kamu|untuk (menguji|mengetes|mengetest|menjalankan|mencoba|memastikan)|sebaiknya|disarankan|jalankan sendiri|perlu (diuji|dites|dicoba))\b/i
+  /\b(silakan|silahkan|kamu bisa|anda bisa|bisa kamu|untuk (menguji|mengetes|mengetest|menjalankan|mencoba|memastikan)|sebaiknya|disarankan|jalankan sendiri|perlu (diuji|dites|dicoba)|you can|you could|you should|please|to test it|to verify it|try running)\b/i
 
 /**
  * Kalimat yang MELAPORKAN KEGAGALAN. Itu tidak pernah klaim palsu.
@@ -131,14 +143,14 @@ const ARAHAN_KE_USER =
  * tidak ada error" adalah klaim keberhasilan yang sah dan harus tetap terjaring.
  */
 const KABAR_GAGAL =
-  /\b(gagal|galat|error koneksi|tidak berhasil|belum berhasil|masih error|masih gagal|tidak bisa dijalankan|tidak jalan)\b/i
+  /\b(gagal|galat|error koneksi|tidak berhasil|belum berhasil|masih error|masih gagal|tidak bisa dijalankan|tidak jalan|failed|fails|did not work|didn't work|connection error|could not run|couldn't run)\b/i
 
 /** Kalimat yang mengaku sudah menjalankan/menguji kodenya. */
 export function adalahKlaimUji(kalimat: string): boolean {
   if (PENYANGKALAN.test(kalimat)) return false
   if (ARAHAN_KE_USER.test(kalimat)) return false
   if (KABAR_GAGAL.test(kalimat)) return false
-  return KONTEKS_KODE.test(kalimat) && KLAIM_SELESAI.test(kalimat)
+  return KONTEKS_KODE.test(kalimat) && (KLAIM_SELESAI.test(kalimat) || KLAIM_EN.test(kalimat))
 }
 
 /** Apakah jawaban memuat klaim seperti itu di mana pun. */
@@ -191,8 +203,8 @@ export function toolMelaporkanUjiSukses(hasilTool: readonly string[]): boolean {
  * netral: kodenya memang belum terbukti jalan, dan user berhak tahu itu.
  */
 export const CATATAN_BELUM_DIUJI =
-  '\n\n⚠️ **Catatan sistem:** kode di atas **belum dijalankan di ruang uji**, jadi belum ada bukti ' +
-  'ia berjalan. Minta AIRA menguji dulu ("tolong uji dulu") sebelum dipakai.'
+  '\n\n⚠️ **System note:** the code above **has not been run in the test sandbox**, so there is no proof ' +
+  'yet that it works. Ask AIRA to test it first ("please test it first") before using it.'
 
 /**
  * Mode tempat guard ini BOLEH berjalan.

@@ -218,8 +218,9 @@ describe('membuang klaim dan menggantinya dengan yang jujur', () => {
   // Menghapus kalimat tanpa menggantinya membuat jawaban terasa netral, padahal
   // keadaannya tidak netral: kodenya memang belum terbukti jalan.
   test('catatan pengganti menyebut keadaannya dan langkah berikutnya', () => {
-    assert.match(CATATAN_BELUM_DIUJI, /belum dijalankan di ruang uji/i)
-    assert.match(CATATAN_BELUM_DIUJI, /uji dulu/i)
+    // Hackathon build: the note is shown to English-speaking users (final review 2 Nov 2026).
+    assert.match(CATATAN_BELUM_DIUJI, /has not been run in the test sandbox/i)
+    assert.match(CATATAN_BELUM_DIUJI, /test it first/i)
   })
 })
 

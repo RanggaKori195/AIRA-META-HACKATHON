@@ -8,7 +8,7 @@ import { indexAllAllowed, triggerAutoIndex } from '../rag/auto'
 export const ragTools: ToolDefinition[] = [
   {
     name: 'index_folder',
-    label: 'Indeks Dokumen',
+    label: 'Index Documents',
     description:
       'Mengindeks isi semua dokumen di sebuah folder (txt/md/csv/docx/doc/xlsx/pptx, rekursif) ' +
       'ke index pencarian semantik lokal. Jalankan sebelum search_docs, atau ulangi untuk refresh. ' +
@@ -20,7 +20,7 @@ export const ragTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 10 * 60_000,
-    summarize: (a) => `Indeks dokumen di ${a.path}`,
+    summarize: (a) => `Index documents in ${a.path}`,
     execute: async (args, ctx) => {
       const pathArg = args.path
       if (typeof pathArg !== 'string' || !pathArg.trim()) {
@@ -33,7 +33,7 @@ export const ragTools: ToolDefinition[] = [
   },
   {
     name: 'search_docs',
-    label: 'Cari Dokumen',
+    label: 'Search Documents',
     description:
       'Mencari dokumen yang sudah diindeks berdasarkan MAKNA query (semantic search), bukan nama file. ' +
       'Mengembalikan potongan teks paling relevan beserta path file sumbernya.',
@@ -47,7 +47,7 @@ export const ragTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Cari dokumen: "${a.query}"`,
+    summarize: (a) => `Search documents: "${a.query}"`,
     execute: async (args) => {
       const query = args.query
       if (typeof query !== 'string' || !query.trim()) {

@@ -70,8 +70,8 @@ export function daftarPerubahan(akses: RoleDivisionMatrix, draf: Draf): SelAkses
 export const penghuni = (users: AuthUserRow[], role: RoleId, divisi: string): string[] =>
   users.filter((u) => u.role === role && u.divisi.includes(divisi)).map((u) => u.username)
 
-export type SaringStatus = 'semua' | 'aktif' | 'nonaktif'
-export type KolomUrut = 'no' | 'divisi' | RoleId
+export type SaringStatus = 'all' | 'active' | 'inactive'
+export type KolomUrut = 'no' | 'division' | RoleId
 export interface Urutan {
   kolom: KolomUrut
   naik: boolean
@@ -102,12 +102,12 @@ export function susunBaris(
   const baris = daftar
     .map((d, i) => ({ ...d, no: i + 1 }))
     .filter((d) => (cari === '' ? true : d.nama.toLowerCase().includes(cari)))
-    .filter((d) => (opsi.status === 'semua' ? true : opsi.status === 'aktif' ? d.aktif : !d.aktif))
+    .filter((d) => (opsi.status === 'all' ? true : opsi.status === 'active' ? d.aktif : !d.aktif))
 
   const { kolom, naik } = opsi.urutan
   const banding = (a: BarisDivisi, b: BarisDivisi): number => {
     if (kolom === 'no') return a.no - b.no
-    if (kolom === 'divisi') return a.nama.localeCompare(b.nama, 'id')
+    if (kolom === 'division') return a.nama.localeCompare(b.nama, 'en')
     const va = opsi.nilai(kolom, a.kode) ? 1 : 0
     const vb = opsi.nilai(kolom, b.kode) ? 1 : 0
     if (va !== vb) return vb - va

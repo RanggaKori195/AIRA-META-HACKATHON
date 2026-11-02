@@ -101,9 +101,9 @@ function awalHari(d: Date): number {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
 }
 
-const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
-const HARI_PENDEK = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
-const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+const HARI = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const HARI_PENDEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 function selisihHari(iso: string, sekarang: Date): number {
   return Math.round((awalHari(sekarang) - awalHari(new Date(iso))) / 86_400_000)
@@ -117,21 +117,21 @@ export function jamPesan(iso: string): string {
 /** Pemisah tanggal di dalam percakapan: "Hari ini", "Kemarin", "Senin", "12 Sep 2026". */
 export function labelTanggal(iso: string, sekarang: Date = new Date()): string {
   const beda = selisihHari(iso, sekarang)
-  if (beda <= 0) return 'Hari ini'
-  if (beda === 1) return 'Kemarin'
+  if (beda <= 0) return 'Today'
+  if (beda === 1) return 'Yesterday'
   const d = new Date(iso)
   if (beda < 7) return HARI[d.getDay()]
-  return `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`
+  return `${BULAN[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
 }
 
 /** Waktu di daftar percakapan — ringkas, seperti WhatsApp. */
 export function waktuDaftar(iso: string, sekarang: Date = new Date()): string {
   const beda = selisihHari(iso, sekarang)
   if (beda <= 0) return jamPesan(iso)
-  if (beda === 1) return 'Kemarin'
+  if (beda === 1) return 'Yesterday'
   const d = new Date(iso)
   if (beda < 7) return HARI_PENDEK[d.getDay()]
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getFullYear()).slice(2)}`
+  return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${String(d.getFullYear()).slice(2)}`
 }
 
 /** Apakah dua pesan jatuh di hari yang berbeda — penentu pemisah tanggal. */
@@ -143,11 +143,11 @@ export function hariBaru(sebelum: PesanChatIpc | undefined, ini: PesanChatIpc): 
 /** Status di bawah nama orang pada kepala ruang chat. */
 export function statusOrang(rekan: RekanChat, sekarang: Date = new Date()): string {
   if (rekan.online) return 'online'
-  if (!rekan.lastSeen) return 'belum pernah terlihat online'
+  if (!rekan.lastSeen) return 'never seen online'
   const beda = selisihHari(rekan.lastSeen, sekarang)
-  if (beda <= 0) return `terakhir terlihat hari ini ${jamPesan(rekan.lastSeen)}`
-  if (beda === 1) return `terakhir terlihat kemarin ${jamPesan(rekan.lastSeen)}`
-  return `terakhir terlihat ${labelTanggal(rekan.lastSeen, sekarang)}`
+  if (beda <= 0) return `last seen today ${jamPesan(rekan.lastSeen)}`
+  if (beda === 1) return `last seen yesterday ${jamPesan(rekan.lastSeen)}`
+  return `last seen ${labelTanggal(rekan.lastSeen, sekarang)}`
 }
 
 /**
@@ -159,10 +159,10 @@ export function statusOrang(rekan: RekanChat, sekarang: Date = new Date()): stri
 export function cuplikan(p: PesanChatIpc | null, saya: string, diGrup: boolean): string {
   if (!p) return ''
   if (p.jenis) return teksSistem(p.jenis, p.pengirim, p.target, saya)
-  if (p.dihapusAt) return '🚫 Pesan ini dihapus'
+  if (p.dihapusAt) return '🚫 This message was deleted'
   const dariSaya = p.pengirim.toLowerCase() === saya.toLowerCase()
   const isi = p.isi.trim() || (p.lampiranNama ? `📎 ${p.lampiranNama}` : '')
-  const awalan = dariSaya ? 'Kamu: ' : diGrup ? `${p.pengirim}: ` : ''
+  const awalan = dariSaya ? 'You: ' : diGrup ? `${p.pengirim}: ` : ''
   return `${awalan}${isi}`.replace(/\s+/g, ' ')
 }
 
@@ -182,7 +182,7 @@ export function tandaBaca(p: PesanChatIpc, saya: string): '✓' | '✓✓' | nul
 
 const LABEL_ROLE: Record<string, string> = {
   super_admin: 'Super Admin',
-  direktur: 'Direktur',
+  direktur: 'Director',
   manager: 'Manager',
   spv: 'SPV',
   staff: 'Staff'
@@ -200,17 +200,17 @@ export function jabatanRekan(r: RekanChat): string {
 }
 
 const BULAN_PANJANG = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
 /** Pemisah tanggal panjang: "Hari ini, 26 September 2026" / "Kemarin, …" / "Senin, …". */
 export function labelTanggalPanjang(iso: string, sekarang: Date = new Date()): string {
   const d = new Date(iso)
-  const tanggal = `${d.getDate()} ${BULAN_PANJANG[d.getMonth()]} ${d.getFullYear()}`
+  const tanggal = `${BULAN_PANJANG[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
   const beda = selisihHari(iso, sekarang)
-  if (beda <= 0) return `Hari ini, ${tanggal}`
-  if (beda === 1) return `Kemarin, ${tanggal}`
+  if (beda <= 0) return `Today, ${tanggal}`
+  if (beda === 1) return `Yesterday, ${tanggal}`
   return `${HARI[d.getDay()]}, ${tanggal}`
 }
 

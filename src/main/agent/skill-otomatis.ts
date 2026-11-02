@@ -22,7 +22,7 @@ const RCA_EKSPLISIT =
 
 /** "analisa/telusuri/investigasi penyebab…" */
 const MINTA_TELUSUR =
-  /\b(analisa|analisis|analisakan|analisislah|telusuri|telusur|investigasi|selidiki|cari(kan)?|temukan|bedah)\s+(apa\s+)?(penyebab|sebab|pemicu|biang)\w*/i
+  /\b(analisa|analisis|analisakan|analisislah|telusuri|telusur|investigasi|selidiki|cari(kan)?|temukan|bedah)\s+(apa\s+)?(penyebab|sebab|pemicu|biang)\w*|\b(analy[sz]e|investigate|find|trace|determine|identify)\s+(the\s+)?(cause|causes|reason)\b/i
 
 /**
  * Tanda bahwa yang ditelusuri adalah KEJADIAN operasional.
@@ -32,7 +32,7 @@ const MINTA_TELUSUR =
  * mengganti jawaban angka dengan formulir.
  */
 const KEJADIAN =
-  /\b(mati|down|rusak|error|eror|gagal|insiden|kejadian|gangguan|terganggu|macet|mogok|hang|terlambat|telat|molor|tertunda|hilang|tertukar|ditolak|reject\w*|komplain\w*|keluhan|kontaminasi|terkontaminasi|salah\s+(hasil|label|sampel|kirim)|out\s+of\s+control|ooc)\b/i
+  /\b(mati|down|rusak|error|eror|gagal|insiden|kejadian|gangguan|terganggu|macet|mogok|hang|terlambat|telat|molor|tertunda|hilang|tertukar|ditolak|reject\w*|komplain\w*|keluhan|kontaminasi|terkontaminasi|salah\s+(hasil|label|sampel|kirim)|out\s+of\s+control|ooc|downtime|broke|broken|failure|failed|incident|outage|delay|delayed|late|lost|mix-?up|mixed\s+up|swapped|rejected|complaints?|contaminat\w*|wrong\s+(result|label|sample))\b/i
 
 /**
  * Tanda pekerjaan KODE. "analisa penyebab error di script ini" adalah debugging,

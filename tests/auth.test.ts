@@ -433,19 +433,19 @@ describe('aturan jumlah divisi per role', () => {
   test('Direktur & Super Admin tidak boleh diberi divisi', () => {
     for (const role of ['direktur', 'super_admin'] as const) {
       assert.equal(validasiDivisi(role, []), null, role)
-      assert.match(validasiDivisi(role, ['pk'])!, /tidak perlu/, role)
+      assert.match(validasiDivisi(role, ['pk'])!, /no division needs/, role)
     }
   })
 
   test('Staff tepat satu divisi', () => {
     assert.equal(validasiDivisi('staff', ['pk']), null)
-    assert.match(validasiDivisi('staff', [])!, /wajib/)
-    assert.match(validasiDivisi('staff', ['pk', 'it'])!, /hanya boleh satu/)
+    assert.match(validasiDivisi('staff', [])!, /must have/)
+    assert.match(validasiDivisi('staff', ['pk', 'it'])!, /may only have one/)
   })
 
   test('Manager & SPV minimal satu, boleh banyak', () => {
     for (const role of ['manager', 'spv'] as const) {
-      assert.match(validasiDivisi(role, [])!, /minimal/, role)
+      assert.match(validasiDivisi(role, [])!, /at least/, role)
       assert.equal(validasiDivisi(role, ['pk']), null, role)
       assert.equal(validasiDivisi(role, ['pk', 'it', 'genomics']), null, role)
     }
@@ -458,7 +458,7 @@ describe('aturan jumlah divisi per role', () => {
   })
 
   test('string kosong diabaikan', () => {
-    assert.match(validasiDivisi('staff', ['', '  '])!, /wajib/)
+    assert.match(validasiDivisi('staff', ['', '  '])!, /must have/)
   })
 })
 

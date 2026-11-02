@@ -7,7 +7,7 @@ import { listSkills, readSkill } from '../skills'
 export const skillTools: ToolDefinition[] = [
   {
     name: 'load_skill',
-    label: 'Muat Panduan',
+    label: 'Load Guide',
     description:
       'Memuat panduan kerja (skill) sesuai daftar yang tersedia. Panggil ini SEBELUM mengerjakan ' +
       'tugas yang cocok dengan salah satu skill, lalu ikuti instruksinya. Sebutkan nama skill-nya persis.',
@@ -17,7 +17,7 @@ export const skillTools: ToolDefinition[] = [
       required: ['name']
     },
     tier: 'read',
-    summarize: (a) => `Muat panduan "${a.name}"`,
+    summarize: (a) => `Load guide "${a.name}"`,
     execute: async (args) => {
       const name = args.name
       if (typeof name !== 'string' || !name.trim()) {

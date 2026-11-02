@@ -650,23 +650,23 @@ export type FeedbackStatus = (typeof FEEDBACK_STATUS)[number]
 
 export const FEEDBACK_JENIS_LABELS: Record<FeedbackJenis, string> = {
   bug: 'Bug / error',
-  usulan: 'Usulan fitur',
-  tidak_terjawab: 'Belum bisa dijawab',
-  lain: 'Lainnya'
+  usulan: 'Feature request',
+  tidak_terjawab: 'Could not answer',
+  lain: 'Other'
 }
 
 export const FEEDBACK_DAMPAK_LABELS: Record<FeedbackDampak, string> = {
-  menghalangi: 'Menghalangi pekerjaan',
-  mengganggu: 'Mengganggu, masih bisa jalan',
-  kecil: 'Kecil / usulan saja'
+  menghalangi: 'Blocks my work',
+  mengganggu: 'Annoying, but I can continue',
+  kecil: 'Minor / suggestion only'
 }
 
 export const FEEDBACK_STATUS_LABELS: Record<FeedbackStatus, string> = {
-  baru: 'Baru',
-  dibaca: 'Dibaca',
-  dikerjakan: 'Dikerjakan',
-  selesai: 'Selesai',
-  ditolak: 'Ditolak'
+  baru: 'New',
+  dibaca: 'Read',
+  dikerjakan: 'In progress',
+  selesai: 'Done',
+  ditolak: 'Declined'
 }
 
 /**

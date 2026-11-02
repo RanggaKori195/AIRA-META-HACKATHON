@@ -191,7 +191,7 @@ export function susunLaporan(d: DataLaporan): BlokDokumen[] {
 
   b.push({ type: 'h1', text: d.judul })
   b.push({ type: 'p', text: `Periode: ${d.periodeLabel} (${d.periodeRentang})` })
-  b.push({ type: 'p', text: `Dibuat: ${d.dibuatPada} · Sumber: database penjualan the lab` })
+  b.push({ type: 'p', text: `Dibuat: ${d.dibuatPada} · Sumber: database penjualan lab` })
 
   // 1. Ringkasan eksekutif
   b.push({ type: 'h2', text: 'Ringkasan Eksekutif' })

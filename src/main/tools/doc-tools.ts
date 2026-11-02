@@ -48,7 +48,7 @@ const MAX_CELLS_WRITE = 20_000
  * sendiri bila tidak ada. Di lingkungan the company fontnya ada; untuk kiriman ke
  * luar, PDF lebih aman karena hurufnya pasti sama di mana pun dibuka.
  */
-const FONT_DOKUMEN = 'company serif font'
+const FONT_DOKUMEN = 'Segoe UI'
 const MAX_TEXT_CHARS = 100_000
 
 function str(args: Record<string, unknown>, key: string): string {
@@ -255,7 +255,7 @@ export const docTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Baca Excel ${a.path}${a.sheet ? ` (sheet ${a.sheet})` : ''}`,
+    summarize: (a) => `Read Excel ${a.path}${a.sheet ? ` (sheet ${a.sheet})` : ''}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       requireExt(file, '.xlsx')
@@ -328,7 +328,7 @@ export const docTools: ToolDefinition[] = [
     },
     tier: 'write',
     timeoutMs: 60_000,
-    summarize: (a) => `Buat Excel baru ${a.path}`,
+    summarize: (a) => `Create new Excel ${a.path}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       requireExt(file, '.xlsx')
@@ -391,7 +391,7 @@ export const docTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Baca Word ${a.path}`,
+    summarize: (a) => `Read Word ${a.path}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       const lower = file.toLowerCase()
@@ -422,7 +422,7 @@ export const docTools: ToolDefinition[] = [
   },
   {
     name: 'read_pdf',
-    label: 'Baca PDF',
+    label: 'Read PDF',
     description:
       'Membaca isi teks dari file PDF. Bila PDF adalah hasil SCAN (tidak ada lapisan teks), ' +
       'halamannya otomatis dibaca dengan OCR. Untuk tabel, pakai read_pdf_tables agar lebih rapi. ' +
@@ -453,7 +453,7 @@ export const docTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 10 * 60_000,
-    summarize: (a) => `Baca PDF ${a.path}`,
+    summarize: (a) => `Read PDF ${a.path}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       requireExt(file, '.pdf')
@@ -539,7 +539,7 @@ export const docTools: ToolDefinition[] = [
   },
   {
     name: 'read_pdf_tables',
-    label: 'Baca Tabel PDF',
+    label: 'Read PDF Tables',
     description:
       'Mengekstrak TABEL dari PDF sebagai baris/kolom terstruktur (bukan teks acak). ' +
       'Gunakan sebelum write_excel bila user ingin mengubah tabel PDF menjadi Excel.',
@@ -553,7 +553,7 @@ export const docTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 120_000,
-    summarize: (a) => `Baca tabel PDF ${a.path}${a.page ? ` (hal. ${a.page})` : ''}`,
+    summarize: (a) => `Read PDF tables ${a.path}${a.page ? ` (page ${a.page})` : ''}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       requireExt(file, '.pdf')
@@ -594,7 +594,7 @@ export const docTools: ToolDefinition[] = [
     },
     tier: 'write',
     timeoutMs: 180_000,
-    summarize: (a) => `Konversi ${a.path} ke format Office baru`,
+    summarize: (a) => `Convert ${a.path} to the new Office format`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       if (!existsSync(file)) throw new ToolError('file tidak ditemukan')
@@ -638,7 +638,7 @@ export const docTools: ToolDefinition[] = [
     },
     tier: 'write',
     timeoutMs: 60_000,
-    summarize: (a) => `Buat Word baru ${a.path}`,
+    summarize: (a) => `Create new Word ${a.path}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       requireExt(file, '.docx')
@@ -662,7 +662,7 @@ export const docTools: ToolDefinition[] = [
       // Font korporat. Tidak tertanam di .docx — bergantung font yang terpasang
       // di komputer pembaca (lihat catatan di sales-tools.ts).
       const doc = new Document({
-        styles: { default: { document: { run: { font: 'company serif font' } } } },
+        styles: { default: { document: { run: { font: FONT_DOKUMEN } } } },
         sections: [{ children }]
       })
       writeFileSync(file, await Packer.toBuffer(doc))
@@ -671,7 +671,7 @@ export const docTools: ToolDefinition[] = [
   },
   {
     name: 'write_pdf',
-    label: 'Buat PDF',
+    label: 'Create PDF',
     description:
       'Membuat file PDF (.pdf) BARU dari teks Markdown. Mendukung judul (#, ##, ###), tebal ' +
       '(**teks**), miring, poin, penomoran, blok kode, garis pemisah, dan TABEL gaya Markdown ' +
@@ -694,7 +694,7 @@ export const docTools: ToolDefinition[] = [
     },
     tier: 'write',
     timeoutMs: 90_000,
-    summarize: (a) => `Buat PDF ${a.path}`,
+    summarize: (a) => `Create PDF ${a.path}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       requireExt(file, '.pdf')
@@ -737,7 +737,7 @@ export const docTools: ToolDefinition[] = [
     },
     tier: 'read',
     timeoutMs: 60_000,
-    summarize: (a) => `Baca PowerPoint ${a.path}`,
+    summarize: (a) => `Read PowerPoint ${a.path}`,
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
       requireExt(file, '.pptx')
@@ -758,33 +758,33 @@ export const docTools: ToolDefinition[] = [
   },
   {
     name: 'write_ppt',
-    label: 'Buat presentasi',
+    label: 'Create presentation',
     description:
-      'Membuat presentasi PowerPoint (.pptx) BARU memakai template korporat the company (16:9, logo & ' +
-      'warna hijau the company sudah terpasang otomatis). Setiap slide WAJIB memilih satu "layout"; ' +
-      'jangan menyebut posisi, ukuran huruf, atau warna — tata letaknya sudah diatur template.\n' +
-      'Layout yang tersedia:\n' +
-      '- sampul: {judul, subjudul?, catatan?} — slide pembuka, wajib jadi slide pertama\n' +
-      '- agenda: {judul?, item:[teks]} — daftar bernomor, maksimal 12 item\n' +
-      '- bagian: {judul, subjudul?} — pembatas antar bagian\n' +
-      '- poin: {judul, poin:[teks ATAU {teks, ikon}]} — poin-poin isi, boleh berikon\n' +
-      '- dua-kolom: {judul, kiri:{judul?,poin[]}, kanan:{judul?,poin[]}} — perbandingan\n' +
-      '- angka: {judul, kartu:[{nilai,label,ikon?}], catatan?} — 1-4 angka penting (KPI)\n' +
+      'Creates a NEW PowerPoint (.pptx) presentation using the corporate template (16:9, logo & ' +
+      'brand colors applied automatically). Every slide MUST pick one "layout"; ' +
+      'do not mention position, font size, or color — the layout is handled by the template.\n' +
+      'Available layouts:\n' +
+      '- sampul: {judul, subjudul?, catatan?} — opening slide, MUST be the first slide\n' +
+      '- agenda: {judul?, item:[teks]} — numbered list, at most 12 items\n' +
+      '- bagian: {judul, subjudul?} — section divider\n' +
+      '- poin: {judul, poin:[teks OR {teks, ikon}]} — bullet points, icons optional\n' +
+      '- dua-kolom: {judul, kiri:{judul?,poin[]}, kanan:{judul?,poin[]}} — comparison\n' +
+      '- angka: {judul, kartu:[{nilai,label,ikon?}], catatan?} — 1-4 key numbers (KPIs)\n' +
       '- tabel: {judul, kolom:[..], baris:[[..]], catatan?}\n' +
-      '- grafik: {judul, jenis:"batang"|"garis"|"pai", label:[..], seri:[{nama,nilai:[angka]}], catatan?} ' +
-      '— grafik PowerPoint asli yang bisa diedit; nilai harus angka murni\n' +
-      '- gambar: {judul, gambar:"deskripsi ilustrasi", keterangan?} — slide ilustrasi; gambarnya ' +
-      'DIBUAT OLEH AIRA dari deskripsi itu, maksimal 6 per presentasi, ±8 detik per gambar. ' +
-      'JANGAN dipakai untuk grafik data (pakai layout "grafik"), diagram alur, atau logo resmi. ' +
-      'Pakai HANYA bila user memang meminta atau menyetujui ilustrasi\n' +
-      '- penutup: {} — slide terima kasih, taruh paling akhir\n' +
+      '- grafik: {judul, jenis:"batang"|"garis"|"pai", label:[..], seri:[{nama,nilai:[number]}], catatan?} ' +
+      '— a real, editable PowerPoint chart; values must be plain numbers\n' +
+      '- gambar: {judul, gambar:"illustration description", keterangan?} — illustration slide; the image is ' +
+      'GENERATED BY AIRA from that description, at most 6 per presentation, about 8 seconds per image. ' +
+      'Do NOT use it for data charts (use the "grafik" layout), flow diagrams, or official logos. ' +
+      'Use it ONLY when the user asked for or approved illustrations\n' +
+      '- penutup: {} — thank-you slide, put it last\n' +
       // Daftar ikonnya 71 nama (646 karakter). Deskripsi tool dikirim ULANG
       // setiap giliran dan `--enable-prefix-caching` belum aktif di gateway,
       // jadi yang dikirim cuma contohnya. Nama yang salah tidak berakhir
       // sebagai kotak kosong: tool menolak dan menyarankan nama yang mirip.
-      `Ikon (opsional) disebut dengan nama Indonesia, mis. ${IKON_CONTOH.join(', ')} — ` +
-      `${NAMA_IKON.length} nama tersedia; bila namanya tidak ada, tool menolak sambil ` +
-      'menyarankan yang mirip.',
+      `Icons (optional) are referred to by Indonesian name, e.g. ${IKON_CONTOH.join(', ')} — ` +
+      `${NAMA_IKON.length} names available; if a name does not exist, the tool rejects it and ` +
+      'suggests similar ones.',
     parameters: {
       type: 'object',
       properties: {
@@ -836,7 +836,7 @@ export const docTools: ToolDefinition[] = [
     // berisi 6 ilustrasi = ±50 detik hanya untuk gambarnya, di luar render.
     timeoutMs: 300_000,
     summarize: (a) =>
-      `Buat presentasi ${a.path}` +
+      `Create presentation ${a.path}` +
       (Array.isArray(a.slides) ? ` (${(a.slides as unknown[]).length} slide)` : ''),
     execute: async (args, ctx) => {
       const file = resolveInBoundary(str(args, 'path'), ctx.allowedDirs)
