@@ -1,4 +1,5 @@
 import { test, describe } from 'node:test'
+import { TERMS } from '../scripts/scrub-check'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'fs'
 import { basisFromText } from '../src/main/sales/basis'
@@ -153,9 +154,8 @@ describe('system prompt', () => {
     const s = readFileSync('src/main/agent/orchestrator.ts', 'utf8')
     assert.ok(s.includes('Always answer in English.'))
     const prompts = s.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '')
-    for (const banned of ['Order ID', 'ERP', 'Master Data', 'the company', 'the lab']) {
-      assert.ok(!prompts.includes(banned), banned)
-    }
+    // No company term in the prompts (same term list as the public scrub check).
+    assert.equal(prompts.match(TERMS), null)
   })
 })
 

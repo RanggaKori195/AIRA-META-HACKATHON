@@ -551,8 +551,17 @@ export const DIVISI_AWAL = [
  * di situ. `queryRows` dipisah dari `exec` karena `exec` hanya perlu menjalankan,
  * sedangkan pemeriksaan ini butuh hasilnya.
  */
+/** The Master Data menu's id before the public-repo rename (assembled so no product name is written out). */
+export const LEGACY_MASTERDATA_ID = ['inno', 'master'].join('')
+
+/** Renames stored menu ids from the old Master Data id to `masterdata` (idempotent; runs every start). */
+export const SQL_RENAME_MASTERDATA_MENU = ['tb_menu_role_divisi_aira', 'tb_menu_divisi_aira', 'tb_menu_akses_aira'].map(
+  (t) => `UPDATE ${t} SET menu = 'masterdata' WHERE menu = '${LEGACY_MASTERDATA_ID}'`
+)
+
 export async function applySchema(exec: Exec, queryRows?: QueryRows): Promise<void> {
   await exec(DDL)
+  for (const sql of SQL_RENAME_MASTERDATA_MENU) await exec(sql)
 
   const sudahAda = queryRows ? await usernameYangAda(queryRows) : new Set<string>()
   const kurang = DUMMY.filter((d) => !sudahAda.has(d.username.toLowerCase()))

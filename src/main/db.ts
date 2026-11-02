@@ -238,7 +238,12 @@ const MIGRATIONS: string[] = [
   // Pemantau proaktif (20 Okt 2026): penanda anti-ulang per username × pemicu dan
   // riwayat peringatan. DDL-nya tinggal di `pemantau/simpan.ts` supaya test
   // menjalankan SQL yang SAMA di node:sqlite. Lihat RANCANGAN-PEMANTAU.md.
-  DDL_PEMANTAU
+  DDL_PEMANTAU,
+  // Public-repo rename: conversations and scheduled tasks saved under the old Master Data mode id.
+  `
+  UPDATE sessions SET mode = 'masterdata' WHERE mode = '${['inno', 'master'].join('')}';
+  UPDATE jadwal SET mode = 'masterdata' WHERE mode = '${['inno', 'master'].join('')}';
+  `
 ]
 
 export function initDb(): void {

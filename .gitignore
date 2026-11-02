@@ -16,3 +16,5 @@ promo/*.mp4
 promo/keluaran/
 scripts/.*-bundle.cjs
 *.tsbuildinfo
+
+!.env.example

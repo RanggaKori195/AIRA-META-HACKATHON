@@ -326,7 +326,7 @@ describe('Task Baru tidak pernah menyentuh database (ketentuan user 20 Agu 2026)
   test('mode umum tetap dapat tool non-data seperti biasa', () => {
     // Penutupan ini tidak boleh melumpuhkan Task Baru untuk pekerjaan lain.
     assert.ok(selectGroups({ ...umum, text: 'jalankan npm run build' }).has('dev'))
-    assert.ok(selectGroups({ ...umum, text: 'buka orderIdlab.co.id' }).has('browser'))
+    assert.ok(selectGroups({ ...umum, text: 'buka examplelab.co.id' }).has('browser'))
     assert.ok(selectGroups({ ...umum, text: 'rapikan file di folder laporan' }).has('core'))
   })
 })
@@ -422,7 +422,7 @@ describe('pengelompokan tool', () => {
     assert.ok(!groups.has('data'))
   })
   test('menyebut situs mengaktifkan kelompok browser', () => {
-    assert.ok(selectGroups({ ...base, text: 'buka orderIdlab.co.id' }).has('browser'))
+    assert.ok(selectGroups({ ...base, text: 'buka examplelab.co.id' }).has('browser'))
     assert.ok(selectGroups({ ...base, text: 'buka website perusahaan' }).has('browser'))
   })
   test('pertanyaan fakta TIDAK mengaktifkan browser (cukup web search)', () => {
@@ -494,7 +494,7 @@ describe('format file terstruktur (regresi .docx rusak)', () => {
 describe('blokir buka URL lewat shell', () => {
   test('PowerShell Start-Process URL diblokir', () => {
     assert.throws(() =>
-      assertNotBrowserLaunch(`powershell -Command "Start-Process 'https://orderIdlab.co.id'"`)
+      assertNotBrowserLaunch(`powershell -Command "Start-Process 'https://examplelab.co.id'"`)
     )
   })
   test('start http diblokir', () => {
@@ -512,9 +512,9 @@ describe('blokir buka URL lewat shell', () => {
 
 describe('kandidat URL browser', () => {
   test('domain telanjang otomatis dicoba varian www', () => {
-    const list = candidateUrls('orderIdlab.co.id')
-    assert.ok(list.includes('https://orderIdlab.co.id/'))
-    assert.ok(list.some((u) => u.startsWith('https://www.orderIdlab.co.id')))
+    const list = candidateUrls('examplelab.co.id')
+    assert.ok(list.includes('https://examplelab.co.id/'))
+    assert.ok(list.some((u) => u.startsWith('https://www.examplelab.co.id')))
   })
   test('http TIDAK pernah ditambahkan sebagai fallback dari https', () => {
     assert.ok(candidateUrls('https://situs.co.id').every((u) => u.startsWith('https://')))
@@ -720,8 +720,8 @@ describe('pertanyaan sales tanpa kata "sales" (regresi: dijawab lewat cari dokum
       assert.ok(isSalesQuestion(t), t)
     }
   })
-  test('kata ERP saja sudah cukup', () => {
-    assert.ok(isSalesQuestion('berapa yang masuk erp kemarin'))
+  test('ERP bersama kata data tetap pertanyaan sales (kata "ERP" sendiri generik, lihat english-guards #5)', () => {
+    assert.ok(isSalesQuestion('berapa invoice yang masuk erp kemarin'))
   })
   test('chat umum TIDAK ikut terjaring', () => {
     for (const t of [

@@ -165,7 +165,7 @@ const SEARCH_HINT =
 
 // Kata yang sendirian sudah cukup menandakan urusan data penjualan.
 const SALES_HINT =
-  /\b(sales|penjualan|omzet|omset|revenue|pendapatan|transaksi|invoice|customer|pelanggan|item terlaris|cabang|penjamin|target|erp|nett|gross|ytd|year.?to.?date|growth|customers|turnover|best.?selling|top.?selling|invoiced|billed)\b/i
+  /\b(sales|penjualan|omzet|omset|revenue|pendapatan|transaksi|invoice|customer|pelanggan|item terlaris|cabang|penjamin|target|nett|gross|ytd|year.?to.?date|growth|customers|turnover|best.?selling|top.?selling|invoiced|billed)\b/i
 
 // Kosakata bisnis lab yang BARU berarti penjualan bila digabung dengan kata performa.
 // Regresi nyata: "Item apa yang trennya menurun dibanding bulan lalu?" tidak memuat

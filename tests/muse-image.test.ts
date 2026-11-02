@@ -30,7 +30,7 @@ describe('Muse Image request', () => {
   })
 
   test('config default endpoint is the Meta Model API', () => {
-    assert.doesNotMatch(src('src/main/config.ts'), /gateway/)
+    assert.match(src('src/main/config.ts'), /endpoint: z\.string\(\)\.url\(\)\.default\(META_ENDPOINT\)/)
   })
 })
 

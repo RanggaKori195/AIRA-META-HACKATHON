@@ -19,7 +19,7 @@ describe('adalahModeData — one definition of "data mode"', () => {
     for (const m of MODE_CHAT) {
       assert.equal(adalahModeData(m), !NON_DATA.includes(m), m)
     }
-    assert.deepEqual([...MODE_DATA].sort(), ['masterdata', 'lab', 'reagent', 'sales'])
+    assert.deepEqual([...MODE_DATA].sort(), ['lab', 'masterdata', 'reagent', 'sales'])
   })
 
   test('unknown / missing mode is not a data mode', () => {

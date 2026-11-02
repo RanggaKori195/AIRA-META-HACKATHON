@@ -673,12 +673,13 @@ describe('pemantau: penyimpanan', () => {
     assert.deepEqual(s.mati('budi'), [])
   })
 
-  test('db.ts mendaftarkan DDL_PEMANTAU sebagai migrasi terakhir', () => {
+  test('db.ts mendaftarkan DDL_PEMANTAU sesudah migrasi kolom visual (migrasi rename Master Data menyusul)', () => {
     const teks = readFileSync('src/main/db.ts', 'utf8')
     assert.ok(teks.includes("import { DDL_PEMANTAU } from './pemantau/simpan'"))
     const visual = teks.indexOf('ADD COLUMN visual TEXT')
-    const ddl = teks.search(/DDL_PEMANTAU\s*\]/)
-    assert.ok(visual > 0 && ddl > visual, 'DDL_PEMANTAU harus elemen sesudah migrasi kolom visual dan menutup MIGRATIONS')
+    const ddl = teks.search(/DDL_PEMANTAU,\s*\n/)
+    const rename = teks.indexOf("UPDATE sessions SET mode = 'masterdata'")
+    assert.ok(visual > 0 && ddl > visual && rename > ddl, 'urutan: kolom visual → DDL_PEMANTAU → rename Master Data')
   })
 
   test('config punya pemantauMati bawaan kosong (semua pemicu menyala)', () => {

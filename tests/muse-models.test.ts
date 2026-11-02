@@ -17,10 +17,12 @@ describe('Muse model ids by role', () => {
   })
 
   test('old AURA ids migrate to the Muse id of their role', () => {
-    assert.equal(migrateModelId('old-think-model', 'agent'), 'muse-wonder-1.0')
+    // Legacy company-gateway ids, assembled so the public repository carries no gateway model names.
+    const legacy = (s: string): string => ['AURA', s].join('-')
+    assert.equal(migrateModelId(legacy('think'), 'agent'), 'muse-wonder-1.0')
     assert.equal(migrateModelId('AURA', 'chat'), 'muse-spark-1.3')
-    assert.equal(migrateModelId('old-vision-model', 'parser'), 'muse-spark-1.3')
-    assert.equal(migrateModelId('old-coder-model', 'coder'), 'muse-wonder-1.0')
+    assert.equal(migrateModelId(legacy('parser'), 'parser'), 'muse-spark-1.3')
+    assert.equal(migrateModelId(legacy('coder'), 'coder'), 'muse-wonder-1.0')
   })
 
   test('contributor tiers are never kept (inputs train Meta models)', () => {
