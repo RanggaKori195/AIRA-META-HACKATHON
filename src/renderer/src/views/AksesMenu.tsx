@@ -96,20 +96,20 @@ function IkonOrang({ dua }: { dua?: boolean }): JSX.Element {
 function IlustrasiPerisai(): JSX.Element {
   return (
     <svg className="akses-ilustrasi" viewBox="0 0 280 110" aria-hidden="true">
-      <rect x="20" y="62" width="120" height="40" rx="8" fill="#dff0e5" />
-      <rect x="32" y="74" width="60" height="6" rx="3" fill="#b9dcc5" />
-      <rect x="32" y="86" width="84" height="6" rx="3" fill="#cfe6d7" />
-      <rect x="92" y="14" width="176" height="74" rx="10" fill="#ffffff" stroke="#e1ece5" />
-      <rect x="170" y="34" width="80" height="7" rx="3.5" fill="#dcebe1" />
-      <rect x="170" y="50" width="56" height="7" rx="3.5" fill="#e6f1ea" />
+      <rect x="20" y="62" width="120" height="40" rx="8" fill="#dee6f1" />
+      <rect x="32" y="74" width="60" height="6" rx="3" fill="#b7c7de" />
+      <rect x="32" y="86" width="84" height="6" rx="3" fill="#ced8e7" />
+      <rect x="92" y="14" width="176" height="74" rx="10" fill="#ffffff" stroke="#e1e5ec" />
+      <rect x="170" y="34" width="80" height="7" rx="3.5" fill="#dbe2ec" />
+      <rect x="170" y="50" width="56" height="7" rx="3.5" fill="#e5eaf2" />
       <path
         d="M130 22l24 9v17c0 15-10 26-24 31-14-5-24-16-24-31V31z"
-        fill="#1f7a45"
+        fill="#1a427f"
       />
-      <path d="M130 22l24 9v17c0 15-10 26-24 31z" fill="#17643a" />
+      <path d="M130 22l24 9v17c0 15-10 26-24 31z" fill="#123569" />
       <path d="M120 49l7 7 14-15" fill="none" stroke="#fff" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M58 20l2.2 6 6 2.2-6 2.2-2.2 6-2.2-6-6-2.2 6-2.2z" fill="#b9dcc5" />
-      <path d="M44 38l1.3 3.5 3.5 1.3-3.5 1.3-1.3 3.5-1.3-3.5-3.5-1.3 3.5-1.3z" fill="#cfe6d7" />
+      <path d="M58 20l2.2 6 6 2.2-6 2.2-2.2 6-2.2-6-6-2.2 6-2.2z" fill="#b7c7de" />
+      <path d="M44 38l1.3 3.5 3.5 1.3-3.5 1.3-1.3 3.5-1.3-3.5-3.5-1.3 3.5-1.3z" fill="#ced8e7" />
     </svg>
   )
 }

@@ -4,8 +4,10 @@
 // 2. On the committed demo files the engine finds exactly the planted anomalies, on the intended items.
 import { Client } from 'pg'
 import { SQL_REAGENT_VOLUMES, monthRange } from '../src/main/reagent/volumes'
-import { clearReagentCache, runReconciliation } from '../src/main/reagent/service'
-import { PLANTED } from '../scripts/seed/reagent'
+import { readFileSync } from 'fs'
+import { actions, clearReagentCache, runReconciliation } from '../src/main/reagent/service'
+import { parseRecount } from '../src/shared/recount'
+import { LOW_STOCK, PLANTED, RECOUNT_PLANTED } from '../scripts/seed/reagent'
 import { envDb } from './live-env'
 
 let gagal = 0
@@ -52,6 +54,33 @@ async function main(): Promise<void> {
       r.summary.notChecked.length === 0,
       r.summary.notChecked.map((n) => `${n.itemCode}: ${n.reason}`).join('; ') || `${r.summary.itemsChecked} items checked`
     )
+
+    // 3. Reorder + voice recount on the committed demo files, with the DB volumes.
+    const a = await actions({ folder: 'demo-data/reagent', month, deps: { volumes: async () => va } })
+    if ('error' in a) {
+      cek('reagent actions run on the demo files', false, a.error)
+    } else {
+      const now = a.reorder.filter((l) => l.status === 'order_now').map((l) => l.itemCode).sort()
+      cek('the low-stock items (and only they) are Order now', JSON.stringify(now) === JSON.stringify([...LOW_STOCK].sort()), now.join(', '))
+      const kit = a.reorder.find((l) => l.itemCode === 'KIT-DNA-EXT')
+      cek(
+        'the factor-too-high item: sheet factor orders more than the count needs',
+        !!kit && kit.sheetOrderPacks !== null && kit.sheetOrderPacks > kit.orderPacks,
+        kit ? `${kit.orderPacks} vs ${kit.sheetOrderPacks} ${kit.packUnit}` : 'missing'
+      )
+      cek('every order is a whole number of packs', a.reorder.every((l) => Number.isInteger(l.orderPacks)))
+      const script = readFileSync(`demo-data/reagent/voice-count-${month}.txt`, 'utf8')
+      const rows = parseRecount(script, a.recount)
+      const differs = rows.filter((x) => x.status === 'differs')
+      const unknown = rows.filter((x) => x.status === 'not_recognized')
+      const others = rows.filter((x) => !['differs', 'not_recognized', 'matches'].includes(x.status))
+      cek(
+        'the committed voice script gives the planted recount outcome',
+        differs.length === 1 && differs[0].itemCode === RECOUNT_PLANTED.itemCode && differs[0].diffPacks === -RECOUNT_PLANTED.packsBelow &&
+          unknown.length === 1 && others.length === 0,
+        `${differs.map((d) => `${d.itemCode} ${d.diffPacks}`).join(', ')}; not recognized ${unknown.length}; matches ${rows.length - differs.length - unknown.length - others.length}`
+      )
+    }
   }
   console.log(gagal ? `${gagal} PEMERIKSAAN GAGAL` : 'SEMUA LOLOS')
   process.exit(gagal ? 1 : 0)

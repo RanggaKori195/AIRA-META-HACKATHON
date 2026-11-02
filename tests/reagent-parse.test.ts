@@ -165,3 +165,40 @@ describe('opname workbook', () => {
     assert.deepEqual(r.usage.map((u) => u.unit), ['mL', 'mL'])
   })
 })
+
+describe('item list: optional lead time and safety stock (reorder inputs)', () => {
+  const header = ['Item Code', 'Item Name', 'Base Unit', 'Pack Size', 'Pack Unit', 'Test Code(s)', 'Standard Factor']
+  test('item list reads Lead Time (days) and Safety Stock (days)', async () => {
+    const p = await write('Reagent_Usage_lead.xlsx', {
+      'Item List': [[...header, 'Lead Time (days)', 'Safety Stock (days)'], ['KIT-A', 'Kit A', 'test', 96, 'box', 'T1', 1, 21, 10]]
+    })
+    const r = await parseUsageWorkbook(p)
+    assert.equal(r.items[0].leadDays, 21)
+    assert.equal(r.items[0].safetyDays, 10)
+  })
+  test('blank or missing lead/safety columns are null', async () => {
+    const p = await write('Reagent_Usage_nolead.xlsx', {
+      'Item List': [header, ['KIT-A', 'Kit A', 'test', 96, 'box', 'T1', 1]]
+    })
+    const q = await write('Reagent_Usage_blanklead.xlsx', {
+      'Item List': [[...header, 'Lead Time (days)', 'Safety Stock (days)'], ['KIT-A', 'Kit A', 'test', 96, 'box', 'T1', 1, null, null]]
+    })
+    for (const f of [p, q]) {
+      const r = await parseUsageWorkbook(f)
+      assert.equal(r.items.length, 1, f)
+      assert.equal(r.items[0].leadDays, null)
+      assert.equal(r.items[0].safetyDays, null)
+    }
+  })
+  test('non-number lead time is skipped with a reason', async () => {
+    const p = await write('Reagent_Usage_badlead.xlsx', {
+      'Item List': [[...header, 'Lead Time (days)'], ['KIT-A', 'Kit A', 'test', 96, 'box', 'T1', 1, 'two weeks']]
+    })
+    const r = await parseUsageWorkbook(p)
+    assert.equal(r.items.length, 1)
+    assert.equal(r.items[0].leadDays, null)
+    assert.equal(r.skipped.length, 1)
+    assert.match(r.skipped[0].reason, /Lead Time \(days\)/)
+    assert.equal(r.skipped[0].ref.row, 2)
+  })
+})

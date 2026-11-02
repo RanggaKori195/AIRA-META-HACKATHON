@@ -22,19 +22,22 @@ interface Item {
   factor: number
   /** Unit written in the stock opname (base unit, pack unit, a metric pair, or a planted odd one). */
   opnameUnit: string
+  /** Item List "Lead Time (days)" / "Safety Stock (days)"; left blank on purpose for some items (defaults). */
+  lead?: number
+  safety?: number
 }
 
 const MOL = ['HPV101', 'HPV102', 'HPV103', 'MOL101', 'MOL102', 'MOL103']
 
 const ITEMS: Item[] = [
-  { code: 'RGT-HPV-HR', name: 'HPV DNA High Risk Kit', baseUnit: 'test', packSize: 96, packUnit: 'box', tests: ['HPV101'], factor: 1, opnameUnit: 'box' },
+  { code: 'RGT-HPV-HR', name: 'HPV DNA High Risk Kit', baseUnit: 'test', packSize: 96, packUnit: 'box', tests: ['HPV101'], factor: 1, opnameUnit: 'box', lead: 21, safety: 7 },
   { code: 'RGT-HPV-GT14', name: 'HPV Genotyping 14 Reagent Kit', baseUnit: 'test', packSize: 48, packUnit: 'box', tests: ['HPV102'], factor: 1, opnameUnit: 'test' },
   { code: 'RGT-HPV-GT28', name: 'HPV Genotyping 28 Reagent Kit', baseUnit: 'test', packSize: 48, packUnit: 'box', tests: ['HPV103'], factor: 1, opnameUnit: 'test' },
-  { code: 'KIT-DNA-EXT', name: 'DNA Extraction Kit', baseUnit: 'test', packSize: 50, packUnit: 'box', tests: MOL, factor: 1, opnameUnit: 'test' },
-  { code: 'TIP-FLT-200', name: 'Filter Tips 200 uL', baseUnit: 'pcs', packSize: 96, packUnit: 'rack', tests: MOL, factor: 4, opnameUnit: 'pcs' },
+  { code: 'KIT-DNA-EXT', name: 'DNA Extraction Kit', baseUnit: 'test', packSize: 50, packUnit: 'box', tests: MOL, factor: 1, opnameUnit: 'test', lead: 21, safety: 10 },
+  { code: 'TIP-FLT-200', name: 'Filter Tips 200 uL', baseUnit: 'pcs', packSize: 96, packUnit: 'rack', tests: MOL, factor: 4, opnameUnit: 'pcs', lead: 10, safety: 5 },
   { code: 'TUBE-PCR-02', name: 'PCR Tubes 0.2 mL', baseUnit: 'pcs', packSize: 1000, packUnit: 'bag', tests: MOL, factor: 2, opnameUnit: 'pcs' },
-  { code: 'RGT-EGFR', name: 'EGFR Mutation Kit', baseUnit: 'test', packSize: 24, packUnit: 'box', tests: ['MOL101'], factor: 1, opnameUnit: 'test' },
-  { code: 'RGT-KRAS', name: 'KRAS Mutation Kit', baseUnit: 'test', packSize: 24, packUnit: 'box', tests: ['MOL102'], factor: 1, opnameUnit: 'test' },
+  { code: 'RGT-EGFR', name: 'EGFR Mutation Kit', baseUnit: 'test', packSize: 24, packUnit: 'box', tests: ['MOL101'], factor: 1, opnameUnit: 'test', lead: 28, safety: 7 },
+  { code: 'RGT-KRAS', name: 'KRAS Mutation Kit', baseUnit: 'test', packSize: 24, packUnit: 'box', tests: ['MOL102'], factor: 1, opnameUnit: 'test', lead: 28, safety: 7 },
   { code: 'RGT-NRAS', name: 'NRAS Mutation Kit', baseUnit: 'test', packSize: 24, packUnit: 'box', tests: ['MOL103'], factor: 1, opnameUnit: 'test' },
   { code: 'ETH-ABS', name: 'Ethanol Absolute', baseUnit: 'mL', packSize: 1000, packUnit: 'bottle', tests: MOL, factor: 0.5, opnameUnit: 'kit' },
   { code: 'PCR-MM', name: 'PCR Master Mix', baseUnit: 'mL', packSize: 1.25, packUnit: 'tube', tests: ['MOL101', 'MOL102', 'MOL103'], factor: 0.025, opnameUnit: 'µL' },
@@ -48,6 +51,16 @@ export const PLANTED: Array<{ type: Exclude<FindingType, 'no_physical_count'>; i
   { type: 'unit_mismatch', itemCode: 'ETH-ABS' }
 ]
 
+/** Items whose closing count covers only a few days of use → "Order now" in the reorder list. */
+export const LOW_STOCK = ['RGT-KRAS', 'LBC-VIAL']
+const LOW_DAYS = 5
+/** Ordinary items close with about two months of stock (OK or Order soon, depending on lead time). */
+const HEALTHY_DAYS = 60
+/** The voice-count script says this item one pack below its Closing Count. */
+export const RECOUNT_PLANTED = { itemCode: 'RGT-EGFR', packsBelow: 1 }
+/** A phrase in the voice-count script naming an item that is not in the Item List. */
+export const RECOUNT_UNKNOWN = 'Proteinase K'
+
 const WEEKS = [
   { label: 'Week 1 (1–7 Oct)', w: 0.22 },
   { label: 'Week 2 (8–14 Oct)', w: 0.24 },
@@ -56,6 +69,42 @@ const WEEKS = [
 ]
 
 const r2 = (n: number): number => Math.round(n * 100) / 100
+const daysIn = (month: string): number => {
+  const [y, m] = month.split('-').map(Number)
+  return new Date(Date.UTC(y, m, 0)).getUTCDate()
+}
+
+const SMALL = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
+/** 0–999 in English words ("two hundred and thirteen"). */
+function words(n: number): string {
+  if (n < 20) return SMALL[n]
+  if (n < 100) return TENS[Math.floor(n / 10)] + (n % 10 ? '-' + SMALL[n % 10] : '')
+  return `${SMALL[Math.floor(n / 100)]} hundred` + (n % 100 ? ` and ${words(n % 100)}` : '')
+}
+const UNIT_WORD: Record<string, [string, string]> = { test: ['test', 'tests'], pcs: ['piece', 'pieces'], box: ['box', 'boxes'] }
+
+/**
+ * The demo voice-count script: one line per counted item ("EGFR mutation kit, forty-eight tests."), every other
+ * count in words, the planted item one pack below its Closing Count, plus one item that is not in the Item List.
+ * Items counted in a unit nobody would say aloud (the planted "kit" unit, µL) are left out.
+ */
+export function buildVoiceScript(opname: SheetSpec[]): string {
+  const rows = opname.find((s) => s.name === 'Stock Opname')!.rows.slice(1)
+  const lines: string[] = []
+  for (const [code, name, , , closing, unit] of rows) {
+    const it = ITEMS.find((i) => i.code === code)
+    const word = UNIT_WORD[String(unit)]
+    if (!it || !word || typeof closing !== 'number') continue
+    const pack = String(unit) === it.packUnit ? 1 : it.packSize
+    const count = code === RECOUNT_PLANTED.itemCode ? closing - RECOUNT_PLANTED.packsBelow * pack : closing
+    const spoken = String(name).replace(/\buL\b/, 'microliter').replace(/\bmL\b/, 'milliliter')
+    const n = lines.length % 2 === 1 && Number.isInteger(count) && count <= 999 ? words(count) : String(count)
+    lines.push(`${spoken}, ${n} ${count === 1 ? word[0] : word[1]}.`)
+  }
+  lines.push(`${RECOUNT_UNKNOWN}, five vials.`)
+  return lines.join('\n')
+}
 
 /** Splits a monthly volume over the weeks with fixed weights; the last week takes the remainder. */
 function weekly(total: number): number[] {
@@ -88,8 +137,8 @@ export function buildReagentWorkbooks(
   })
 
   const itemRows: (string | number | null)[][] = [
-    ['Item Code', 'Item Name', 'Base Unit', 'Pack Size', 'Pack Unit', 'Test Code(s)', 'Standard Factor'],
-    ...ITEMS.map((it) => [it.code, it.name, it.baseUnit, it.packSize, it.packUnit, it.tests.join(', '), it.factor])
+    ['Item Code', 'Item Name', 'Base Unit', 'Pack Size', 'Pack Unit', 'Test Code(s)', 'Standard Factor', 'Lead Time (days)', 'Safety Stock (days)'],
+    ...ITEMS.map((it) => [it.code, it.name, it.baseUnit, it.packSize, it.packUnit, it.tests.join(', '), it.factor, it.lead ?? null, it.safety ?? null])
   ]
 
   // Stock opname: true consumption follows the standard factor (× noise), the planted item 1.8×.
@@ -106,11 +155,16 @@ export function buildReagentWorkbooks(
     }
     const perUnit = it.opnameUnit === it.packUnit ? it.packSize : it.opnameUnit === 'µL' ? 0.001 : 1
     const used = actualBase / perUnit
-    const opening = Math.ceil(used * 0.6) + 2
     const received = Math.ceil(used * 0.7)
-    // Physical counts of tests and pieces are whole numbers; volumes and packs keep two decimals.
+    // The closing count is set by how many days of use are left; the opening stock absorbs it, so consumption
+    // (opening + received − closing) — and therefore every finding — stays the same.
+    const days = LOW_STOCK.includes(it.code) ? LOW_DAYS : HEALTHY_DAYS
+    // Physical counts of tests, pieces and packs are whole numbers; volumes keep two decimals.
     const whole = it.opnameUnit === 'test' || it.opnameUnit === 'pcs'
-    const closing = whole ? Math.round(opening + received - used) : r2(opening + received - used)
+    const wholeClosing = whole || it.opnameUnit === it.packUnit
+    const rawClosing = (used / daysIn(month)) * days
+    const closing = wholeClosing ? Math.max(1, Math.round(rawClosing)) : r2(rawClosing)
+    const opening = whole ? Math.round(closing + used - received) : r2(closing + used - received)
     opnameRows.push([it.code, it.name, opening, received, closing, it.opnameUnit])
   }
 

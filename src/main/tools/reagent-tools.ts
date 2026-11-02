@@ -1,5 +1,6 @@
 import { ToolError, type ToolDefinition } from './types'
 import type { ReconcileResult } from '../reagent/service'
+import type { ReagentActionsResult } from '../../shared/reagent'
 import type { SourceRef } from '../reagent/types'
 
 // Reagent Check tools (group `reagent`). Numbers come from the reconciliation engine; the model only explains
@@ -9,6 +10,8 @@ export interface ReagentDeps {
   /** The folder the signed-in user chose on the Reagent Check screen, or null. */
   folder: () => string | null | Promise<string | null>
   run: (folder: string, month?: string) => Promise<ReconcileResult | { error: string }>
+  /** Reorder list + investigation checklist for the month (same reconciliation run, numbers from code). */
+  actions: (folder: string, month?: string) => Promise<ReagentActionsResult>
   /** Rows behind one finding, re-read from the user's folder for that month (never from "the last run"). */
   evidence: (
     folder: string,
@@ -105,6 +108,49 @@ export function makeReagentTools(deps: ReagentDeps): ToolDefinition[] {
       }
     },
     {
+      name: 'reagent_actions',
+      label: 'Reagent reorder and actions',
+      description:
+        'What the lab should ORDER and INVESTIGATE for a month, computed by code from the same reconciliation: a ' +
+        'reorder list (status order now / order soon / ok, order quantity in whole packs, reorder point, lead and ' +
+        'safety days — flagged when the default was used — and, for a factor-too-high item, the order the sheet ' +
+        'factor would have produced), the items left out with the reason, and a fixed investigation checklist per ' +
+        'finding with evidence rows. Call it for any question about reordering, stock running out or what to check.',
+      parameters: {
+        type: 'object',
+        properties: {
+          month: {
+            type: 'string',
+            description: 'Month as YYYY-MM. Only if the user names a month; otherwise leave empty for the newest month.'
+          }
+        }
+      },
+      tier: 'read',
+      timeoutMs: 120_000,
+      summarize: (a) => 'Building the reorder list' + (typeof a.month === 'string' && a.month ? ' — ' + a.month : ''),
+      execute: async (args) => {
+        const month = monthArg(args.month)
+        const folder = await folderOrThrow(deps)
+        const r = await deps.actions(folder, month)
+        if ('error' in r) throw new ToolError(r.error)
+        const toOrder = r.reorder.filter((l) => l.status === 'order_now' || l.status === 'order_soon').length
+        return JSON.stringify({
+          month: r.month,
+          reorder: r.reorder,
+          excluded: r.excluded,
+          investigation: r.investigation,
+          completenessNote:
+            `Every quantity here is computed by code from the ${r.month} physical count — give the quantities and dates ` +
+            `exactly as returned, do not recompute, and write statuses in plain words ("Order now", "Order soon", "OK"), ` +
+            `never the field names. ${r.reorder.length} item${r.reorder.length === 1 ? '' : 's'} in the reorder list, ${toOrder} to order now or soon. ` +
+            (r.excluded.length
+              ? `${r.excluded.length} item${r.excluded.length === 1 ? ' was' : 's were'} left out (NOT confirmed as fine): ${r.excluded.map((e) => `${e.itemCode} — ${e.reason}`).join('; ')}. `
+              : 'No item was left out. ') +
+            'Investigation steps are fixed by code; roles are suggestions.'
+        })
+      }
+    },
+    {
       name: 'reagent_evidence',
       label: 'Reagent evidence rows',
       description:
@@ -148,6 +194,7 @@ export const reagentTools: ToolDefinition[] = makeReagentTools({
     return user ? reagentFolderFor(user) : null
   },
   run: async (folder, month) => (await import('../reagent/service')).runReconciliation({ folder, month }),
+  actions: async (folder, month) => (await import('../reagent/service')).actions({ folder, month }),
   evidence: async (folder, findingId, month) =>
     (await import('../reagent/service')).evidenceRows({ folder, month, findingId })
 })

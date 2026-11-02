@@ -106,3 +106,129 @@ describe('Reagent Check screen', () => {
     assert.match(a, /mode === 'reagent' \? \(\s*<ReagentHome/)
   })
 })
+
+describe('reagent screen looks like the other data screens and greets with the mascot', () => {
+  test('header carries the icon tile used by the other data homes', () => {
+    assert.match(view({}), /class="tile-ikon rg-kepala-ikon"/)
+  })
+
+  test('folder chosen, nothing run yet → the mascot explains the four checks, named from TYPE_LABEL', () => {
+    const html = view({ result: null, mascotArt: 'idle.png' })
+    assert.match(html, /class="rg-mulai"/)
+    assert.match(html, /src="idle\.png"/)
+    assert.match(html, /Pick the month and press Run reconciliation/)
+    for (const t of ['wrong_item_code', 'factor_too_high', 'used_faster', 'unit_mismatch'] as const) {
+      assert.match(html, new RegExp(TYPE_LABEL[t]), t)
+    }
+  })
+
+  test('the greeting gives way to results, to a run in progress and to the no-folder hint', () => {
+    assert.doesNotMatch(view({ mascotArt: 'idle.png' }), /rg-mulai/)
+    assert.doesNotMatch(view({ result: null, running: true, mascotArt: 'idle.png' }), /rg-mulai/)
+    assert.doesNotMatch(view({ result: null, status: { folder: null, months: [] }, mascotArt: 'idle.png' }), /rg-mulai/)
+  })
+})
+
+describe('reagent screen: Reorder & actions and Voice recount tabs', () => {
+  const ref = { file: 'Stock_Opname_2026-10.xlsx', sheet: 'Stock Opname', row: 9 }
+  const line = (code: string, status: 'order_now' | 'order_soon' | 'ok', o: Record<string, unknown> = {}) => ({
+    itemCode: code, itemName: `${code} name`, baseUnit: 'test', packUnit: 'box', packSize: 24, closing: 6, dailyUse: 1.35,
+    leadDays: 14, safetyDays: 7, leadDefault: true, safetyDefault: false, reorderPoint: 28.35, target: 68.85, orderBase: 62.85,
+    orderPacks: 3, status, reachesReorderPointOn: status === 'ok' ? '2026-12-09' : null, sheetOrderPacks: null, evidence: [ref], ...o
+  })
+  const actions = {
+    month: '2026-10',
+    reorder: [line('RGT-KRAS', 'order_now'), line('KIT-DNA-EXT', 'order_soon', { orderPacks: 2, sheetOrderPacks: 64 }), line('RGT-HPV-HR', 'ok', { orderPacks: 0 })],
+    excluded: [{ itemCode: 'ETH-ABS', itemName: 'Ethanol Absolute', reason: 'unit mismatch — consumption cannot be computed' }],
+    investigation: [
+      { id: 'used_faster:TIP', kind: 'used_faster' as const, itemCode: 'TIP-FLT-200', itemName: 'Filter Tips 200 uL', headline: 'Filter Tips 200 uL was used faster than the tests explain', steps: [{ text: 'Check for repeat runs, failed runs and QC use in the period.', role: 'QA officer (suggested)' }], evidence: [ref] }
+    ],
+    recount: [{ itemCode: 'RGT-EGFR', itemName: 'EGFR Mutation Kit', baseUnit: 'test', packSize: 24, packUnit: 'box', opnameUnit: 'test', closing: 72, refs: [ref] }]
+  }
+  const row = (o: Record<string, unknown>) => ({
+    id: 'r1', phrase: 'EGFR mutation kit, two boxes', itemCode: 'RGT-EGFR', candidates: ['RGT-EGFR'], count: 2, heardUnit: 'box', unit: 'box',
+    unitAssumed: false, voiceBase: 48, fileBase: 72, diffBase: -24, diffPacks: -1, status: 'differs' as const, refs: [ref], ...o
+  })
+  const recount = (o: Record<string, unknown> = {}) => ({ transcript: '', rows: [], notCounted: [], recording: false, transcribing: false, error: null, ...o })
+
+  test('tabs appear only after a successful run', () => {
+    assert.match(view({ actions }), /class="rg-tabs"/)
+    assert.match(view({ actions }), />Reorder &amp; actions</)
+    assert.match(view({ actions }), />Voice recount</)
+    assert.doesNotMatch(view({ result: null, actions }), /rg-tabs/)
+    assert.doesNotMatch(view({ result: { error: 'x' }, actions }), /rg-tabs/)
+  })
+
+  test('reorder tab: order_now rows first, packs and default flags shown, factor-too-high shows both quantities and the saving', () => {
+    const html = view({ tab: 'reorder', actions })
+    const now = html.indexOf('RGT-KRAS')
+    const soon = html.indexOf('KIT-DNA-EXT')
+    const ok = html.indexOf('RGT-HPV-HR')
+    assert.ok(now > 0 && now < soon && soon < ok)
+    assert.match(html, />Order now</)
+    assert.match(html, /3 box/)
+    assert.match(html, /14 days \(default\)/)
+    assert.match(html, /sheet factor would order 64 box — 62 box more/i)
+    assert.match(html, /2026-12-09/)
+  })
+
+  test('excluded items listed with reasons', () => {
+    const html = view({ tab: 'reorder', actions })
+    assert.match(html, /ETH-ABS/)
+    assert.match(html, /unit mismatch — consumption cannot be computed/)
+  })
+
+  test('investigation steps with evidence and "(suggested)" roles; AI draft label on the summary', () => {
+    const html = view({ tab: 'reorder', actions, summary: { text: 'Order KRAS now.', loading: false } })
+    assert.match(html, /Check for repeat runs/)
+    assert.match(html, /QA officer \(suggested\)/)
+    assert.match(html, /Stock_Opname_2026-10\.xlsx › Stock Opname › row 9/)
+    assert.match(html, /AI draft — check before sharing/)
+    assert.match(html, /Order KRAS now\./)
+    assert.match(html, />Export to Excel</)
+    assert.match(html, />Draft summary</)
+  })
+
+  test('recount tab: editable transcript, Read counts, rows with statuses, Differs shows the pack difference, not counted listed', () => {
+    const html = view({
+      tab: 'recount',
+      actions,
+      recount: recount({
+        transcript: 'EGFR mutation kit, two boxes.',
+        rows: [row({}), row({ id: 'r2', phrase: 'Proteinase K, five vials', itemCode: null, candidates: [], status: 'not_recognized', reason: 'no item in the Item List matches this phrase', voiceBase: null, fileBase: null, diffBase: null, diffPacks: null })],
+        notCounted: [{ ...actions.recount[0], itemCode: 'RGT-KRAS', itemName: 'KRAS Mutation Kit' }]
+      })
+    })
+    assert.match(html, /<textarea[^>]*>EGFR mutation kit, two boxes\.<\/textarea>/)
+    assert.match(html, />Read counts</)
+    assert.match(html, />Differs</)
+    assert.match(html, /-1 box/)
+    assert.match(html, />Not recognized</)
+    assert.match(html, /Proteinase K, five vials/)
+    assert.match(html, /Not counted by voice/)
+    assert.match(html, /RGT-KRAS/)
+    assert.match(html, /Muse Voice Transcribe/)
+  })
+
+  test('ReagentHome uses useRecorder and transkripsikanSuara and never sends the transcript anywhere but parseRecount', () => {
+    const h = src('src/renderer/src/views/ReagentHome.tsx')
+    assert.match(h, /useRecorder\(\)/)
+    assert.match(h, /transkripsikanSuara\(/)
+    assert.match(h, /parseRecount\(/)
+    assert.match(h, /compareRecount\(/)
+    assert.match(h, /reagentActions\(/)
+    assert.match(h, /reagentExport\(/)
+    assert.doesNotMatch(h, /onSubmit\([^)]*transcript/)
+  })
+})
+
+describe('recorder is released when the month or folder changes', () => {
+  test('month and folder changes discard an open recording and its timer', () => {
+    const h = src('src/renderer/src/views/ReagentHome.tsx')
+    const reset = h.slice(h.indexOf('const resetRecount'), h.indexOf('const resetRecount') + 400)
+    assert.match(reset, /rec\.discard\(\)/)
+    assert.match(reset, /clearTimeout\(clipTimer\.current\)/)
+    assert.match(h.slice(h.indexOf('const chooseFolder')), /resetRecount\(\)/)
+    assert.match(h.slice(h.indexOf('onMonth=')), /resetRecount\(\)/)
+  })
+})

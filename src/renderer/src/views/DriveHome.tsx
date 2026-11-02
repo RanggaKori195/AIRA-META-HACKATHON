@@ -267,24 +267,24 @@ export default function DriveHome({ onSubmit, sessions, onOpenSession }: Props):
           </div>
           {/* Hiasan: map + dokumen + kaca pembesar + awan, meniru mockup. */}
           <svg className="drive-seni" viewBox="0 0 330 220" aria-hidden="true">
-            <circle cx="60" cy="190" r="16" fill="#d9eee0" />
-            <circle cx="300" cy="40" r="10" fill="#e3f2e8" />
-            <rect x="120" y="14" width="110" height="140" rx="10" fill="#ffffff" stroke="#dcebe1" transform="rotate(8 175 84)" />
-            <rect x="100" y="24" width="110" height="140" rx="10" fill="#ffffff" stroke="#dcebe1" />
-            <circle cx="128" cy="50" r="9" fill="#6cc28a" />
-            <rect x="116" y="72" width="70" height="7" rx="3.5" fill="#dcebe1" />
-            <rect x="116" y="88" width="80" height="7" rx="3.5" fill="#e8f2eb" />
-            <rect x="116" y="104" width="56" height="7" rx="3.5" fill="#e8f2eb" />
-            <path d="M40 92h62l14 14h86a10 10 0 0 1 10 10v70a10 10 0 0 1-10 10H40a10 10 0 0 1-10-10v-84a10 10 0 0 1 10-10z" fill="#3f9a5c" />
-            <path d="M34 122h178a8 8 0 0 1 8 9l-7 57a10 10 0 0 1-10 9H40a10 10 0 0 1-10-10z" fill="#5cb97a" />
-            <circle cx="150" cy="118" r="34" fill="#eaf6ee" stroke="#2f7d49" strokeWidth="9" />
+            <circle cx="60" cy="190" r="16" fill="#d8e1ef" />
+            <circle cx="300" cy="40" r="10" fill="#e2e9f3" />
+            <rect x="120" y="14" width="110" height="140" rx="10" fill="#ffffff" stroke="#dbe2ec" transform="rotate(8 175 84)" />
+            <rect x="100" y="24" width="110" height="140" rx="10" fill="#ffffff" stroke="#dbe2ec" />
+            <circle cx="128" cy="50" r="9" fill="#678dc7" />
+            <rect x="116" y="72" width="70" height="7" rx="3.5" fill="#dbe2ec" />
+            <rect x="116" y="88" width="80" height="7" rx="3.5" fill="#e7ecf3" />
+            <rect x="116" y="104" width="56" height="7" rx="3.5" fill="#e7ecf3" />
+            <path d="M40 92h62l14 14h86a10 10 0 0 1 10 10v70a10 10 0 0 1-10 10H40a10 10 0 0 1-10-10v-84a10 10 0 0 1 10-10z" fill="#3a629f" />
+            <path d="M34 122h178a8 8 0 0 1 8 9l-7 57a10 10 0 0 1-10 9H40a10 10 0 0 1-10-10z" fill="#5680bf" />
+            <circle cx="150" cy="118" r="34" fill="#e9eff7" stroke="#2a4d82" strokeWidth="9" />
             <circle cx="150" cy="118" r="22" fill="#ffffff" opacity="0.7" />
-            <path d="M174 142l30 30" stroke="#2f7d49" strokeWidth="13" strokeLinecap="round" />
-            <rect x="120" y="170" width="170" height="36" rx="18" fill="#ffffff" stroke="#dcebe1" />
-            <circle cx="142" cy="188" r="6" fill="none" stroke="#6b7a70" strokeWidth="2.5" />
-            <path d="M146.5 192.5l4 4" stroke="#6b7a70" strokeWidth="2.5" strokeLinecap="round" />
-            <rect x="160" y="184" width="100" height="8" rx="4" fill="#e3ece6" />
-            <rect x="232" y="56" width="82" height="70" rx="16" fill="#ffffff" stroke="#dcebe1" />
+            <path d="M174 142l30 30" stroke="#2a4d82" strokeWidth="13" strokeLinecap="round" />
+            <rect x="120" y="170" width="170" height="36" rx="18" fill="#ffffff" stroke="#dbe2ec" />
+            <circle cx="142" cy="188" r="6" fill="none" stroke="#6b717a" strokeWidth="2.5" />
+            <path d="M146.5 192.5l4 4" stroke="#6b717a" strokeWidth="2.5" strokeLinecap="round" />
+            <rect x="160" y="184" width="100" height="8" rx="4" fill="#e3e7ec" />
+            <rect x="232" y="56" width="82" height="70" rx="16" fill="#ffffff" stroke="#dbe2ec" />
             <path d="M293 108h-45a12 12 0 0 1-1.8-23.8A16 16 0 0 1 276 80a13 13 0 0 1 17 28z" fill="#2f86d6" />
             <path d="M293 108h-37a10 10 0 0 1 4-19.2A13 13 0 0 1 283 86a10 10 0 0 1 10 22z" fill="#56a8f0" />
           </svg>

@@ -209,7 +209,7 @@ export default function LabHome({
     <div className="sales-baru">
       <div className="sales-utama">
         <header className="sales-kepala inno-kepala">
-          <span className="tile-ikon hijau sales-kepala-ikon inno-kepala-ikon">
+          <span className="tile-ikon utama sales-kepala-ikon inno-kepala-ikon">
             <IconTabung />
           </span>
           <div className="sales-kepala-teks">
@@ -218,24 +218,24 @@ export default function LabHome({
           </div>
           {/* Hiasan: mikroskop, rak tabung, kartu centang — meniru mockup. */}
           <svg className="sales-seni inno-seni" viewBox="0 0 260 130" aria-hidden="true">
-            <rect x="8" y="112" width="130" height="10" rx="4" fill="#d6eadc" />
-            <path d="M44 108h52M70 108V84" stroke="#8fd0a3" strokeWidth="8" strokeLinecap="round" />
-            <path d="M58 86c-16-6-18-30-2-40" fill="none" stroke="#6cc28a" strokeWidth="7" strokeLinecap="round" />
-            <rect x="60" y="16" width="18" height="46" rx="6" fill="#3fae63" transform="rotate(28 69 39)" />
-            <rect x="52" y="10" width="26" height="10" rx="4" fill="#1f8a4c" transform="rotate(28 65 15)" />
-            <rect x="112" y="72" width="70" height="40" rx="6" fill="#e5f4ea" stroke="#cfe5d6" />
+            <rect x="8" y="112" width="130" height="10" rx="4" fill="#d5deeb" />
+            <path d="M44 108h52M70 108V84" stroke="#8ba8d4" strokeWidth="8" strokeLinecap="round" />
+            <path d="M58 86c-16-6-18-30-2-40" fill="none" stroke="#678dc7" strokeWidth="7" strokeLinecap="round" />
+            <rect x="60" y="16" width="18" height="46" rx="6" fill="#386ab5" transform="rotate(28 69 39)" />
+            <rect x="52" y="10" width="26" height="10" rx="4" fill="#194990" transform="rotate(28 65 15)" />
+            <rect x="112" y="72" width="70" height="40" rx="6" fill="#e4ebf5" stroke="#ced8e6" />
             {[122, 140, 158].map((x) => (
               <g key={x}>
-                <rect x={x} y="44" width="12" height="46" rx="6" fill="#ffffff" stroke="#bfe3c9" strokeWidth="2" />
-                <rect x={x + 2} y="66" width="8" height="22" rx="4" fill="#8fd0a3" />
+                <rect x={x} y="44" width="12" height="46" rx="6" fill="#ffffff" stroke="#bdcde5" strokeWidth="2" />
+                <rect x={x + 2} y="66" width="8" height="22" rx="4" fill="#8ba8d4" />
               </g>
             ))}
-            <rect x="192" y="18" width="62" height="36" rx="8" fill="#ffffff" stroke="#d6eadc" />
-            <circle cx="206" cy="36" r="7" fill="#6cc28a" />
+            <rect x="192" y="18" width="62" height="36" rx="8" fill="#ffffff" stroke="#d5deeb" />
+            <circle cx="206" cy="36" r="7" fill="#678dc7" />
             <path d="M203 36l2.5 2.5L210 33" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" />
-            <rect x="218" y="32" width="28" height="5" rx="2.5" fill="#cfe5d6" />
-            <rect x="192" y="62" width="62" height="36" rx="8" fill="#ffffff" stroke="#d6eadc" />
-            <rect x="202" y="76" width="44" height="5" rx="2.5" fill="#e5f4ea" />
+            <rect x="218" y="32" width="28" height="5" rx="2.5" fill="#ced8e6" />
+            <rect x="192" y="62" width="62" height="36" rx="8" fill="#ffffff" stroke="#d5deeb" />
+            <rect x="202" y="76" width="44" height="5" rx="2.5" fill="#e4ebf5" />
           </svg>
           <div className="sales-titik3" onClick={(e) => e.stopPropagation()}>
             <button className="btn-mini" title="Options" onClick={() => setMenu((x) => !x)}>

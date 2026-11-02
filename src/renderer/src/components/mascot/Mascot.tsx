@@ -3,7 +3,7 @@ import MascotView from './MascotView'
 import { INITIAL, next } from './state'
 import { autoSendAction, canStartVoiceTurn } from './turn'
 import { useRecorder } from './useRecorder'
-import { emitMascot, isMuted, onMascotEvent, setMascotUser, setMuted, stopSpeaking } from './voice'
+import { emitMascot, isMuted, onMascotEvent, onVoiceTurnRequest, setMascotUser, setMuted, stopSpeaking } from './voice'
 import idle from '../../assets/mascot/idle.png'
 import listening from '../../assets/mascot/listening.png'
 import thinking from '../../assets/mascot/thinking.png'
@@ -25,9 +25,11 @@ interface Props {
   username: string
   busy: boolean
   onSend: (text: string) => void
+  /** Home already shows a big mascot: the floating one appears only once a voice turn is under way. */
+  hideWhenIdle?: boolean
 }
 
-export default function Mascot({ username, busy, onSend }: Props): JSX.Element {
+export default function Mascot({ username, busy, onSend, hideWhenIdle = false }: Props): JSX.Element {
   const [mascot, dispatch] = useReducer(next, INITIAL)
   const [muted, setMutedState] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -135,6 +137,10 @@ export default function Mascot({ username, busy, onSend }: Props): JSX.Element {
     }
   }, [busy, mascot.state, rec, finishRecording])
 
+  const handleClickRef = useRef(handleClick)
+  handleClickRef.current = handleClick
+  useEffect(() => onVoiceTurnRequest(() => void handleClickRef.current()), [])
+
   const handleCancel = useCallback(() => {
     clearSendTimer()
     dispatch({ t: 'cancel' })
@@ -154,6 +160,7 @@ export default function Mascot({ username, busy, onSend }: Props): JSX.Element {
       recording={rec.recording}
       busy={busy}
       message={message}
+      hidden={hideWhenIdle && mascot.state === 'idle' && !message}
       onClick={() => void handleClick()}
       onCancel={handleCancel}
       onToggleMute={toggleMute}

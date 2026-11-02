@@ -10,6 +10,7 @@ import {
   IconChat,
   IconClose,
   IconCode,
+  IconMic,
   IconDatabase,
   IconFileText,
   IconFolder,
@@ -28,6 +29,7 @@ import {
   IconZap
 } from '../components/Icons'
 import logo from '../assets/mascot/hello.png'
+import { requestVoiceTurn } from '../components/mascot/voice'
 
 // Beranda (Task Baru) — tata letak baru 29 Sep 2026 mengikuti mockup user:
 // hero + kotak tugas di tengah, "Mulai Cepat" & "Fitur Utama" di bawahnya, dan
@@ -218,23 +220,23 @@ export default function Home({
           <svg className="hero-gelombang" viewBox="0 0 640 340" preserveAspectRatio="none" aria-hidden="true">
             <defs>
               <linearGradient id="gel-a" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#cfe8d6" stopOpacity="0" />
-                <stop offset="0.55" stopColor="#cfe8d6" stopOpacity="0.9" />
-                <stop offset="1" stopColor="#e9f5ec" stopOpacity="0.4" />
+                <stop offset="0" stopColor="#ced9ea" stopOpacity="0" />
+                <stop offset="0.55" stopColor="#ced9ea" stopOpacity="0.9" />
+                <stop offset="1" stopColor="#e8eef6" stopOpacity="0.4" />
               </linearGradient>
               <linearGradient id="gel-b" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0" stopColor="#b9dcc3" stopOpacity="0" />
-                <stop offset="0.6" stopColor="#b9dcc3" stopOpacity="0.55" />
-                <stop offset="1" stopColor="#dff0e4" stopOpacity="0.2" />
+                <stop offset="0" stopColor="#b7c7de" stopOpacity="0" />
+                <stop offset="0.6" stopColor="#b7c7de" stopOpacity="0.55" />
+                <stop offset="1" stopColor="#dee6f1" stopOpacity="0.2" />
               </linearGradient>
               <pattern id="gel-titik" width="14" height="14" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1.2" fill="#9cc9a8" />
+                <circle cx="2" cy="2" r="1.2" fill="#99adcc" />
               </pattern>
             </defs>
             <path fill="url(#gel-a)" d="M640 0 H470 C 420 60 470 130 400 200 C 350 250 300 290 260 340 H640 Z" />
             <path fill="url(#gel-b)" d="M640 40 C 560 70 540 150 500 210 C 470 260 420 300 380 340 H640 Z" />
-            <path fill="none" stroke="#a8d3b4" strokeOpacity="0.7" strokeWidth="1.2" d="M480 0 C 430 80 480 150 380 230 C 330 270 300 310 280 340" />
-            <path fill="none" stroke="#c4e2cc" strokeWidth="1" d="M520 0 C 470 90 520 160 430 240 C 390 280 360 315 345 340" />
+            <path fill="none" stroke="#a5b9d6" strokeOpacity="0.7" strokeWidth="1.2" d="M480 0 C 430 80 480 150 380 230 C 330 270 300 310 280 340" />
+            <path fill="none" stroke="#c2d0e4" strokeWidth="1" d="M520 0 C 470 90 520 160 430 240 C 390 280 360 315 345 340" />
             <rect x="190" y="30" width="130" height="120" fill="url(#gel-titik)" opacity="0.5" />
           </svg>
           <div className="hero-teks">
@@ -249,7 +251,12 @@ export default function Home({
               answer your questions.
             </p>
           </div>
-          <img className="hero-logo" src={logo} alt="AIRA" />
+          <button type="button" className="hero-maskot" onClick={requestVoiceTurn} title="Talk to AIRA">
+            <img className="hero-logo" src={logo} alt="AIRA" draggable={false} />
+            <span className="hero-maskot-ajak">
+              <IconMic size={14} /> Click me and ask by voice
+            </span>
+          </button>
         </section>
 
         {workspaceCount === 0 && (

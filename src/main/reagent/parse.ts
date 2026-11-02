@@ -12,6 +12,8 @@ interface FieldSpec {
   aliases: string[]
   kind: 'text' | 'number' | 'list'
   optional?: boolean
+  /** A bad value does not drop the row: the field becomes null and the reason is reported in `skipped`. */
+  soft?: boolean
 }
 
 const norm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '')
@@ -39,7 +41,10 @@ const ITEMS = {
   packSize: { aliases: ['Pack Size', 'Isi per Kemasan'], kind: 'number' },
   packUnit: { aliases: ['Pack Unit', 'Satuan Kemasan'], kind: 'text' },
   tests: { aliases: ['Test Code(s)', 'Test Code', 'Kode Tes'], kind: 'list', optional: true },
-  factor: { aliases: ['Standard Factor', 'Factor per Test', 'Faktor'], kind: 'number' }
+  factor: { aliases: ['Standard Factor', 'Factor per Test', 'Faktor'], kind: 'number' },
+  // Reorder inputs (optional; blank → the default stated on the screen).
+  leadDays: { aliases: ['Lead Time (days)', 'Lead Time', 'Lead Days'], kind: 'number', optional: true, soft: true },
+  safetyDays: { aliases: ['Safety Stock (days)', 'Safety Stock', 'Safety Days'], kind: 'number', optional: true, soft: true }
 } satisfies Record<string, FieldSpec>
 
 const OPNAME = {
@@ -142,13 +147,19 @@ function readRow<F extends Record<string, FieldSpec>>(
   cells: Cell[],
   spec: F,
   cols: Record<keyof F, number>
-): { values: Record<keyof F, unknown> } | { reason: string } {
+): { values: Record<keyof F, unknown>; warnings: string[] } | { reason: string } {
   const values = {} as Record<keyof F, unknown>
+  const warnings: string[] = []
   for (const [field, f] of Object.entries(spec) as Array<[keyof F, FieldSpec]>) {
     const idx = cols[field]
     const c = idx >= 0 ? cells[idx] ?? null : null
     if (f.kind === 'number') {
       const n = toNumber(c)
+      if (f.soft && (n === 'ambiguous' || (n === null && c !== null && c !== ''))) {
+        values[field] = null
+        warnings.push(`"${f.aliases[0]}" is not a number (${JSON.stringify(c)}) — the default is used for this item`)
+        continue
+      }
       if (n === 'ambiguous') {
         return { reason: `ambiguous number ${JSON.stringify(c)} in "${f.aliases[0]}" — write it as a plain number` }
       }
@@ -168,7 +179,7 @@ function readRow<F extends Record<string, FieldSpec>>(
       values[field] = s
     }
   }
-  return { values }
+  return { values, warnings }
 }
 
 function rowsOf<F extends Record<string, FieldSpec>>(
@@ -185,7 +196,10 @@ function rowsOf<F extends Record<string, FieldSpec>>(
     const ref = { file, sheet: sheet.name, row: i + 1 }
     const r = readRow(cells, spec, header.cols)
     if ('reason' in r) skipped.push({ ref, reason: r.reason })
-    else out.push({ v: r.values, ref })
+    else {
+      for (const reason of r.warnings) skipped.push({ ref, reason })
+      out.push({ v: r.values, ref })
+    }
   }
   return out
 }
@@ -226,6 +240,8 @@ export async function parseUsageWorkbook(path: string): Promise<{ usage: UsageRo
           packUnit: String(v.packUnit),
           tests: v.tests as string[],
           factor: v.factor as number,
+          leadDays: (v.leadDays as number | null) ?? null,
+          safetyDays: (v.safetyDays as number | null) ?? null,
           ref
         })
       }

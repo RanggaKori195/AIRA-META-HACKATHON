@@ -1,5 +1,13 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
-import type { ReagentEvidenceResult, ReagentRunResult, ReagentStatus } from '../shared/reagent'
+import type {
+  ReagentActionsResult,
+  ReagentEvidenceResult,
+  ReagentExportResult,
+  ReagentRunResult,
+  ReagentStatus,
+  ReagentSummaryResult,
+  RecountRow
+} from '../shared/reagent'
 import {
   IPC_CHANNELS,
   type AccessConfig,
@@ -170,6 +178,11 @@ const api = {
   reagentRun: (month?: string): Promise<ReagentRunResult> => ipcRenderer.invoke(IPC_CHANNELS.reagentRun, month),
   reagentEvidence: (input: { findingId: string; month?: string }): Promise<ReagentEvidenceResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.reagentEvidence, input),
+  reagentActions: (month?: string): Promise<ReagentActionsResult> => ipcRenderer.invoke(IPC_CHANNELS.reagentActions, month),
+  reagentSummary: (month?: string): Promise<ReagentSummaryResult> => ipcRenderer.invoke(IPC_CHANNELS.reagentSummary, month),
+  /** The save path is chosen in a main-process dialog — the renderer never sends one. */
+  reagentExport: (input: { month?: string; recount: RecountRow[] }): Promise<ReagentExportResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.reagentExport, input),
   driveStatus: (): Promise<StatusDrive | null> => ipcRenderer.invoke(IPC_CHANNELS.driveStatus),
   berkasTerbaru: (batas: number): Promise<BerkasTerbaru[]> =>
     ipcRenderer.invoke(IPC_CHANNELS.berkasTerbaru, batas),

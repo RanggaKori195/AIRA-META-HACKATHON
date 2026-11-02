@@ -94,6 +94,10 @@ export const IPC_CHANNELS = {
   reagentChooseFolder: 'reagent:choose-folder',
   reagentRun: 'reagent:run',
   reagentEvidence: 'reagent:evidence',
+  /** Reorder list + investigation checklist + recount source; AI draft summary; Excel export (main save dialog). */
+  reagentActions: 'reagent:actions',
+  reagentSummary: 'reagent:summary',
+  reagentExport: 'reagent:export',
   /** Keadaan sambungan OneDrive + folder utama — TIDAK PERNAH membuka login browser. */
   driveStatus: 'drive:status',
   /** Menu Pustaka: semua berkas hasil AIRA milik user (riwayat chat + galeri), termasuk yang hilang. */

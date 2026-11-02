@@ -6,7 +6,7 @@ import type { ItemRow, OpnameRow, UsageRow } from '../src/main/reagent/types'
 const ref = (sheet: string, row: number) => ({ file: sheet === 'Stock Opname' ? 'Stock_Opname_2026-10.xlsx' : 'Reagent_Usage_2026-10.xlsx', sheet, row })
 let n = 0
 const item = (code: string, o: Partial<ItemRow> = {}): ItemRow => ({
-  code, rawCode: code, name: `${code} name`, baseUnit: 'test', packSize: 50, packUnit: 'box', tests: ['T1'], factor: 1, ref: ref('Item List', ++n), ...o
+  code, rawCode: code, name: `${code} name`, baseUnit: 'test', packSize: 50, packUnit: 'box', tests: ['T1'], factor: 1, leadDays: null, safetyDays: null, ref: ref('Item List', ++n), ...o
 })
 const use = (code: string, volume: number, factor: number, o: Partial<UsageRow> = {}): UsageRow => ({
   week: 'W1', code, rawCode: code, name: `${code} name`, tests: ['T1'], volume, factor, estimated: volume * factor, unit: 'test', ref: ref('Weekly Usage', ++n), ...o
@@ -241,5 +241,53 @@ describe('usage unit', () => {
     const r = run({ items: [item('A')], usage: [use('A', 100, 1, { unit: '' })], opname: [count('A', 100, 0, 0)], volumes: { T1: 100 } })
     assert.deepEqual(r.findings, [])
     assert.equal(r.summary.itemsChecked, 1)
+  })
+})
+
+describe('reconcile output for reorder and recount', () => {
+  test('evaluated lists ordinary and finding items with consumption and closing in base units', () => {
+    const r = run({
+      items: [item('BOX', { packSize: 96, leadDays: 21 }), item('KIT')],
+      usage: [use('BOX', 100, 1), use('KIT', 100, 3)],
+      opname: [count('BOX', 4, 1, 3, 'box'), count('KIT', 50, 100, 50)],
+      volumes: { T1: 100 }
+    })
+    const box = r.evaluated.find((e) => e.itemCode === 'BOX')!
+    assert.equal(box.closing, 288)
+    assert.equal(box.consumption, 192)
+    assert.equal(box.leadDays, 21)
+    assert.equal(box.safetyDays, null)
+    assert.equal(box.packSize, 96)
+    assert.ok(box.countRefs.every((x) => x.sheet === 'Stock Opname'))
+    const kit = r.evaluated.find((e) => e.itemCode === 'KIT')!
+    const finding = r.findings.find((x) => x.type === 'factor_too_high')!
+    assert.equal(kit.consumption, finding.actual)
+    assert.equal(kit.estimated, finding.estimated)
+  })
+
+  test('evaluated excludes not-checked, unit-mismatch and no-physical-count items', () => {
+    const r = run({
+      items: [item('NOCOUNT'), item('ODD'), item('NOTEST', { tests: [] })],
+      usage: [use('NOCOUNT', 10, 1), use('ODD', 10, 1), use('NOTEST', 10, 1)],
+      opname: [count('ODD', 5, 5, 2, 'kit'), count('NOTEST', 20, 0, 10)],
+      volumes: { T1: 10 }
+    })
+    assert.deepEqual(r.evaluated, [])
+  })
+
+  test('recount has every counted item; an unconvertible unit gives closing null with a reason', () => {
+    const r = run({
+      items: [item('BOX', { packSize: 96 }), item('ODD')],
+      usage: [use('BOX', 100, 1), use('ODD', 10, 1)],
+      opname: [count('BOX', 4, 1, 3, 'box'), count('ODD', 5, 5, 2, 'kit')],
+      volumes: { T1: 100 }
+    })
+    const box = r.recount.find((x) => x.itemCode === 'BOX')!
+    assert.equal(box.closing, 288)
+    assert.equal(box.opnameUnit, 'box')
+    assert.equal(box.refs.length, 1)
+    const odd = r.recount.find((x) => x.itemCode === 'ODD')!
+    assert.equal(odd.closing, null)
+    assert.match(odd.reason ?? '', /cannot convert "kit" to test/)
   })
 })

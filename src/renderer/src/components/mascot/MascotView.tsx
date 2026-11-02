@@ -16,6 +16,8 @@ export interface MascotViewProps {
   onClick: () => void
   onCancel: () => void
   onToggleMute: () => void
+  /** At rest on a screen that already shows the mascot (Home): kept mounted, not drawn. */
+  hidden?: boolean
 }
 
 const STATUS: Record<Mascot['state'], string> = {
@@ -30,7 +32,7 @@ export default function MascotView(p: MascotViewProps): JSX.Element {
   const { state, label, transcript } = p.mascot
   const status = state === 'listening' && !p.recording ? 'Transcribing…' : STATUS[state]
   return (
-    <div className={`mascot mascot-${state}`}>
+    <div className={`mascot mascot-${state}${p.hidden ? ' mascot-hidden' : ''}`}>
       <div className="mascot-bubble" role="status" aria-live="polite">
         {state === 'confirming' ? (
           <>

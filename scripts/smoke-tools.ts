@@ -9,7 +9,7 @@ import 'dotenv/config'
 import { app } from 'electron'
 import { Client } from 'pg'
 import { makeReagentTools } from '../src/main/tools/reagent-tools'
-import { evidenceRows, runReconciliation } from '../src/main/reagent/service'
+import { actions, evidenceRows, runReconciliation } from '../src/main/reagent/service'
 
 process.env.AIRA_LOG_SILENT = '1'
 
@@ -55,6 +55,7 @@ async function run(): Promise<number> {
   const reagent = makeReagentTools({
     folder: () => 'demo-data/reagent',
     run: (folder, month) => runReconciliation({ folder, month }),
+    actions: (folder, month) => actions({ folder, month }),
     evidence: (folder, findingId, month) => evidenceRows({ folder, month, findingId })
   })
   const all = [...salesTools, ...labTools, ...innoTools, ...reagent]
@@ -83,6 +84,7 @@ async function run(): Promise<number> {
     { tool: 'lab_tat', args: {} },
     { tool: 'reagent_reconcile', args: {}, expect: /"factor_too_high:KIT-DNA-EXT"/ },
     { tool: 'reagent_evidence', args: { findingId: 'unit_mismatch:ETH-ABS', month: '2026-10' }, expect: /"Unit":"kit"/ },
+    { tool: 'reagent_actions', args: { month: '2026-10' }, expect: /"itemCode":"RGT-KRAS".*"status":"order_now"/ },
     { tool: 'inno_customer_search', args: { keyword: 'harapan' } },
     { tool: 'inno_customer_count', args: {} },
     { tool: 'inno_item_search', args: { keyword: 'hba1c' } },

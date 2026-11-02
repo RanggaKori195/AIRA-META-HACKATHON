@@ -13,6 +13,10 @@ export interface ItemRow {
   packUnit: string
   tests: string[]
   factor: number
+  /** Item List "Lead Time (days)"; null = blank or missing (default used). */
+  leadDays: number | null
+  /** Item List "Safety Stock (days)"; null = blank or missing (default used). */
+  safetyDays: number | null
   ref: SourceRef
 }
 

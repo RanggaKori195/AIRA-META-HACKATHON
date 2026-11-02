@@ -122,7 +122,7 @@ const DEV_TOOLS = new Set([
 const DB_TOOLS = new Set(['db_query', 'db_execute'])
 
 /** Reagent Check (reconciliation of usage sheets and stock counts) — its own permission. */
-const REAGENT_TOOLS = new Set(['reagent_reconcile', 'reagent_evidence'])
+const REAGENT_TOOLS = new Set(['reagent_reconcile', 'reagent_evidence', 'reagent_actions'])
 
 const DATA_TOOLS = new Set(['http_request'])
 

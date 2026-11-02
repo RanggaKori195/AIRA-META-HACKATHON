@@ -4,15 +4,18 @@
 import { existsSync, readdirSync, statSync } from 'fs'
 import { join } from 'path'
 import { parseOpnameWorkbook, parseUsageWorkbook, rowCells } from './parse'
-import { reconcile, type Finding, type Summary } from './rules'
+import { reconcile, type ReconcileOutput } from './rules'
 import { testVolumes } from './volumes'
+import { computeReorder } from './reorder'
+import { buildInvestigation } from './investigation'
 import type { SourceRef } from './types'
+import type { ReagentActionsResult } from '../../shared/reagent'
 
 const USAGE_RE = /^Reagent_Usage_(\d{4}-\d{2})\.xlsx$/i
 const usageFile = (m: string): string => `Reagent_Usage_${m}.xlsx`
 const opnameFile = (m: string): string => `Stock_Opname_${m}.xlsx`
 
-export type ReconcileResult = { summary: Summary; findings: Finding[] }
+export type ReconcileResult = ReconcileOutput
 
 /** Months that have BOTH a usage file and a stock-opname file, newest first. */
 export function availableMonths(folder: string): string[] {
@@ -75,6 +78,22 @@ export async function runReconciliation(o: {
   cache.set(key, { stamp, result })
   while (cache.size > MAX_CACHED) cache.delete(cache.keys().next().value as string)
   return result
+}
+
+/**
+ * Reorder list, investigation checklist and the recount source for one month — from the same reconciliation run
+ * the screen and the chat tools use (cache + mtime rules hold), so every number agrees with the findings.
+ */
+export async function actions(o: { folder: string; month?: string; deps?: Deps }): Promise<ReagentActionsResult> {
+  const r = await runReconciliation(o)
+  if ('error' in r) return r
+  const { lines, excluded } = computeReorder({
+    month: r.summary.month,
+    evaluated: r.evaluated,
+    findings: r.findings,
+    notChecked: r.summary.notChecked
+  })
+  return { month: r.summary.month, reorder: lines, excluded, investigation: buildInvestigation(r.findings), recount: r.recount }
 }
 
 /**

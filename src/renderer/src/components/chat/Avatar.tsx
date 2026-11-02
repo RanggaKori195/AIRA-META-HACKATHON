@@ -19,7 +19,7 @@ export function Avatar({
   online?: boolean
   ukuran?: number
 }): JSX.Element {
-  const warna = grup ? '#5b6b62' : warnaNama(nama)
+  const warna = grup ? '#5b616b' : warnaNama(nama)
   return (
     <span
       className="psn-avatar"

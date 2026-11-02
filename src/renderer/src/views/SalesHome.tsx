@@ -247,7 +247,7 @@ export default function SalesHome({
     <div className="sales-baru">
       <div className="sales-utama">
         <header className="sales-kepala">
-          <span className="tile-ikon hijau sales-kepala-ikon">
+          <span className="tile-ikon utama sales-kepala-ikon">
             <IconChart size={28} />
           </span>
           <div className="sales-kepala-teks">
@@ -259,15 +259,15 @@ export default function SalesHome({
           </div>
           {/* Hiasan: kartu grafik kecil, meniru mockup. */}
           <svg className="sales-seni" viewBox="0 0 220 110" aria-hidden="true">
-            <rect x="8" y="10" width="150" height="92" rx="12" fill="#f2f8f4" stroke="#e1efe5" />
-            <rect x="22" y="30" width="54" height="6" rx="3" fill="#cfe5d6" />
-            <rect x="22" y="44" width="38" height="6" rx="3" fill="#dfeee4" />
-            <polyline points="24,86 52,70 78,76 104,56 132,40" fill="none" stroke="#3fae63" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="132" cy="40" r="4" fill="#3fae63" />
-            <rect x="150" y="62" width="14" height="36" rx="3" fill="#bfe3c9" />
-            <rect x="170" y="46" width="14" height="52" rx="3" fill="#8fd0a3" />
-            <rect x="190" y="28" width="14" height="70" rx="3" fill="#3fae63" />
-            <path d="M188 16 L204 16 L204 32" fill="none" stroke="#3fae63" strokeWidth="2.5" strokeLinecap="round" />
+            <rect x="8" y="10" width="150" height="92" rx="12" fill="#f2f8f4" stroke="#e0e6f0" />
+            <rect x="22" y="30" width="54" height="6" rx="3" fill="#ced8e6" />
+            <rect x="22" y="44" width="38" height="6" rx="3" fill="#dee5ef" />
+            <polyline points="24,86 52,70 78,76 104,56 132,40" fill="none" stroke="#386ab5" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="132" cy="40" r="4" fill="#386ab5" />
+            <rect x="150" y="62" width="14" height="36" rx="3" fill="#bdcde5" />
+            <rect x="170" y="46" width="14" height="52" rx="3" fill="#8ba8d4" />
+            <rect x="190" y="28" width="14" height="70" rx="3" fill="#386ab5" />
+            <path d="M188 16 L204 16 L204 32" fill="none" stroke="#386ab5" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
           <div className="sales-titik3" onClick={(e) => e.stopPropagation()}>
             <button className="btn-mini" title="Options" onClick={() => setMenu((x) => !x)}>

@@ -16,8 +16,8 @@ export const USED_FASTER_RATIO = 1.5
 /** A sheet test volume differing from the lab system by more than this share is mentioned. */
 const VOLUME_DIFF_SHARE = 0.05
 
-export type { Finding, NotChecked, Summary } from '../../shared/reagent'
-import type { Finding, NotChecked, Summary } from '../../shared/reagent'
+export type { EvaluatedItem, Finding, NotChecked, RecountItem, Summary } from '../../shared/reagent'
+import type { EvaluatedItem, Finding, NotChecked, RecountItem, Summary } from '../../shared/reagent'
 
 export interface ReconcileInput {
   usage: UsageRow[]
@@ -33,8 +33,17 @@ const r2 = (n: number): number => Math.round(n * 100) / 100
 const r3 = (n: number): number => Math.round(n * 1000) / 1000
 const fmt = (n: number): string => n.toLocaleString('en-US', { maximumFractionDigits: 3 })
 
-export function reconcile(input: ReconcileInput): { summary: Summary; findings: Finding[] } {
+export interface ReconcileOutput {
+  summary: Summary
+  findings: Finding[]
+  evaluated: EvaluatedItem[]
+  recount: RecountItem[]
+}
+
+export function reconcile(input: ReconcileInput): ReconcileOutput {
   const findings: Finding[] = []
+  const evaluated: EvaluatedItem[] = []
+  const recount: RecountItem[] = []
   const notChecked: NotChecked[] = []
   const itemByCode = new Map(input.items.map((i) => [i.code, i]))
   const itemByName = new Map(input.items.map((i) => [canonName(i.name), i]))
@@ -78,6 +87,23 @@ export function reconcile(input: ReconcileInput): { summary: Summary; findings: 
     const usageRefs = rows.map((r) => r.ref)
     const countRefs = counts.map((c) => c.ref)
     const unitOf = (r: UsageRow): string => r.unit.trim() || item.baseUnit
+
+    // Recount source: every counted item, closing in base units (null + reason when a unit cannot convert).
+    if (counts.length > 0) {
+      const closings = counts.map((c) => toBase(c.closing, c.unit, item))
+      const bad = counts.find((_c, i) => closings[i] === null)
+      recount.push({
+        itemCode: item.code,
+        itemName: item.name,
+        baseUnit: item.baseUnit,
+        packSize: item.packSize,
+        packUnit: item.packUnit,
+        opnameUnit: counts[0].unit,
+        closing: bad ? null : r3(closings.reduce((s: number, v) => s + (v as number), 0)),
+        ...(bad ? { reason: `cannot convert "${bad.unit}" to ${item.baseUnit}` } : {}),
+        refs: countRefs
+      })
+    }
 
     if (counts.length === 0) {
       itemsChecked++
@@ -141,6 +167,19 @@ export function reconcile(input: ReconcileInput): { summary: Summary; findings: 
       continue
     }
     itemsChecked++
+    evaluated.push({
+      itemCode: item.code,
+      itemName: item.name,
+      baseUnit: item.baseUnit,
+      packSize: item.packSize,
+      packUnit: item.packUnit,
+      consumption: r2(actual),
+      closing: r2(counts.reduce((s, c) => s + (toBase(c.closing, c.unit, item) as number), 0)),
+      estimated: r2(estimated),
+      leadDays: item.leadDays ?? null,
+      safetyDays: item.safetyDays ?? null,
+      countRefs
+    })
 
     const ratio = actual / estimated
     const notes =
@@ -194,7 +233,9 @@ export function reconcile(input: ReconcileInput): { summary: Summary; findings: 
       filesRead: input.files,
       thresholds: { factorHigh: FACTOR_HIGH_RATIO, usedFaster: USED_FASTER_RATIO }
     },
-    findings
+    findings,
+    evaluated,
+    recount
   }
 }
 

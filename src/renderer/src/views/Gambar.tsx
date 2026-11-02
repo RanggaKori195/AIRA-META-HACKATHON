@@ -359,9 +359,9 @@ export default function Gambar({ onPanduan }: { onPanduan: () => void }): JSX.El
             <svg className="seni-pita" viewBox="0 0 420 220" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="pita-g" x1="0" y1="1" x2="1" y2="0">
-                  <stop offset="0" stopColor="#bfe3c9" stopOpacity="0" />
-                  <stop offset="0.5" stopColor="#bfe3c9" stopOpacity="0.9" />
-                  <stop offset="1" stopColor="#e3f3e7" stopOpacity="0.3" />
+                  <stop offset="0" stopColor="#bdcde5" stopOpacity="0" />
+                  <stop offset="0.5" stopColor="#bdcde5" stopOpacity="0.9" />
+                  <stop offset="1" stopColor="#e2e9f4" stopOpacity="0.3" />
                 </linearGradient>
               </defs>
               <path

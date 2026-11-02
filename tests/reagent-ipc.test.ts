@@ -51,3 +51,48 @@ describe('Reagent Check IPC', () => {
     assert.match(src('src/preload/index.ts'), /reagentEvidence: \(input: \{ findingId: string; month\?: string \}\)/)
   })
 })
+
+describe('Reagent actions IPC', () => {
+  test('new channels exist and check the Reagent Check permission', () => {
+    const s = src('src/main/ipc.ts')
+    for (const ch of ['reagentActions', 'reagentSummary', 'reagentExport'] as const) {
+      assert.ok(IPC_CHANNELS[ch], ch)
+      assert.match(handler(s, ch), /bolehModeSekarang\('reagent'\)/, ch)
+      assert.match(handler(s, ch), /reagentFolderFor\(sesi\.username\)/, ch)
+    }
+  })
+
+  test('export saves through a main-process dialog — the renderer never sends a path', () => {
+    const h = handler(src('src/main/ipc.ts'), 'reagentExport')
+    assert.match(h, /showSaveDialog/)
+    assert.match(h, /ReagentExportInput\.safeParse\(raw\)/)
+    assert.match(src('src/preload/index.ts'), /reagentExport: \(input: \{ month\?: string; recount: RecountRow\[\] \}\)/)
+  })
+
+  test('schemas drop unknown fields and refuse bad months / oversize recount', async () => {
+    const { ReagentExportInput } = await import('../src/main/reagent/ipc-schema')
+    const row = {
+      id: 'r1', phrase: 'EGFR mutation kit, two boxes', itemCode: 'RGT-EGFR', candidates: ['RGT-EGFR'], count: 2,
+      heardUnit: 'box', unit: 'box', unitAssumed: false, voiceBase: 48, fileBase: 72, diffBase: -24, diffPacks: -1,
+      status: 'differs', refs: [{ file: 'Stock_Opname_2026-10.xlsx', sheet: 'Stock Opname', row: 8 }]
+    }
+    const ok = ReagentExportInput.safeParse({ month: '2026-10', recount: [{ ...row, path: 'C:/x' }], path: 'C:/evil.xlsx' })
+    assert.equal(ok.success, true)
+    if (ok.success) {
+      assert.equal('path' in ok.data, false)
+      assert.equal('path' in ok.data.recount[0], false)
+    }
+    assert.equal(ReagentExportInput.safeParse({ month: '2026-13', recount: [] }).success, false)
+    assert.equal(ReagentExportInput.safeParse({ month: '2026-10', recount: Array(501).fill(row) }).success, false)
+    assert.equal(ReagentExportInput.safeParse({ month: '2026-10', recount: [{ ...row, status: 'hacked' }] }).success, false)
+  })
+})
+
+describe('AI draft summary budget', () => {
+  test('the summary leaves room for Muse hidden reasoning (2000 tokens was cut off in the app)', () => {
+    const h = handler(src('src/main/ipc.ts'), 'reagentSummary')
+    const m = /completeDetail\([\s\S]*?MUSE\.agent,\s*(\d+)\)/.exec(h)
+    assert.ok(m, 'completeDetail call with an explicit budget')
+    assert.ok(Number(m![1]) >= 8000, `budget ${m![1]}`)
+  })
+})

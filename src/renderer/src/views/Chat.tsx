@@ -248,7 +248,7 @@ export default function Chat({
     <div className={`chat ${denganSamping ? 'chat-lebar' : ''}`}>
       {mode && KEPALA_DATA[mode] && (
         <header className="chat-kepala-data">
-          <span className="tile-ikon hijau">
+          <span className="tile-ikon utama">
             {mode === 'masterdata' ? <IconDatabase size={22} /> : <IconChart size={22} />}
           </span>
           <div>

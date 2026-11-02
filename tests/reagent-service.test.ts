@@ -100,3 +100,23 @@ describe('reagent service', () => {
     assert.doesNotMatch(SQL_REAGENT_VOLUMES, /patient|dob|diagnosis|result\b/i)
   })
 })
+
+describe('reagent actions (reorder + investigation + recount source)', () => {
+  test('actions returns reorder, investigation and recount for the demo-shaped folder', async () => {
+    const { actions } = await import('../src/main/reagent/service')
+    const dir = mkdtempSync(join(tmpdir(), 'reagent-act-'))
+    copyFileSync('demo-data/reagent/Reagent_Usage_2026-10.xlsx', join(dir, 'Reagent_Usage_2026-10.xlsx'))
+    copyFileSync('demo-data/reagent/Stock_Opname_2026-10.xlsx', join(dir, 'Stock_Opname_2026-10.xlsx'))
+    const a = await actions({ folder: dir, deps })
+    assert.ok(!('error' in a))
+    if ('error' in a) return
+    assert.equal(a.month, '2026-10')
+    assert.ok(a.reorder.length > 0)
+    assert.ok(a.reorder.every((l) => Number.isInteger(l.orderPacks)))
+    assert.deepEqual(a.investigation.map((i) => i.kind).sort(), ['factor_too_high', 'unit_mismatch', 'used_faster', 'wrong_item_code'])
+    assert.ok(a.excluded.some((e) => e.itemCode === 'ETH-ABS'))
+    assert.ok(a.recount.some((r) => r.itemCode === 'RGT-EGFR' && r.closing !== null))
+    const err = await actions({ folder: join(dir, 'nope'), deps })
+    assert.ok('error' in err)
+  })
+})

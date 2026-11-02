@@ -1,6 +1,17 @@
 import type { JSX, ReactNode } from 'react'
-import { FINDING_TYPES, type EvidenceRow, type Finding, type ReagentRunResult, type ReagentStatus } from '../../../../shared/reagent'
+import {
+  FINDING_TYPES,
+  type EvidenceRow,
+  type Finding,
+  type FindingType,
+  type ReagentActionsResult,
+  type ReagentRunResult,
+  type ReagentStatus
+} from '../../../../shared/reagent'
+import { IconFlask } from '../Icons'
 import { TYPE_CLASS, TYPE_LABEL, fmtCell, fmtNum, fmtRatio } from './bantu'
+import ReorderPanel, { type SummaryState } from './ReorderPanel'
+import RecountPanel, { type RecountState, type RowPatch } from './RecountPanel'
 
 // Presentational Reagent Check screen (no hooks, no IPC) — rendered statically in tests/reagent-ui.test.ts.
 // Every number on it comes from the reconciliation engine via IPC, the same engine the chat tools use.
@@ -24,14 +35,50 @@ export interface ReagentViewProps {
   onSubmit: () => void
   /** Dictation button (needs IPC, so the container passes it in). */
   dictation?: ReactNode
+  /** Mascot pose for the greeting before the first run (an image URL; the container imports it). */
+  mascotArt?: string
+  /** Tabs shown after a successful run (default: findings). */
+  tab?: ReagentTab
+  onTab?: (t: ReagentTab) => void
+  actions?: ReagentActionsResult | null
+  summary?: SummaryState | null
+  exportNote?: string | null
+  onSummary?: () => void
+  onExport?: () => void
+  recount?: RecountState
+  onRecountTranscript?: (t: string) => void
+  onRecord?: () => void
+  onReadCounts?: () => void
+  onEditRow?: (id: string, patch: RowPatch) => void
+  onRemoveRow?: (id: string) => void
 }
+
+export type ReagentTab = 'findings' | 'reorder' | 'recount'
+const TABS: [ReagentTab, string][] = [
+  ['findings', 'Findings'],
+  ['reorder', 'Reorder & actions'],
+  ['recount', 'Voice recount']
+]
+const EMPTY_RECOUNT: RecountState = { transcript: '', rows: [], notCounted: [], recording: false, transcribing: false, error: null }
+
+/** What each check looks for, in the words of the reconciliation rules (src/main/reagent/rules.ts). */
+const CHECKS: { type: FindingType; text: string }[] = [
+  { type: 'wrong_item_code', text: 'Usage booked under a code that is not in the Item List.' },
+  { type: 'factor_too_high', text: 'The per-test factor estimates far more than the stock count shows was used.' },
+  { type: 'used_faster', text: 'Stock went down much faster than the tests run explain.' },
+  { type: 'unit_mismatch', text: 'A usage or stock unit that cannot be converted to the item base unit.' }
+]
 
 export default function ReagentView(p: ReagentViewProps): JSX.Element {
   const ok = p.result && !('error' in p.result) ? p.result : null
   const selected = ok?.findings.find((f) => f.id === p.selected) ?? null
+  const tab: ReagentTab = p.tab ?? 'findings'
   return (
     <div className="rg">
       <header className="rg-kepala">
+        <span className="tile-ikon rg-kepala-ikon">
+          <IconFlask size={28} />
+        </span>
         <div>
           <h1>Reagent Check</h1>
           <p>
@@ -64,7 +111,54 @@ export default function ReagentView(p: ReagentViewProps): JSX.Element {
       )}
       {p.result && 'error' in p.result && <div className="rg-galat">{p.result.error}</div>}
 
+      {p.status?.folder && !p.result && !p.running && (
+        <section className="rg-mulai">
+          {p.mascotArt && <img className="rg-mulai-maskot" src={p.mascotArt} alt="" draggable={false} />}
+          <div className="rg-mulai-teks">
+            <h2>Pick the month and press Run reconciliation.</h2>
+            <p>I compare the usage sheet and the stock count with the tests the lab ran, and look for:</p>
+            <ul>
+              {CHECKS.map((c) => (
+                <li key={c.type}>
+                  <span className={`rg-lencana ${TYPE_CLASS[c.type]}`}>{TYPE_LABEL[c.type]}</span> {c.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
       {ok && (
+        <nav className="rg-tabs" aria-label="Reagent Check sections">
+          {TABS.map(([id, label]) => (
+            <button key={id} type="button" className={tab === id ? 'aktif' : ''} onClick={() => p.onTab?.(id)}>
+              {label}
+            </button>
+          ))}
+        </nav>
+      )}
+      {ok && tab === 'reorder' && (
+        <ReorderPanel
+          actions={p.actions ?? null}
+          summary={p.summary ?? null}
+          exportNote={p.exportNote ?? null}
+          onSummary={() => p.onSummary?.()}
+          onExport={() => p.onExport?.()}
+        />
+      )}
+      {ok && tab === 'recount' && (
+        <RecountPanel
+          state={p.recount ?? EMPTY_RECOUNT}
+          items={(p.actions && !('error' in p.actions) ? p.actions.recount : ok.recount) ?? []}
+          onTranscript={(t) => p.onRecountTranscript?.(t)}
+          onRecord={() => p.onRecord?.()}
+          onReadCounts={() => p.onReadCounts?.()}
+          onEditRow={(id, patch) => p.onEditRow?.(id, patch)}
+          onRemoveRow={(id) => p.onRemoveRow?.(id)}
+        />
+      )}
+
+      {ok && tab === 'findings' && (
         <>
           <section className="rg-kartu">
             <div>

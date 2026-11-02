@@ -141,3 +141,28 @@ describe('mascot run tracking and voice-turn safety', () => {
     assert.match(m, /generationRef/)
   })
 })
+
+describe('mascot on Home: one robot at rest, voice still one click away', () => {
+  test('hidden while idle when the screen already shows the mascot', () => {
+    assert.match(view({ hidden: true }), /class="mascot mascot-idle mascot-hidden"/)
+    assert.doesNotMatch(view({}), /mascot-hidden/)
+  })
+
+  test('the hero mascot asks the floating mascot to start a voice turn', async () => {
+    const { requestVoiceTurn, onVoiceTurnRequest } = await import('../src/renderer/src/components/mascot/voice')
+    let asked = 0
+    const off = onVoiceTurnRequest(() => asked++)
+    requestVoiceTurn()
+    off()
+    requestVoiceTurn()
+    assert.equal(asked, 1)
+  })
+
+  test('Mascot hides only at rest (idle, no message) and App hides it on Home', () => {
+    const m = src('src/renderer/src/components/mascot/Mascot.tsx')
+    assert.match(m, /hidden=\{hideWhenIdle && mascot\.state === 'idle' && !message\}/)
+    assert.match(m, /onVoiceTurnRequest\(/)
+    assert.match(src('src/renderer/src/App.tsx'), /hideWhenIdle=\{isHome\}/)
+    assert.match(src('src/renderer/src/views/Home.tsx'), /onClick=\{requestVoiceTurn\}/)
+  })
+})

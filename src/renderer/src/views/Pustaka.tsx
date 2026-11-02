@@ -182,16 +182,16 @@ export default function Pustaka({ onBukaSesi }: Props): JSX.Element {
           </p>
         </div>
         <svg className="pky-seni" viewBox="0 0 240 120" aria-hidden="true">
-          <circle cx="200" cy="30" r="44" fill="#d7eedf" opacity="0.6" />
-          <rect x="40" y="30" width="62" height="80" rx="8" fill="#ffffff" stroke="#d6eadc" transform="rotate(-10 71 70)" />
+          <circle cx="200" cy="30" r="44" fill="#d6e0ef" opacity="0.6" />
+          <rect x="40" y="30" width="62" height="80" rx="8" fill="#ffffff" stroke="#d5deeb" transform="rotate(-10 71 70)" />
           <rect x="52" y="48" width="36" height="5" rx="2.5" fill="#9ec3f0" transform="rotate(-10 71 70)" />
-          <rect x="90" y="18" width="62" height="86" rx="8" fill="#ffffff" stroke="#d6eadc" />
+          <rect x="90" y="18" width="62" height="86" rx="8" fill="#ffffff" stroke="#d5deeb" />
           <rect x="102" y="34" width="38" height="24" rx="4" fill="#f5b9b0" />
-          <rect x="102" y="66" width="38" height="5" rx="2.5" fill="#dcebe1" />
-          <rect x="102" y="78" width="28" height="5" rx="2.5" fill="#e8f2eb" />
-          <rect x="140" y="30" width="62" height="80" rx="8" fill="#ffffff" stroke="#d6eadc" transform="rotate(10 171 70)" />
-          <rect x="152" y="50" width="12" height="30" rx="2" fill="#8fd0a3" transform="rotate(10 171 70)" />
-          <rect x="168" y="42" width="12" height="38" rx="2" fill="#5cb97a" transform="rotate(10 171 70)" />
+          <rect x="102" y="66" width="38" height="5" rx="2.5" fill="#dbe2ec" />
+          <rect x="102" y="78" width="28" height="5" rx="2.5" fill="#e7ecf3" />
+          <rect x="140" y="30" width="62" height="80" rx="8" fill="#ffffff" stroke="#d5deeb" transform="rotate(10 171 70)" />
+          <rect x="152" y="50" width="12" height="30" rx="2" fill="#8ba8d4" transform="rotate(10 171 70)" />
+          <rect x="168" y="42" width="12" height="38" rx="2" fill="#5680bf" transform="rotate(10 171 70)" />
         </svg>
       </header>
 

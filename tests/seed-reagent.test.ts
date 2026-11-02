@@ -95,3 +95,59 @@ describe('synthetic reagent workbooks', () => {
     assert.deepEqual(buildReagentWorkbooks(VOLUMES, '2026-10'), wb)
   })
 })
+
+describe('demo data for reorder and voice recount', () => {
+  const run = async () => {
+    const { mkdtempSync } = await import('fs')
+    const { join } = await import('path')
+    const { tmpdir } = await import('os')
+    const ExcelJS = (await import('exceljs')).default
+    const { actions, clearReagentCache } = await import('../src/main/reagent/service')
+    const seed = await import('../scripts/seed/reagent')
+    const wb = seed.buildReagentWorkbooks(VOLUMES, '2026-10')
+    const dir = mkdtempSync(join(tmpdir(), 'seed-act-'))
+    for (const [file, sheets] of [['Reagent_Usage_2026-10.xlsx', wb.usage], ['Stock_Opname_2026-10.xlsx', wb.opname]] as const) {
+      const x = new ExcelJS.Workbook()
+      for (const s of sheets) {
+        const ws = x.addWorksheet(s.name)
+        for (const r of s.rows) ws.addRow(r)
+      }
+      await x.xlsx.writeFile(join(dir, file))
+    }
+    clearReagentCache()
+    const a = await actions({ folder: dir, deps: { volumes: async () => VOLUMES } })
+    if ('error' in a) throw new Error(a.error)
+    return { a, wb, seed }
+  }
+
+  test('item list has lead/safety for some items and blanks for others', () => {
+    const wb = buildReagentWorkbooks(VOLUMES, '2026-10')
+    const items = table(sheet(wb.usage, 'Item List'), 'Item Code')
+    const lead = items.map((i) => i['Lead Time (days)'])
+    assert.ok(lead.some((v) => typeof v === 'number'))
+    assert.ok(lead.some((v) => v === null))
+    assert.ok(items.some((i) => typeof i['Safety Stock (days)'] === 'number'))
+  })
+
+  test('low-stock items are order_now and the four planted findings are unchanged', async () => {
+    const { a, seed } = await run()
+    const now = a.reorder.filter((l) => l.status === 'order_now').map((l) => l.itemCode).sort()
+    assert.deepEqual(now, [...seed.LOW_STOCK].sort())
+    assert.deepEqual(a.investigation.map((i) => i.kind).sort(), ['factor_too_high', 'unit_mismatch', 'used_faster', 'wrong_item_code'])
+    const kit = a.reorder.find((l) => l.itemCode === 'KIT-DNA-EXT')!
+    assert.ok(kit.sheetOrderPacks !== null && kit.sheetOrderPacks > kit.orderPacks, JSON.stringify(kit))
+  })
+
+  test('the voice script yields exactly one differs (RGT-EGFR, -1 pack), one not_recognized, matches for the rest', async () => {
+    const { a, wb, seed } = await run()
+    const { parseRecount } = await import('../src/shared/recount')
+    const rows = parseRecount(seed.buildVoiceScript(wb.opname), a.recount)
+    const differs = rows.filter((r) => r.status === 'differs')
+    assert.deepEqual(differs.map((r) => [r.itemCode, r.diffPacks]), [[seed.RECOUNT_PLANTED.itemCode, -seed.RECOUNT_PLANTED.packsBelow]])
+    const unknown = rows.filter((r) => r.status === 'not_recognized')
+    assert.equal(unknown.length, 1)
+    assert.match(unknown[0].phrase, new RegExp(seed.RECOUNT_UNKNOWN))
+    assert.deepEqual(rows.filter((r) => !['differs', 'not_recognized'].includes(r.status)).map((r) => r.status).filter((s) => s !== 'matches'), [])
+    assert.ok(rows.filter((r) => r.status === 'matches').length >= 8)
+  })
+})

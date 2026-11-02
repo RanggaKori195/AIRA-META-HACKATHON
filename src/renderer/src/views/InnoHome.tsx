@@ -180,7 +180,7 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
     <div className="sales-baru">
       <div className="sales-utama">
         <header className="sales-kepala inno-kepala">
-          <span className="tile-ikon hijau sales-kepala-ikon inno-kepala-ikon">
+          <span className="tile-ikon utama sales-kepala-ikon inno-kepala-ikon">
             <IconDatabase size={34} />
           </span>
           <div className="sales-kepala-teks">
@@ -189,19 +189,19 @@ export default function InnoHome({ onSubmit, sessions, onOpenSession, onPanduan 
           </div>
           {/* Hiasan: tumpukan database + kartu data, meniru mockup. */}
           <svg className="sales-seni inno-seni" viewBox="0 0 260 130" aria-hidden="true">
-            <rect x="10" y="18" width="92" height="56" rx="10" fill="#f2f8f4" stroke="#e1efe5" transform="rotate(-8 56 46)" />
-            <rect x="24" y="34" width="46" height="6" rx="3" fill="#cfe5d6" transform="rotate(-8 56 46)" />
-            <rect x="24" y="48" width="30" height="6" rx="3" fill="#dfeee4" transform="rotate(-8 56 46)" />
-            <ellipse cx="150" cy="44" rx="44" ry="14" fill="#8fd0a3" />
-            <path d="M106 44v56c0 8 20 14 44 14s44-6 44-14V44" fill="#bfe3c9" />
-            <path d="M106 64c0 8 20 14 44 14s44-6 44-14M106 84c0 8 20 14 44 14s44-6 44-14" fill="none" stroke="#8fd0a3" strokeWidth="3" />
-            <ellipse cx="150" cy="44" rx="44" ry="14" fill="none" stroke="#6cc28a" strokeWidth="2" />
-            <rect x="176" y="62" width="74" height="54" rx="10" fill="#ffffff" stroke="#d6eadc" transform="rotate(6 213 89)" />
-            <rect x="188" y="76" width="40" height="5" rx="2.5" fill="#6cc28a" transform="rotate(6 213 89)" />
-            <rect x="188" y="88" width="48" height="5" rx="2.5" fill="#cfe5d6" transform="rotate(6 213 89)" />
-            <rect x="188" y="100" width="30" height="5" rx="2.5" fill="#cfe5d6" transform="rotate(6 213 89)" />
-            <circle cx="98" cy="112" r="10" fill="#d6eadc" />
-            <path d="M226 14l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#6cc28a" />
+            <rect x="10" y="18" width="92" height="56" rx="10" fill="#f2f8f4" stroke="#e0e6f0" transform="rotate(-8 56 46)" />
+            <rect x="24" y="34" width="46" height="6" rx="3" fill="#ced8e6" transform="rotate(-8 56 46)" />
+            <rect x="24" y="48" width="30" height="6" rx="3" fill="#dee5ef" transform="rotate(-8 56 46)" />
+            <ellipse cx="150" cy="44" rx="44" ry="14" fill="#8ba8d4" />
+            <path d="M106 44v56c0 8 20 14 44 14s44-6 44-14V44" fill="#bdcde5" />
+            <path d="M106 64c0 8 20 14 44 14s44-6 44-14M106 84c0 8 20 14 44 14s44-6 44-14" fill="none" stroke="#8ba8d4" strokeWidth="3" />
+            <ellipse cx="150" cy="44" rx="44" ry="14" fill="none" stroke="#678dc7" strokeWidth="2" />
+            <rect x="176" y="62" width="74" height="54" rx="10" fill="#ffffff" stroke="#d5deeb" transform="rotate(6 213 89)" />
+            <rect x="188" y="76" width="40" height="5" rx="2.5" fill="#678dc7" transform="rotate(6 213 89)" />
+            <rect x="188" y="88" width="48" height="5" rx="2.5" fill="#ced8e6" transform="rotate(6 213 89)" />
+            <rect x="188" y="100" width="30" height="5" rx="2.5" fill="#ced8e6" transform="rotate(6 213 89)" />
+            <circle cx="98" cy="112" r="10" fill="#d5deeb" />
+            <path d="M226 14l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#678dc7" />
           </svg>
           <div className="sales-titik3" onClick={(e) => e.stopPropagation()}>
             <button className="btn-mini" title="Options" onClick={() => setMenu((x) => !x)}>

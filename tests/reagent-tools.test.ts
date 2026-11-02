@@ -25,6 +25,27 @@ const summary = (skipped = 0, notChecked = 0): Summary => ({
   notChecked: NOT_CHECKED.slice(0, notChecked),
   filesRead: ['Reagent_Usage_2026-10.xlsx', 'Stock_Opname_2026-10.xlsx'], thresholds: { factorHigh: 2, usedFaster: 1.5 }
 })
+const ACTIONS = {
+  month: '2026-10',
+  reorder: [
+    {
+      itemCode: 'RGT-KRAS', itemName: 'KRAS Mutation Kit', baseUnit: 'test', packUnit: 'box', packSize: 24, closing: 6,
+      dailyUse: 1.35, leadDays: 14, safetyDays: 7, leadDefault: true, safetyDefault: true, reorderPoint: 28.35, target: 68.85,
+      orderBase: 62.85, orderPacks: 3, status: 'order_now' as const, reachesReorderPointOn: null, sheetOrderPacks: null,
+      evidence: [{ file: 'Stock_Opname_2026-10.xlsx', sheet: 'Stock Opname', row: 9 }]
+    }
+  ],
+  excluded: [{ itemCode: 'ETH-ABS', itemName: 'Ethanol Absolute', reason: 'unit mismatch — consumption cannot be computed' }],
+  investigation: [
+    {
+      id: 'factor_too_high:KIT-DNA-EXT', kind: 'factor_too_high' as const, itemCode: 'KIT-DNA-EXT', itemName: 'DNA Extraction Kit',
+      headline: 'Per-test factor looks too high for DNA Extraction Kit',
+      steps: [{ text: 'Compare the factor with the kit insert.', role: 'QA officer (suggested)' }],
+      evidence: finding.evidence
+    }
+  ],
+  recount: []
+}
 const calls: { run: Array<[string, string | undefined]>; evidence: Array<[string, string, string | undefined]> } = { run: [], evidence: [] }
 const tools = (o: { folder?: string | null; skipped?: number; notChecked?: number } = {}) =>
   makeReagentTools({
@@ -32,6 +53,10 @@ const tools = (o: { folder?: string | null; skipped?: number; notChecked?: numbe
     run: async (folder, month) => {
       calls.run.push([folder, month])
       return { summary: summary(o.skipped, o.notChecked), findings: [finding] }
+    },
+    actions: async (folder, month) => {
+      calls.run.push([folder, month])
+      return ACTIONS
     },
     evidence: async (folder, id, month) => {
       calls.evidence.push([folder, id, month])
@@ -144,5 +169,52 @@ describe('bundled main process', () => {
     const s = src('src/main/tools/reagent-tools.ts')
     assert.doesNotMatch(s, /require\(/)
     assert.match(s, /await import\('\.\.\/auth\/service'\)/)
+  })
+})
+
+describe('reagent_actions (reorder + investigation)', () => {
+  const exec = (o: Parameters<typeof tools>[0], args: Record<string, unknown>) =>
+    tools(o).find((t) => t.name === 'reagent_actions')!.execute(args, ctx)
+
+  test('reagent_actions returns the code-computed reorder list verbatim', async () => {
+    const out = JSON.parse(String(await exec({}, { month: '2026-10' })))
+    assert.equal(out.month, '2026-10')
+    assert.equal(out.reorder[0].orderPacks, 3)
+    assert.equal(out.reorder[0].status, 'order_now')
+    assert.equal(out.reorder[0].leadDefault, true)
+    assert.equal(out.excluded[0].itemCode, 'ETH-ABS')
+    assert.equal(out.investigation[0].steps[0].role, 'QA officer (suggested)')
+    assert.match(out.completenessNote, /computed by code/)
+    assert.match(out.completenessNote, /ETH-ABS/)
+  })
+
+  test('refuses a bad month', async () => {
+    await assert.rejects(exec({}, { month: 'October' }), /YYYY-MM/)
+  })
+
+  test('no folder → the NO_FOLDER message', async () => {
+    await assert.rejects(exec({ folder: null }, {}), /Reagent Check screen/)
+  })
+
+  test('reagent_actions belongs to the reagent group and the prompt sends reorder questions to it', async () => {
+    const { groupOf } = await import('../src/main/agent/tool-groups')
+    assert.equal(groupOf('reagent_actions'), 'reagent')
+    const s = src('src/main/agent/orchestrator.ts')
+    const p = s.slice(s.indexOf('const REAGENT_PROMPT'), s.indexOf('const LAB_PROMPT'))
+    assert.match(p, /reagent_actions/)
+    assert.doesNotMatch(p, /Reorder quantities, purchase plans, exports and memos are not part of this version/)
+  })
+})
+
+describe('reagent_actions wording for people', () => {
+  test('prompt and tool note ask for plain words, never the field names (seen in the app: "status order_now, orderPacks 2 box")', async () => {
+    const s = src('src/main/agent/orchestrator.ts')
+    const p = s.slice(s.indexOf('const REAGENT_PROMPT'), s.indexOf('const LAB_PROMPT'))
+    assert.match(p, /never write field names/i)
+    assert.doesNotMatch(p, /orderPacks/)
+    const out = JSON.parse(String(await tools({}).find((t) => t.name === 'reagent_actions')!.execute({}, ctx)))
+    assert.match(out.completenessNote, /Order now/)
+    assert.match(out.completenessNote, /never the field names/)
+    assert.doesNotMatch(out.completenessNote, /quote orderPacks/)
   })
 })

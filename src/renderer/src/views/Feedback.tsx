@@ -241,15 +241,15 @@ export default function Feedback(): JSX.Element {
         </div>
         {/* Hiasan: gelembung chat + kartu bola lampu, meniru mockup. */}
         <svg className="fbx-seni" viewBox="0 0 260 120" aria-hidden="true">
-          <circle cx="230" cy="20" r="40" fill="#d7eedf" opacity="0.6" />
-          <rect x="40" y="38" width="86" height="58" rx="12" fill="#2f8a52" />
-          <path d="M58 96l-4 16 18-16z" fill="#2f8a52" />
-          <rect x="56" y="54" width="54" height="5" rx="2.5" fill="#dff2e6" />
-          <rect x="56" y="66" width="54" height="5" rx="2.5" fill="#dff2e6" />
-          <rect x="56" y="78" width="36" height="5" rx="2.5" fill="#dff2e6" />
-          <rect x="136" y="12" width="84" height="98" rx="14" fill="#ffffff" stroke="#d6eadc" transform="rotate(6 178 61)" />
-          <path d="M178 38a16 16 0 0 0-9 29v7h18v-7a16 16 0 0 0-9-29z" fill="#3aa05f" transform="rotate(6 178 61)" />
-          <rect x="170" y="78" width="16" height="5" rx="2" fill="#2f7d49" transform="rotate(6 178 61)" />
+          <circle cx="230" cy="20" r="40" fill="#d6e0ef" opacity="0.6" />
+          <rect x="40" y="38" width="86" height="58" rx="12" fill="#2a528f" />
+          <path d="M58 96l-4 16 18-16z" fill="#2a528f" />
+          <rect x="56" y="54" width="54" height="5" rx="2.5" fill="#dee6f3" />
+          <rect x="56" y="66" width="54" height="5" rx="2.5" fill="#dee6f3" />
+          <rect x="56" y="78" width="36" height="5" rx="2.5" fill="#dee6f3" />
+          <rect x="136" y="12" width="84" height="98" rx="14" fill="#ffffff" stroke="#d5deeb" transform="rotate(6 178 61)" />
+          <path d="M178 38a16 16 0 0 0-9 29v7h18v-7a16 16 0 0 0-9-29z" fill="#3462a6" transform="rotate(6 178 61)" />
+          <rect x="170" y="78" width="16" height="5" rx="2" fill="#2a4d82" transform="rotate(6 178 61)" />
           <path d="M232 52l12-6M234 64h14M232 76l12 6" stroke="#e6b52e" strokeWidth="3.5" strokeLinecap="round" />
         </svg>
       </header>

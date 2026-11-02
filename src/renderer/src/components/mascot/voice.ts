@@ -18,6 +18,18 @@ export function emitMascot(e: MascotEvent): void {
   for (const fn of listeners) fn(e)
 }
 
+/** The Home hero mascot is a second way in: it asks the floating mascot to start the same voice turn. */
+const turnRequests = new Set<() => void>()
+
+export function onVoiceTurnRequest(fn: () => void): () => void {
+  turnRequests.add(fn)
+  return () => turnRequests.delete(fn)
+}
+
+export function requestVoiceTurn(): void {
+  for (const fn of turnRequests) fn()
+}
+
 let user = ''
 const muteKey = (): string => `aira.mascot.muted.${user}`
 

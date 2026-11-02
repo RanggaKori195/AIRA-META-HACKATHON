@@ -266,24 +266,24 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
         </div>
         {/* Hiasan: gelembung chat, dokumen, kaca pembesar, bola lampu — meniru mockup. */}
         <svg className="pdx-seni" viewBox="0 0 380 190" aria-hidden="true">
-          <ellipse cx="300" cy="80" rx="110" ry="90" fill="#d6ecdd" opacity="0.55" />
-          <rect x="30" y="80" width="62" height="44" rx="12" fill="#63b27f" />
-          <path d="M44 124l-6 14 16-14z" fill="#63b27f" />
-          <rect x="44" y="94" width="34" height="5" rx="2.5" fill="#e3f4e8" />
-          <rect x="44" y="106" width="24" height="5" rx="2.5" fill="#e3f4e8" />
-          <rect x="100" y="30" width="86" height="104" rx="10" fill="#ffffff" stroke="#dcebe1" transform="rotate(-6 143 82)" />
-          <rect x="114" y="52" width="56" height="6" rx="3" fill="#dcebe1" transform="rotate(-6 143 82)" />
-          <rect x="114" y="66" width="50" height="6" rx="3" fill="#e8f2eb" transform="rotate(-6 143 82)" />
-          <rect x="114" y="80" width="40" height="6" rx="3" fill="#e8f2eb" transform="rotate(-6 143 82)" />
-          <rect x="210" y="20" width="96" height="150" rx="10" fill="#ffffff" stroke="#dcebe1" />
-          <rect x="226" y="44" width="62" height="6" rx="3" fill="#dcebe1" />
-          <rect x="226" y="58" width="52" height="6" rx="3" fill="#e8f2eb" />
-          <circle cx="226" cy="100" r="30" fill="#eaf6ee" stroke="#2f7d49" strokeWidth="9" />
-          <path d="M248 122l22 22" stroke="#2f7d49" strokeWidth="12" strokeLinecap="round" />
-          <rect x="296" y="70" width="70" height="96" rx="10" fill="#ffffff" stroke="#dcebe1" transform="rotate(8 331 118)" />
-          <path d="M332 60a18 18 0 0 0-10 33v8h20v-8a18 18 0 0 0-10-33z" fill="#8fd0a3" />
-          <rect x="324" y="104" width="16" height="5" rx="2" fill="#6cc28a" />
-          <path d="M306 50l-8-6M358 50l8-6M332 36v-9" stroke="#8fd0a3" strokeWidth="3" strokeLinecap="round" />
+          <ellipse cx="300" cy="80" rx="110" ry="90" fill="#d5dfed" opacity="0.55" />
+          <rect x="30" y="80" width="62" height="44" rx="12" fill="#5e82b7" />
+          <path d="M44 124l-6 14 16-14z" fill="#5e82b7" />
+          <rect x="44" y="94" width="34" height="5" rx="2.5" fill="#e2eaf5" />
+          <rect x="44" y="106" width="24" height="5" rx="2.5" fill="#e2eaf5" />
+          <rect x="100" y="30" width="86" height="104" rx="10" fill="#ffffff" stroke="#dbe2ec" transform="rotate(-6 143 82)" />
+          <rect x="114" y="52" width="56" height="6" rx="3" fill="#dbe2ec" transform="rotate(-6 143 82)" />
+          <rect x="114" y="66" width="50" height="6" rx="3" fill="#e7ecf3" transform="rotate(-6 143 82)" />
+          <rect x="114" y="80" width="40" height="6" rx="3" fill="#e7ecf3" transform="rotate(-6 143 82)" />
+          <rect x="210" y="20" width="96" height="150" rx="10" fill="#ffffff" stroke="#dbe2ec" />
+          <rect x="226" y="44" width="62" height="6" rx="3" fill="#dbe2ec" />
+          <rect x="226" y="58" width="52" height="6" rx="3" fill="#e7ecf3" />
+          <circle cx="226" cy="100" r="30" fill="#e9eff7" stroke="#2a4d82" strokeWidth="9" />
+          <path d="M248 122l22 22" stroke="#2a4d82" strokeWidth="12" strokeLinecap="round" />
+          <rect x="296" y="70" width="70" height="96" rx="10" fill="#ffffff" stroke="#dbe2ec" transform="rotate(8 331 118)" />
+          <path d="M332 60a18 18 0 0 0-10 33v8h20v-8a18 18 0 0 0-10-33z" fill="#8ba8d4" />
+          <rect x="324" y="104" width="16" height="5" rx="2" fill="#678dc7" />
+          <path d="M306 50l-8-6M358 50l8-6M332 36v-9" stroke="#8ba8d4" strokeWidth="3" strokeLinecap="round" />
         </svg>
       </header>
 
@@ -376,7 +376,7 @@ export default function Panduan({ onAjukan, onMasukan }: Props): JSX.Element {
 
           <div className="pdx-kartu">
             <div className="pdx-samping-kepala">
-              <span className="tile-ikon hijau">
+              <span className="tile-ikon utama">
                 <IconHelp size={20} />
               </span>
               <span>

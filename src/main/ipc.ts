@@ -1,8 +1,18 @@
 import { ipcMain, BrowserWindow, clipboard, dialog, shell } from 'electron'
-import type { ReagentEvidenceResult, ReagentRunResult, ReagentStatus } from '../shared/reagent'
-import { availableMonths, evidenceRows, runReconciliation } from './reagent/service'
+import type {
+  ReagentActionsResult,
+  ReagentEvidenceResult,
+  ReagentExportResult,
+  ReagentRunResult,
+  ReagentStatus,
+  ReagentSummaryResult
+} from '../shared/reagent'
+import { actions, availableMonths, evidenceRows, runReconciliation } from './reagent/service'
+import { buildActionsWorkbook } from './reagent/export'
+import { draftSummary } from './reagent/summary'
+import { MUSE } from './hackathon/models'
 import { reagentFolderFor, setReagentFolder } from './reagent/folder'
-import { ReagentEvidenceInput, ReagentMonth } from './reagent/ipc-schema'
+import { ReagentEvidenceInput, ReagentExportInput, ReagentMonth } from './reagent/ipc-schema'
 import { readFileSync, statSync, writeFileSync } from 'fs'
 import { hostname } from 'os'
 import { statusKoneksiSales } from './sales/db'
@@ -872,6 +882,63 @@ export function registerIpcHandlers(): void {
     if (!folder) return { error: 'Choose the folder with the usage and stock-opname files first.' }
     try {
       return { rows: await evidenceRows({ folder, month: input.data.month, findingId: input.data.findingId }) }
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : String(err) }
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.reagentActions, async (_event, raw): Promise<ReagentActionsResult> => {
+    const sesi = wajibLogin()
+    if (!auth.bolehModeSekarang('reagent')) return { error: 'This account is not permitted to open Reagent Check.' }
+    const folder = reagentFolderFor(sesi.username)
+    if (!folder) return { error: 'Choose the folder with the usage and stock-opname files first.' }
+    const month = ReagentMonth.safeParse(raw ?? undefined)
+    if (!month.success) return { error: 'Invalid month (YYYY-MM).' }
+    return actions({ folder, month: month.data })
+  })
+
+  // AI draft summary (Muse Wonder) of the code-computed actions; the screen labels it as a draft.
+  ipcMain.handle(IPC_CHANNELS.reagentSummary, async (_event, raw): Promise<ReagentSummaryResult> => {
+    const sesi = wajibLogin()
+    if (!auth.bolehModeSekarang('reagent')) return { error: 'This account is not permitted to open Reagent Check.' }
+    const folder = reagentFolderFor(sesi.username)
+    if (!folder) return { error: 'Choose the folder with the usage and stock-opname files first.' }
+    const month = ReagentMonth.safeParse(raw ?? undefined)
+    if (!month.success) return { error: 'Invalid month (YYYY-MM).' }
+    const a = await actions({ folder, month: month.data })
+    if ('error' in a) return a
+    const provider = buildProvider()
+    if (!provider) return { error: 'No API key is set up for the model.' }
+    try {
+      const text = await draftSummary(a, async (prompt) => {
+        const d = await provider.completeDetail([{ role: 'user', content: prompt }], MUSE.agent, 8000)
+        if (d.finishReason === 'length') throw new Error('The summary was cut off — try again.')
+        return d.text
+      })
+      return { text }
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : String(err) }
+    }
+  })
+
+  // Excel export: recomputed from the session's folder + the month asked for; the path comes from a save dialog.
+  ipcMain.handle(IPC_CHANNELS.reagentExport, async (event, raw): Promise<ReagentExportResult> => {
+    const sesi = wajibLogin()
+    if (!auth.bolehModeSekarang('reagent')) return { error: 'This account is not permitted to open Reagent Check.' }
+    const input = ReagentExportInput.safeParse(raw)
+    if (!input.success) return { error: 'Invalid export request (month YYYY-MM and recount rows).' }
+    const folder = reagentFolderFor(sesi.username)
+    if (!folder) return { error: 'Choose the folder with the usage and stock-opname files first.' }
+    const a = await actions({ folder, month: input.data.month })
+    if ('error' in a) return a
+    try {
+      const buf = await buildActionsWorkbook(a, input.data.recount)
+      const win = BrowserWindow.fromWebContents(event.sender)
+      const opts = { title: 'Save the reagent actions', defaultPath: `Reagent_Actions_${a.month}.xlsx`, filters: [{ name: 'Excel', extensions: ['xlsx'] }] }
+      const res = win ? await dialog.showSaveDialog(win, opts) : await dialog.showSaveDialog(opts)
+      if (res.canceled || !res.filePath) return { cancelled: true }
+      writeFileSync(res.filePath, buf)
+      return { path: res.filePath }
     } catch (err) {
       return { error: err instanceof Error ? err.message : String(err) }
     }

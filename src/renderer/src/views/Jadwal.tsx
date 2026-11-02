@@ -601,7 +601,7 @@ export default function Jadwal({
     <div className="jadwal-baru">
       <div className="jadwal-utama">
         <header className="jadwal-kepala-baru">
-          <span className="tile-ikon hijau jadwal-kepala-ikon">
+          <span className="tile-ikon utama jadwal-kepala-ikon">
             <IconCalendar size={26} />
           </span>
           <div>

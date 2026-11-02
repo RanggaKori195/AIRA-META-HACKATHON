@@ -565,10 +565,12 @@ const REAGENT_PROMPT =
   '5. Finding types: wrong item code (usage booked under a code that is not in the item list), factor too high ' +
   '(the per-test factor overstates real use), used faster than estimated (waste, repeat runs or unrecorded use), ' +
   'unit mismatch (the count unit cannot be converted), no physical count (no stock-opname row).\n' +
-  '6. An investigation list = one line per EXISTING finding with a concrete check for the lab team (e.g. ' +
-  '"confirm which code the HPV kit was issued under in week 2"). No new findings, no new numbers.\n' +
-  '7. Reorder quantities, purchase plans, exports and memos are not part of this version — say so plainly ' +
-  'instead of computing anything.\n' +
+  '6. For what to order, stock running out or what to investigate, call reagent_actions and give its reorder ' +
+  'lines and investigation steps with the numbers exactly as returned, in plain words — e.g. "Order now: KRAS ' +
+  'Mutation Kit, 4 boxes" — and never write field names such as status codes. Say when a default lead or safety ' +
+  'time was used and name the items it left out with the reason. No new findings, no new numbers.\n' +
+  '7. Purchase orders to suppliers and memos are not part of this version — say so plainly; the Excel export ' +
+  'of the reorder list is a button on the Reagent Check screen.\n' +
   '8. If the tool reports skipped rows, mention them; never claim anything else was missing or cut.\n' +
   '9. The data is aggregate (test counts per test code); never mention or ask about patients.\n' +
   'Keep answers short: a one-line overview, then the findings, most important first.'

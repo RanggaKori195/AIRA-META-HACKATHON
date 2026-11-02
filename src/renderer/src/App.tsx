@@ -973,7 +973,12 @@ export default function App(): JSX.Element {
       */}
       {session && <ChatRekan saya={session.username} />}
       {session && (
-        <Mascot username={session.username} busy={streamingId !== null} onSend={(text) => void handleSend(text)} />
+        <Mascot
+          username={session.username}
+          busy={streamingId !== null}
+          onSend={(text) => void handleSend(text)}
+          hideWhenIdle={isHome}
+        />
       )}
       {/* Muncul hanya saat versi baru sudah terunduh (auto-update). */}
       {session && <SpandukPembaruan />}
