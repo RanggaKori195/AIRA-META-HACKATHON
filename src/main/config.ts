@@ -73,6 +73,8 @@ export const ConfigSchema = z.object({
    * (`saklarDariConfig`).
    */
   pemantauMati: z.record(z.string(), z.array(z.string().max(40)).max(10)).default({}),
+  /** Reagent Check: the folder with the usage and stock-opname files, per username (lower case). */
+  reagentFolders: z.record(z.string(), z.string().max(1000)).default({}),
   /**
    * AIRA ikut menyala saat Windows login (tersembunyi di tray).
    *

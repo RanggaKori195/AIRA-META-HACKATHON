@@ -42,7 +42,8 @@ const LABEL_MODE: Record<ChatMode, string> = {
   sales: 'Sales Data',
   masterdata: 'Master Data',
   lab: 'Sample TAT',
-  onedrive: 'Microsoft 365'
+  onedrive: 'Microsoft 365',
+  reagent: 'Reagent Check'
 }
 
 const LABEL_MODE_PANJANG: Record<ChatMode, string> = {
@@ -50,13 +51,14 @@ const LABEL_MODE_PANJANG: Record<ChatMode, string> = {
   sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
   lab: 'Ask Sample TAT',
-  onedrive: 'Ask Microsoft 365'
+  onedrive: 'Ask Microsoft 365',
+  reagent: 'Reagent Check'
 }
 
 /** Warna per sumber — dipakai titik kalender, ubin ikon, dan chip. */
 function warna(jenis: JenisJadwal, mode: ChatMode): string {
   if (jenis === 'pengingat') return 'merah'
-  return { general: 'hijau', sales: 'ungu', masterdata: 'oranye', lab: 'biru', onedrive: 'biru' }[mode]
+  return { general: 'hijau', sales: 'ungu', masterdata: 'oranye', lab: 'biru', onedrive: 'biru', reagent: 'oranye' }[mode]
 }
 
 function labelSumber(jenis: JenisJadwal, mode: ChatMode): string {

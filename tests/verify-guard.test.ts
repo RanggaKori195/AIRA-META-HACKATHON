@@ -289,6 +289,17 @@ describe('mode data dikecualikan (lapangan 29–30 Sep 2026)', () => {
     for (const m of ['sales', 'masterdata', 'lab']) assert.equal(guardUjiBerlakuDiMode(m), false, m)
   })
 
+  test('guard TIDAK berjalan di Reagent Check (mode data, tanpa tool koding)', () => {
+    assert.equal(guardUjiBerlakuDiMode('reagent'), false)
+    // Realistic honest sentence from a reagent answer: "ran the reconciliation" is a data lookup, not a program test.
+    const kalimat = 'I ran the reconciliation and it worked: 4 findings.'
+    assert.equal(
+      adaKlaimUji(kalimat) && guardUjiBerlakuDiMode('reagent'),
+      false,
+      'the sentence must never be stripped in reagent mode'
+    )
+  })
+
   test('guard TETAP berjalan di Task Baru & Microsoft 365 — klaim palsu di sana tetap dibuang', () => {
     for (const m of ['general', 'onedrive']) assert.equal(guardUjiBerlakuDiMode(m), true, m)
     assert.equal(adaKlaimUji(KLAIM_PALSU), true)

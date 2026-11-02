@@ -8,6 +8,8 @@
 import 'dotenv/config'
 import { app } from 'electron'
 import { Client } from 'pg'
+import { makeReagentTools } from '../src/main/tools/reagent-tools'
+import { evidenceRows, runReconciliation } from '../src/main/reagent/service'
 
 process.env.AIRA_LOG_SILENT = '1'
 
@@ -49,7 +51,13 @@ async function run(): Promise<number> {
   const { salesTools } = await import('../src/main/tools/sales-tools')
   const { labTools } = await import('../src/main/tools/lab-tools')
   const { innoTools } = await import('../src/main/tools/inno-tools')
-  const all = [...salesTools, ...labTools, ...innoTools]
+  // Reagent tools with the committed demo folder (no signed-in session in this script).
+  const reagent = makeReagentTools({
+    folder: () => 'demo-data/reagent',
+    run: (folder, month) => runReconciliation({ folder, month }),
+    evidence: (folder, findingId, month) => evidenceRows({ folder, month, findingId })
+  })
+  const all = [...salesTools, ...labTools, ...innoTools, ...reagent]
   const s = await sampleValues(cs)
 
   const breakdown = salesTools.find((t) => t.name === 'sales_breakdown')!
@@ -73,6 +81,8 @@ async function run(): Promise<number> {
     { tool: 'lab_lacak', args: { order_id: s.orderIdTracked } },
     { tool: 'lab_rns', args: {} },
     { tool: 'lab_tat', args: {} },
+    { tool: 'reagent_reconcile', args: {}, expect: /"factor_too_high:KIT-DNA-EXT"/ },
+    { tool: 'reagent_evidence', args: { findingId: 'unit_mismatch:ETH-ABS', month: '2026-10' }, expect: /"Unit":"kit"/ },
     { tool: 'inno_customer_search', args: { keyword: 'harapan' } },
     { tool: 'inno_customer_count', args: {} },
     { tool: 'inno_item_search', args: { keyword: 'hba1c' } },

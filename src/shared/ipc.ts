@@ -89,6 +89,11 @@ export const IPC_CHANNELS = {
   innoStatus: 'inno:status',
   /** TAT Sample membaca lewat koneksi SALES (aturan 51) — status koneksi yang sama, izin menu lab. */
   labStatus: 'lab:status',
+  /** Reagent Check: folder + available months, choose folder (main dialog), run, evidence rows. */
+  reagentStatus: 'reagent:status',
+  reagentChooseFolder: 'reagent:choose-folder',
+  reagentRun: 'reagent:run',
+  reagentEvidence: 'reagent:evidence',
   /** Keadaan sambungan OneDrive + folder utama — TIDAK PERNAH membuka login browser. */
   driveStatus: 'drive:status',
   /** Menu Pustaka: semua berkas hasil AIRA milik user (riwayat chat + galeri), termasuk yang hilang. */
@@ -187,7 +192,7 @@ export const IPC_CHANNELS = {
 export const ROLE_VALUES = ['super_admin', 'direktur', 'manager', 'spv', 'staff'] as const
 export type RoleId = (typeof ROLE_VALUES)[number]
 
-export const MENU_VALUES = ['sales', 'masterdata', 'lab', 'onedrive'] as const
+export const MENU_VALUES = ['sales', 'masterdata', 'lab', 'onedrive', 'reagent'] as const
 export type MenuId = (typeof MENU_VALUES)[number]
 
 /**
@@ -864,7 +869,7 @@ export type ModelChoice = 'auto' | 'chat' | 'agent' | 'coder'
  * - "sales"      → hanya transaksi penjualan (Postgres `DB-REPOSITORY`)
  * - "masterdata" → hanya master data the lab (MariaDB `inno_collection`)
  */
-export type ChatMode = 'general' | 'sales' | 'masterdata' | 'lab' | 'onedrive'
+export type ChatMode = 'general' | 'sales' | 'masterdata' | 'lab' | 'onedrive' | 'reagent'
 
 // --- Panduan pemakaian -------------------------------------------------------
 //

@@ -32,8 +32,8 @@ describe('setiap mode percakapan dikenali', () => {
     assert.equal(modeSah(''), null)
   })
 
-  test('daftar mode sah memuat kelima mode', () => {
-    assert.deepEqual([...MODE_CHAT].sort(), ['general', 'masterdata', 'lab', 'onedrive', 'sales'])
+  test('daftar mode sah memuat keenam mode (Reagent Check ditambahkan)', () => {
+    assert.deepEqual([...MODE_CHAT].sort(), ['general', 'masterdata', 'lab', 'onedrive', 'reagent', 'sales'])
   })
 })
 

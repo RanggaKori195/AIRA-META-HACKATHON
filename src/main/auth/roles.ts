@@ -26,7 +26,8 @@ export const MENU_LABELS: Record<Menu, string> = {
   sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
   lab: 'Ask Sample TAT',
-  onedrive: 'Ask Microsoft 365'
+  onedrive: 'Ask Microsoft 365',
+  reagent: 'Reagent Check'
 }
 
 /**

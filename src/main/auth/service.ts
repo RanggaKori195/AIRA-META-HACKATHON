@@ -24,7 +24,7 @@ import {
   type Menu,
   type Role
 } from './roles'
-import type { Divisi } from '../../shared/ipc'
+import type { Divisi, MenuId } from '../../shared/ipc'
 import { logger } from '../logger'
 import * as localDb from '../db'
 import { getSecret, setSecret, deleteSecret } from '../secrets'
@@ -88,7 +88,7 @@ export function authSelesaiInit(): boolean {
 
 /** Dipakai guard IPC. Sengaja menjawab dari `sesi` yang sudah tervalidasi, bukan dari renderer. */
 export function bolehModeSekarang(
-  mode: 'general' | 'sales' | 'masterdata' | 'lab' | 'onedrive'
+  mode: 'general' | MenuId
 ): boolean {
   if (mode === 'general') return true
   if (!sesi) return false

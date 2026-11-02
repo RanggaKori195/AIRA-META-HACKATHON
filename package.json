@@ -28,7 +28,8 @@
     "smoke:tools": "esbuild scripts/smoke-tools.ts --bundle --platform=node --format=cjs --packages=external --outfile=scripts/.smoke-bundle.cjs && electron scripts/.smoke-bundle.cjs",
     "mascot:cut": "esbuild scripts/mascot-cut.ts --bundle --platform=node --format=cjs --packages=external --outfile=scripts/.mascot-bundle.cjs && electron scripts/.mascot-bundle.cjs",
     "ppt:theme": "esbuild scripts/ppt-theme.ts --bundle --platform=node --format=cjs --packages=external --outfile=scripts/.ppttheme-bundle.cjs && electron scripts/.ppttheme-bundle.cjs",
-    "scrub:check": "tsx scripts/scrub-check.ts"
+    "scrub:check": "tsx scripts/scrub-check.ts",
+    "seed:reagent": "tsx scripts/seed-reagent.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",

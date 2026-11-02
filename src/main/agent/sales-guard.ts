@@ -8,6 +8,7 @@
 // bekerja. Pesan penolakan sekaligus memberi tahu tool mana yang benar.
 
 import { isSalesQuestion } from './tool-groups'
+import { adalahModeData } from './mode-data'
 
 /** Tool penjelajah dokumen yang menjadi jalan sesat untuk pertanyaan penjualan. */
 const DOC_TOOLS = new Set(['search_docs', 'list_dir', 'search_files'])
@@ -79,8 +80,7 @@ export function toolChoiceUntuk(o: {
   iterasi: number
 }): 'auto' | 'required' | 'none' {
   if (o.paksa) return 'required'
-  const modeData = o.mode === 'sales' || o.mode === 'masterdata' || o.mode === 'lab'
-  if (o.iterasi === 0 && modeData && sapaanUtuh(o.pertanyaan)) return 'none'
+  if (o.iterasi === 0 && adalahModeData(o.mode) && sapaanUtuh(o.pertanyaan)) return 'none'
   return 'auto'
 }
 

@@ -40,6 +40,13 @@ describe('a greeting in a data menu gets no tools', () => {
   test('first iteration, data mode, pure greeting → none', () => {
     assert.equal(toolChoiceUntuk({ paksa: false, mode: 'sales', pertanyaan: 'hi, who are you?', iterasi: 0 }), 'none')
     assert.equal(toolChoiceUntuk({ paksa: false, mode: 'lab', pertanyaan: 'hello', iterasi: 0 }), 'none')
+    assert.equal(toolChoiceUntuk({ paksa: false, mode: 'reagent', pertanyaan: 'hi, who are you?', iterasi: 0 }), 'none')
+  })
+  test('Reagent Check: a data question keeps its tools', () => {
+    assert.equal(
+      toolChoiceUntuk({ paksa: false, mode: 'reagent', pertanyaan: 'hi, which reagents are short today?', iterasi: 0 }),
+      'auto'
+    )
   })
   test('data questions, later iterations, forced calls and New Task are unchanged', () => {
     assert.equal(toolChoiceUntuk({ paksa: false, mode: 'sales', pertanyaan: 'hi, what were sales yesterday?', iterasi: 0 }), 'auto')

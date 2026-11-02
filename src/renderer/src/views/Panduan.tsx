@@ -45,7 +45,8 @@ const MODE_LABEL: Record<ChatMode, string> = {
   sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
   lab: 'Ask Sample TAT',
-  onedrive: 'Ask Microsoft 365'
+  onedrive: 'Ask Microsoft 365',
+  reagent: 'Reagent Check'
 }
 
 interface Gaya {

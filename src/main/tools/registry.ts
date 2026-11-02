@@ -14,6 +14,7 @@ import { skillTools } from './skill-tools'
 import { salesTools } from './sales-tools'
 import { innoTools } from './inno-tools'
 import { labTools } from './lab-tools'
+import { reagentTools } from './reagent-tools'
 import { onedriveTools } from './onedrive-tools'
 import { m365Tools } from './m365-tools'
 import { simbolTools } from './simbol-tools'
@@ -54,6 +55,7 @@ for (const tool of skillTools) registry.set(tool.name, tool)
 for (const tool of salesTools) registry.set(tool.name, tool)
 for (const tool of innoTools) registry.set(tool.name, tool)
 for (const tool of labTools) registry.set(tool.name, tool)
+for (const tool of reagentTools) registry.set(tool.name, tool)
 // ⚠️ Tool M365 lanjutan (email, kalender, simpan, index) TIDAK didaftarkan
 // selama `M365_LANJUTAN` mati. Bukan dikomentari — dibiarkan hidup di kode dan
 // ter-test, hanya tidak dikirim ke model. Tool yang ada tapi selalu gagal jauh

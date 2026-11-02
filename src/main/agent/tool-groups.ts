@@ -14,6 +14,7 @@ export type ToolGroup =
   | 'inno'
   | 'lab'
   | 'onedrive'
+  | 'reagent'
 
 /**
  * TAT sampel (menu "Tanya TAT Sample"). Sumbernya `v_sample_tracker` di
@@ -120,6 +121,9 @@ const DEV_TOOLS = new Set([
  */
 const DB_TOOLS = new Set(['db_query', 'db_execute'])
 
+/** Reagent Check (reconciliation of usage sheets and stock counts) — its own permission. */
+const REAGENT_TOOLS = new Set(['reagent_reconcile', 'reagent_evidence'])
+
 const DATA_TOOLS = new Set(['http_request'])
 
 export function groupOf(toolName: string): ToolGroup {
@@ -128,6 +132,7 @@ export function groupOf(toolName: string): ToolGroup {
   if (INNO_TOOLS.has(toolName)) return 'inno'
   if (LAB_TOOLS.has(toolName)) return 'lab'
   if (ONEDRIVE_TOOLS.has(toolName)) return 'onedrive'
+  if (REAGENT_TOOLS.has(toolName)) return 'reagent'
   if (BROWSER_TOOLS.has(toolName)) return 'browser'
   if (DEV_TOOLS.has(toolName)) return 'dev'
   if (DB_TOOLS.has(toolName)) return 'db'
@@ -239,7 +244,7 @@ export interface GroupSelection {
   /** Nama tool yang sudah pernah dipakai di sesi ini — kelompoknya tetap disertakan. */
   usedTools: string[]
   /** Mode khusus mengunci toolset ke kelompok itu saja. */
-  mode?: 'general' | 'sales' | 'masterdata' | 'lab' | 'onedrive'
+  mode?: 'general' | 'sales' | 'masterdata' | 'lab' | 'onedrive' | 'reagent'
   /**
    * Menu yang boleh dibuka user ini (hasil aturan role × divisi).
    *
@@ -254,7 +259,7 @@ export interface GroupSelection {
    * bukan terbuka: pemanggil baru yang lupa mengisinya akan melihat "tool sales
    * tidak muncul" (terlihat, dilaporkan), bukan diam-diam membuka omzet.
    */
-  izinMenu?: readonly ('sales' | 'masterdata' | 'lab' | 'onedrive')[]
+  izinMenu?: readonly ('sales' | 'masterdata' | 'lab' | 'onedrive' | 'reagent')[]
   /**
    * Apakah user ini Super Admin — satu-satunya yang boleh memakai SQL bebas
    * (`db_query`/`db_execute`). Lihat alasannya di bawah.
@@ -281,6 +286,9 @@ export function selectGroups(input: GroupSelection): Set<ToolGroup> {
   if (input.mode === 'sales') return new Set<ToolGroup>(bolehSales ? ['sales'] : ['core'])
   if (input.mode === 'masterdata') return new Set<ToolGroup>(bolehInno ? ['inno'] : ['core'])
   if (input.mode === 'lab') return new Set<ToolGroup>(bolehLab ? ['lab'] : ['core'])
+  if (input.mode === 'reagent') {
+    return new Set<ToolGroup>(input.izinMenu?.includes('reagent') === true ? ['reagent'] : ['core'])
+  }
   // ⚠️ Mode OneDrive membawa `core` JUGA, tidak seperti mode data lainnya.
   // Alasannya: tool OneDrive hanya MENGUNDUH berkas; yang membaca isinya adalah
   // read_word/read_excel/read_pdf di kelompok core. Menguncinya ke satu kelompok
@@ -339,7 +347,7 @@ export function selectGroups(input: GroupSelection): Set<ToolGroup> {
     // di mode sales/masterdata meninggalkan jejak `usedTools` berisi tool sales;
     // tanpa penyaringan ini, membuka lagi percakapan itu dari Task Baru akan
     // menghidupkan kembali tool datanya di mode umum.
-    if (g === 'sales' || g === 'inno' || g === 'lab' || g === 'onedrive') continue
+    if (g === 'sales' || g === 'inno' || g === 'lab' || g === 'onedrive' || g === 'reagent') continue
     if (g === 'db' && input.superAdmin !== true) continue
     groups.add(g)
   }
@@ -393,7 +401,7 @@ const ERP_DI_SALES = /\berp\b/i
 
 export function saranMenu(
   text: string,
-  mode: 'general' | 'sales' | 'masterdata' | 'lab' | 'onedrive' | undefined
+  mode: 'general' | 'sales' | 'masterdata' | 'lab' | 'onedrive' | 'reagent' | undefined
 ): 'sales' | 'masterdata' | 'lab' | null {
   // Mode OneDrive TIDAK ikut diarahkan ke mana-mana.
   //
@@ -402,7 +410,7 @@ export function saranMenu(
   // di file ini" memuat kata pemicu sales, padahal jawabannya justru ada di
   // berkas yang sedang dibuka. Mengarahkannya ke menu Sales berarti menolak
   // menjawab pertanyaan yang sebenarnya bisa dijawab.
-  if (mode === 'onedrive') return null
+  if (mode === 'onedrive' || mode === 'reagent') return null
   const sales = isSalesQuestion(text)
   const inno = isInnoQuestion(text)
   const lab = isLabQuestion(text)

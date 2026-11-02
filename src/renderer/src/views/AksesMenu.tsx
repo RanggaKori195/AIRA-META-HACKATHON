@@ -52,7 +52,8 @@ const MENU_LABELS: Record<MenuId, string> = {
   sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
   lab: 'Ask Sample TAT',
-  onedrive: 'Ask Microsoft 365'
+  onedrive: 'Ask Microsoft 365',
+  reagent: 'Reagent Check'
 }
 
 const ROLE_LABELS: Record<RoleId, string> = {

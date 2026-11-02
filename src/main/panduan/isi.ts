@@ -40,7 +40,8 @@ const MENU_JUDUL: Record<MenuId, string> = {
   sales: 'Ask Sales Data',
   masterdata: 'Ask Master Data',
   lab: 'Ask Sample TAT',
-  onedrive: 'Ask Microsoft 365'
+  onedrive: 'Ask Microsoft 365',
+  reagent: 'Reagent Check'
 }
 
 const MENU_ISI: Record<MenuId, PanduanBlok[]> = {
@@ -165,6 +166,27 @@ const MENU_ISI: Record<MenuId, PanduanBlok[]> = {
         'Patient names are never included, even though rows are shown per sample.',
         'Some stages are not passed through by every test type. A zero at a stage means "it does not go through there", not "late".'
       ]
+    }
+  ],
+  reagent: [
+    {
+      jenis: 'paragraf',
+      teks:
+        'Reagent Check reconciles the weekly reagent usage sheet and the month-end stock count against the ' +
+        'number of tests the lab actually ran. Every figure is computed by code; AIRA explains the findings ' +
+        'and cites the file, sheet and row each one comes from.'
+    },
+    {
+      jenis: 'daftar',
+      butir: [
+        'Choose the folder with the usage and stock-opname files, pick the month, press Run reconciliation',
+        'Findings: wrong item code, per-test factor too high, used faster than estimated, unit mismatch, no physical count',
+        'Click a finding to see its source rows, or ask AIRA (also by voice) to explain it or draft an investigation list'
+      ]
+    },
+    {
+      jenis: 'batas',
+      butir: ['Reorder quantities, exports and memos are not part of this version.']
     }
   ],
   onedrive: [

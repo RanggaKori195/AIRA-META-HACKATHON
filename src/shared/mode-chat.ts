@@ -16,6 +16,7 @@ const SEMUA: Record<ChatMode, true> = {
   sales: true,
   masterdata: true,
   lab: true,
+  reagent: true,
   onedrive: true
 }
 

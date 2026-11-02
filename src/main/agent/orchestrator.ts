@@ -30,8 +30,11 @@ import {
   sisaGiliranUntukPercobaan
 } from './context-limit'
 import { blockDocSearchForSales, hanyaBasaBasi, toolChoiceUntuk } from './sales-guard'
+import { adalahModeData } from './mode-data'
 import { resolveRole, type ModelRole } from './router'
 import { groupOf, saranMenu, selectGroups, type ToolGroup } from './tool-groups'
+import { menuUntukGrup } from './data-groups'
+import { MENU_LABELS } from '../auth/roles'
 import { RAG_DISABLED } from '../hackathon/flags'
 import { notify } from '../notify'
 import { listSkills, readSkill } from '../skills'
@@ -327,7 +330,8 @@ async function buildToolset(
  */
 function tolakBilaTakBerizin(namaTool: string): void {
   const grup = groupOf(namaTool)
-  if (grup !== 'sales' && grup !== 'inno' && grup !== 'db') return
+  const menu = menuUntukGrup(grup)
+  if (!menu && grup !== 'db') return
 
   const sesi = auth.sesiSekarang()
 
@@ -348,8 +352,7 @@ function tolakBilaTakBerizin(namaTool: string): void {
     )
   }
 
-  const menu = grup === 'sales' ? 'sales' : 'masterdata'
-  if (auth.bolehModeSekarang(menu)) return
+  if (!menu || auth.bolehModeSekarang(menu)) return
 
   db.audit(
     'auth',
@@ -361,7 +364,7 @@ function tolakBilaTakBerizin(namaTool: string): void {
     'tool data ditolak: user tidak berizin'
   )
   throw new ToolError(
-    `Access denied: this account is not permitted to open ${grup === 'sales' ? 'sales data' : 'Master Data'}. ` +
+    `Access denied: this account is not permitted to open "${MENU_LABELS[menu]}". ` +
       'Tell the user exactly that and DO NOT try another tool to get the numbers.'
   )
 }
@@ -546,6 +549,29 @@ const ONEDRIVE_PROMPT =
   '"Ask Master Data", "Ask Sample TAT").\n' +
   '8. State the FILE NAME and its LOCATION (jalur, or location + owner for shared files) every ' +
   'time you quote its content, so the user can check.\n'
+
+/** Reagent Check — reconciliation of reagent usage sheets and stock counts. Numbers come from the engine only. */
+const REAGENT_PROMPT =
+  'You are AIRA, an AI lab assistant, in the Reagent Check menu. Always answer in English. ' +
+  'Lab staff estimate reagent use as tests run × a per-test factor in a weekly sheet and check it against a ' +
+  'month-end physical stock count. Your job is to explain the reconciliation findings in plain language.\n' +
+  'RULES:\n' +
+  '1. Call reagent_reconcile before saying anything about findings, stock or usage. Never answer from memory.\n' +
+  '2. Every number you write must appear in a tool result, quoted exactly as given (estimated, actual, ratio, ' +
+  'implied factor, row numbers). Do not calculate, round differently or estimate new numbers.\n' +
+  '3. For every finding, say what it means and cite its evidence as file › sheet › row (for example ' +
+  '"Stock_Opname_2026-10.xlsx › Stock Opname › row 5"). Use the finding\'s explanation as the factual basis.\n' +
+  '4. When the user asks to see the rows or the original values, call reagent_evidence with the finding id.\n' +
+  '5. Finding types: wrong item code (usage booked under a code that is not in the item list), factor too high ' +
+  '(the per-test factor overstates real use), used faster than estimated (waste, repeat runs or unrecorded use), ' +
+  'unit mismatch (the count unit cannot be converted), no physical count (no stock-opname row).\n' +
+  '6. An investigation list = one line per EXISTING finding with a concrete check for the lab team (e.g. ' +
+  '"confirm which code the HPV kit was issued under in week 2"). No new findings, no new numbers.\n' +
+  '7. Reorder quantities, purchase plans, exports and memos are not part of this version — say so plainly ' +
+  'instead of computing anything.\n' +
+  '8. If the tool reports skipped rows, mention them; never claim anything else was missing or cut.\n' +
+  '9. The data is aggregate (test counts per test code); never mention or ask about patients.\n' +
+  'Keep answers short: a one-line overview, then the findings, most important first.'
 
 const LAB_PROMPT =
   'You are AIRA, an AI lab assistant — in this mode, the laboratory operations assistant. You answer questions ' +
@@ -1172,7 +1198,9 @@ async function runAgentLoop(
               ? `Today: ${today}.\n\n${LAB_PROMPT}`
               : mode === 'onedrive'
                 ? `Today: ${today}.\n\n${ONEDRIVE_PROMPT}`
-                : systemPrompt(loadConfig().allowedDirs, pathRuangUji(sessionId))) +
+                : mode === 'reagent'
+                  ? `Today: ${today}.\n\n${REAGENT_PROMPT}`
+                  : systemPrompt(loadConfig().allowedDirs, pathRuangUji(sessionId))) +
         konteksUser +
         catatan +
         arahan +
@@ -1392,7 +1420,7 @@ async function runAgentLoop(
           // apa akan mengarang argumennya. Yang menahan karangan di sini adalah
           // aturan 1–2 di ONEDRIVE_PROMPT plus kalimat anti-karangan di hasil
           // tool, bukan pemaksaan.
-          (mode === 'sales' || mode === 'masterdata' || mode === 'lab') &&
+          adalahModeData(mode) &&
           activities.length === 0 &&
           !salesForced &&
           !salahPintu &&

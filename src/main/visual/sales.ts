@@ -9,6 +9,7 @@
 // kartu). Kartu yang salah bentuk lebih buruk daripada tidak ada kartu.
 
 import type { KartuVisual, Panel, Sel } from '../../shared/visual'
+import { reagentCard } from './reagent'
 import { PENERJEMAH_LAB } from './lab'
 import { PENERJEMAH_INNO } from './inno'
 import { bulanSingkat, labelArah, labelDimensi, labelPeriode } from '../sales/display-en'
@@ -492,6 +493,7 @@ function fullYear(j: J): KartuVisual | null {
 }
 
 const PENERJEMAH: Record<string, (j: J) => KartuVisual | null> = {
+  reagent_reconcile: reagentCard,
   sales_summary: summary,
   sales_compare: compare,
   sales_breakdown: breakdown,

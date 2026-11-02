@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
+import type { ReagentEvidenceResult, ReagentRunResult, ReagentStatus } from '../shared/reagent'
 import {
   IPC_CHANNELS,
   type AccessConfig,
@@ -164,6 +165,11 @@ const api = {
   salesStatus: (): Promise<StatusKoneksiSales | null> => ipcRenderer.invoke(IPC_CHANNELS.salesStatus),
   innoStatus: (): Promise<StatusKoneksiSales | null> => ipcRenderer.invoke(IPC_CHANNELS.innoStatus),
   labStatus: (): Promise<StatusKoneksiSales | null> => ipcRenderer.invoke(IPC_CHANNELS.labStatus),
+  reagentStatus: (): Promise<ReagentStatus | null> => ipcRenderer.invoke(IPC_CHANNELS.reagentStatus),
+  reagentChooseFolder: (): Promise<ReagentStatus | null> => ipcRenderer.invoke(IPC_CHANNELS.reagentChooseFolder),
+  reagentRun: (month?: string): Promise<ReagentRunResult> => ipcRenderer.invoke(IPC_CHANNELS.reagentRun, month),
+  reagentEvidence: (input: { findingId: string; month?: string }): Promise<ReagentEvidenceResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.reagentEvidence, input),
   driveStatus: (): Promise<StatusDrive | null> => ipcRenderer.invoke(IPC_CHANNELS.driveStatus),
   berkasTerbaru: (batas: number): Promise<BerkasTerbaru[]> =>
     ipcRenderer.invoke(IPC_CHANNELS.berkasTerbaru, batas),

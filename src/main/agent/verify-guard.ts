@@ -21,6 +21,7 @@
 // giliran ini menyatakan apakah ada perintah yang benar-benar jalan dan lolos.
 
 import { buangKalimatYang } from './truncation-guard'
+import { adalahModeData } from './mode-data'
 
 /**
  * Kata kerja yang menandakan "kode ini dijalankan/diperiksa", beserta imbuhan
@@ -226,5 +227,5 @@ export const CATATAN_BELUM_DIUJI =
  * satu — pola "perbaiki di struktur, bukan di daftar kata".
  */
 export function guardUjiBerlakuDiMode(mode: string): boolean {
-  return mode !== 'sales' && mode !== 'masterdata' && mode !== 'lab'
+  return !adalahModeData(mode)
 }

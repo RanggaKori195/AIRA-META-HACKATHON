@@ -5263,3 +5263,57 @@
   gap: 12px;
   width: 100%;
 }
+
+/* ===== Reagent Check ===== */
+.rg { max-width: 1180px; margin: 0 auto; padding: 24px 28px 120px; display: flex; flex-direction: column; gap: 16px; }
+.rg-kepala h1 { font-size: 26px; margin: 0 0 6px; }
+.rg-kepala p { margin: 0; color: #5b6472; max-width: 760px; line-height: 1.5; }
+.rg-alat { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.rg-folder { border: 1px solid #d5dbe5; background: #fff; border-radius: 10px; padding: 8px 12px; cursor: pointer; font-size: 13px; max-width: 520px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rg-folder span { color: #2f7be5; margin-left: 8px; }
+.rg-alat select { border: 1px solid #d5dbe5; border-radius: 10px; padding: 8px 10px; background: #fff; }
+.rg-jalan { background: #1f4e9c; color: #fff; border: 0; border-radius: 10px; padding: 9px 18px; font-weight: 600; cursor: pointer; }
+.rg-jalan:disabled { opacity: 0.55; cursor: default; }
+.rg-kosong, .rg-galat { border: 1px dashed #c9d3e3; border-radius: 12px; padding: 18px; color: #5b6472; background: #f8fafd; }
+.rg-galat { border-style: solid; border-color: #f0c2bd; color: #a3261c; background: #fdf4f3; }
+.rg-kartu { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.rg-kartu > div { background: #fff; border: 1px solid #e3e8f0; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.rg-kartu span { font-size: 12px; color: #5b6472; }
+.rg-kartu strong { font-size: 22px; }
+.rg-catatan { margin: -4px 0 0; font-size: 12px; color: #6b7480; }
+.rg-belum { background: #fff; border: 1px solid #e3e8f0; border-radius: 12px; padding: 12px 14px; font-size: 13px; }
+.rg-belum h4 { margin: 0 0 8px; font-size: 13px; color: #5b6472; }
+.rg-belum ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.rg-isi { display: flex; gap: 14px; align-items: flex-start; }
+.rg-tabel { flex: 1; border-collapse: collapse; background: #fff; border: 1px solid #e3e8f0; border-radius: 12px; overflow: hidden; font-size: 13px; }
+.rg-tabel th { text-align: left; font-weight: 600; color: #5b6472; background: #f6f8fb; padding: 9px 10px; }
+.rg-tabel td { padding: 9px 10px; border-top: 1px solid #eef1f6; vertical-align: top; }
+.rg-tabel tr { cursor: pointer; }
+.rg-tabel tr.aktif td { background: #eef4fd; }
+.rg-tabel .kanan { text-align: right; white-space: nowrap; }
+.rg-redup { color: #6b7480; font-size: 12px; }
+.rg-lencana { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.rg-merah { background: #fde8e6; color: #a3261c; }
+.rg-oranye { background: #fff1de; color: #9a5600; }
+.rg-ungu { background: #efe8fd; color: #5b2fb3; }
+.rg-biru { background: #e4effd; color: #1f4e9c; }
+.rg-abu { background: #eef1f6; color: #4a5260; }
+.rg-kartu > div.rg-merah, .rg-kartu > div.rg-oranye, .rg-kartu > div.rg-ungu, .rg-kartu > div.rg-biru { border-color: transparent; }
+.rg-bukti { border: 1px solid #c9d3e3; background: #fff; border-radius: 8px; padding: 3px 10px; cursor: pointer; font-size: 12px; }
+.rg-panel { width: 360px; flex-shrink: 0; background: #fff; border: 1px solid #e3e8f0; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.rg-panel-kepala { display: flex; justify-content: space-between; align-items: center; }
+.rg-panel-kepala button { border: 0; background: transparent; font-size: 18px; cursor: pointer; }
+.rg-panel h3 { margin: 2px 0; font-size: 15px; }
+.rg-panel h4 { margin: 6px 0 0; font-size: 13px; }
+.rg-panel p { margin: 0; line-height: 1.45; }
+.rg-baris { border: 1px solid #eef1f6; border-radius: 8px; padding: 8px; }
+.rg-baris table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.rg-baris th { text-align: left; font-weight: 500; color: #5b6472; padding: 2px 6px 2px 0; width: 45%; }
+.rg-baris td { padding: 2px 0; }
+.rg-tanya { margin-top: 4px; background: #eef4fd; color: #1f4e9c; border: 0; border-radius: 10px; padding: 8px 12px; font-weight: 600; cursor: pointer; }
+.rg-kotak { background: #fff; border: 1px solid #d5dbe5; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.rg-kotak textarea { border: 0; resize: vertical; font: inherit; outline: none; }
+.rg-kotak-aksi { display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+.rg-kotak-aksi button[type='submit'] { background: #1f4e9c; color: #fff; border: 0; border-radius: 10px; padding: 7px 18px; cursor: pointer; }
+.rg-kotak-aksi button[type='submit']:disabled { opacity: 0.5; cursor: default; }
+@media (max-width: 1100px) { .rg-isi { flex-direction: column; } .rg-panel { width: 100%; } }

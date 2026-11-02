@@ -19,6 +19,7 @@ import { SpandukPembaruan } from './components/Pembaruan'
 import SalesHome from './views/SalesHome'
 import InnoHome from './views/InnoHome'
 import LabHome from './views/LabHome'
+import ReagentHome from './views/ReagentHome'
 import DriveHome from './views/DriveHome'
 import Feedback from './views/Feedback'
 import Panduan from './views/Panduan'
@@ -48,6 +49,7 @@ import {
   IconImage,
   IconPlus,
   IconSearch,
+  IconFlask,
   IconSettings,
   IconTrash
 } from './components/Icons'
@@ -707,6 +709,15 @@ export default function App(): JSX.Element {
             <IconSearch size={16} /> Ask Sample TAT
           </button>
         )}
+        {session.menu.includes('reagent') && (
+          <button
+            className={`menu-item ${layar === 'chat' && mode === 'reagent' ? 'active' : ''}`}
+            onClick={() => startMode('reagent')}
+            title="Reconcile reagent usage sheets and stock counts against the tests run"
+          >
+            <IconFlask size={16} /> Reagent Check
+          </button>
+        )}
         {session.menu.includes('onedrive') && (
           <button
             className={`menu-item ${layar === 'chat' && mode === 'onedrive' ? 'active' : ''}`}
@@ -898,6 +909,8 @@ export default function App(): JSX.Element {
           isiAwal={isiAwal}
           onIsiTerpakai={() => setIsiAwal(null)}
         />
+      ) : activeSessionId === null && mode === 'reagent' ? (
+        <ReagentHome onSubmit={handleSend} />
       ) : activeSessionId === null && mode === 'onedrive' ? (
         <DriveHome
           onSubmit={handleSend}

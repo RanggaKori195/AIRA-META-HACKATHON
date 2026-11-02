@@ -1,4 +1,8 @@
 import { ipcMain, BrowserWindow, clipboard, dialog, shell } from 'electron'
+import type { ReagentEvidenceResult, ReagentRunResult, ReagentStatus } from '../shared/reagent'
+import { availableMonths, evidenceRows, runReconciliation } from './reagent/service'
+import { reagentFolderFor, setReagentFolder } from './reagent/folder'
+import { ReagentEvidenceInput, ReagentMonth } from './reagent/ipc-schema'
 import { readFileSync, statSync, writeFileSync } from 'fs'
 import { hostname } from 'os'
 import { statusKoneksiSales } from './sales/db'
@@ -116,7 +120,7 @@ const SendChatSchema = z.object({
   // agent: system prompt khusus, penguncian toolset, dan guard anti-halu semuanya
   // tidak pernah aktif (terbukti di log: "groups":["sales"] tidak pernah muncul,
   // yang ada selalu ["core","sales"]). Ditemukan 18 Agu 2026.
-  mode: z.enum(['general', 'sales', 'masterdata', 'lab', 'onedrive']).optional()
+  mode: z.enum(['general', 'sales', 'masterdata', 'lab', 'onedrive', 'reagent']).optional()
 })
 
 const LoginSchema = z.object({
@@ -213,7 +217,7 @@ const KirimFeedbackSchema = z.object({
   dampak: z.enum(FEEDBACK_DAMPAK).nullable(),
   sesiId: z.string().max(100).nullable(),
   pesanId: z.string().max(100).nullable(),
-  mode: z.enum(['general', 'sales', 'masterdata', 'lab', 'onedrive']).nullable(),
+  mode: z.enum(['general', 'sales', 'masterdata', 'lab', 'onedrive', 'reagent']).nullable(),
   model: z.string().max(200).nullable(),
   // Batas panjang di sini SENGAJA lebih longgar dari `MAKS_CUPLIKAN`: yang
   // memotong adalah `potongCuplikan` di service, dan potongannya menyertakan
@@ -246,7 +250,7 @@ const SetFeedbackStatusSchema = z.object({
 const MonitoringFilterSchema = z.object({
   periodeHari: z.union([z.literal(1), z.literal(7), z.literal(30), z.literal(90)]),
   username: z.string().max(100).nullable(),
-  mode: z.enum(['general', 'sales', 'masterdata', 'lab', 'onedrive']).nullable(),
+  mode: z.enum(['general', 'sales', 'masterdata', 'lab', 'onedrive', 'reagent']).nullable(),
   cari: z.string().max(100).nullable()
 })
 
@@ -829,6 +833,50 @@ export function registerIpcHandlers(): void {
     return auth.bolehModeSekarang('lab') ? statusKoneksiSales() : null
   })
 
+  // Reagent Check. The folder is chosen ONLY through this dialog — the renderer never sends a path.
+  const reagentStatusFor = (username: string): ReagentStatus => {
+    const folder = reagentFolderFor(username)
+    return { folder, months: folder ? availableMonths(folder) : [] }
+  }
+
+  ipcMain.handle(IPC_CHANNELS.reagentStatus, (): ReagentStatus | null => {
+    const sesi = wajibLogin()
+    return auth.bolehModeSekarang('reagent') ? reagentStatusFor(sesi.username) : null
+  })
+
+  ipcMain.handle(IPC_CHANNELS.reagentChooseFolder, async (): Promise<ReagentStatus | null> => {
+    const sesi = wajibLogin()
+    if (!auth.bolehModeSekarang('reagent')) return null
+    const win = BrowserWindow.getFocusedWindow()
+    const opts = { title: 'Choose the folder with the usage and stock-opname files', properties: ['openDirectory' as const] }
+    const res = win ? await dialog.showOpenDialog(win, opts) : await dialog.showOpenDialog(opts)
+    if (!res.canceled && res.filePaths[0]) setReagentFolder(sesi.username, res.filePaths[0])
+    return reagentStatusFor(sesi.username)
+  })
+
+  ipcMain.handle(IPC_CHANNELS.reagentRun, async (_event, raw): Promise<ReagentRunResult> => {
+    const sesi = wajibLogin()
+    if (!auth.bolehModeSekarang('reagent')) return { error: 'This account is not permitted to open Reagent Check.' }
+    const folder = reagentFolderFor(sesi.username)
+    if (!folder) return { error: 'Choose the folder with the usage and stock-opname files first.' }
+    return runReconciliation({ folder, month: ReagentMonth.parse(raw ?? undefined) })
+  })
+
+  // Evidence is re-read from the signed-in user's folder for the month asked for — never from another user's run.
+  ipcMain.handle(IPC_CHANNELS.reagentEvidence, async (_event, raw): Promise<ReagentEvidenceResult> => {
+    const sesi = wajibLogin()
+    if (!auth.bolehModeSekarang('reagent')) return { error: 'This account is not permitted to open Reagent Check.' }
+    const input = ReagentEvidenceInput.safeParse(raw)
+    if (!input.success) return { error: 'Invalid evidence request (finding id and month YYYY-MM).' }
+    const folder = reagentFolderFor(sesi.username)
+    if (!folder) return { error: 'Choose the folder with the usage and stock-opname files first.' }
+    try {
+      return { rows: await evidenceRows({ folder, month: input.data.month, findingId: input.data.findingId }) }
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : String(err) }
+    }
+  })
+
   ipcMain.handle(IPC_CHANNELS.innoStatus, (): StatusKoneksiSales | null => {
     wajibLogin()
     return auth.bolehModeSekarang('masterdata') ? statusKoneksiInno() : null
@@ -918,7 +966,7 @@ export function registerIpcHandlers(): void {
     jenis: z.enum(['aira', 'pengingat']),
     nama: z.string().max(200),
     prompt: z.string().max(10_000),
-    mode: z.enum(['general', 'sales', 'masterdata', 'lab', 'onedrive']),
+    mode: z.enum(['general', 'sales', 'masterdata', 'lab', 'onedrive', 'reagent']),
     pola: PolaSchema
   })
   const pesanJadwal = <T>(fn: () => T): T => {
