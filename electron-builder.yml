@@ -27,7 +27,7 @@ files:
 # app.asar bukan enkripsi — ia arsip biasa dan SELALU bisa diekstrak
 # (`npx asar extract`). electron-builder menanam hash asar ke dalam .exe, TAPI hash itu
 # TIDAK diperiksa selama fuse EnableEmbeddedAsarIntegrityValidation mati (koreksi 18 Okt
-# 2026, CLAUDE.md aturan 13) — saat ini belum ada perlindungan integritas.
+# 2026, the project notes aturan 13) — saat ini belum ada perlindungan integritas.
 asar: true
 extraResources:
   # Skill dibawa sebagai file terpisah agar tim bisa menambah/mengubah panduan

@@ -1,5 +1,5 @@
 // Synthetic t_sample_tracker (behind view v_sample_tracker): one row per test of each order.
-// Reproduces the quirks the lab tools were built around (see CLAUDE.md rule 34).
+// Reproduces the quirks the lab tools were built around (see the project notes rule 34).
 import type { Rng } from './prng'
 import { SOURCES, type OrderIdOrder } from './sales'
 

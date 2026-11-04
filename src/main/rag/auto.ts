@@ -8,7 +8,7 @@ import { folderUnduhanOneDrive } from '../m365/unduhan'
 import { audit } from '../db'
 import { logger } from '../logger'
 
-// Auto-indexing ala Claude Code/Cursor: user tidak pernah menyuruh "index".
+// Auto-indexing ala editor AI: user tidak pernah menyuruh "index".
 // Dipicu saat: app start, folder akses di-grant, dan sebelum search (refresh).
 // Satu run pada satu waktu; pemicu saat run aktif ikut menunggu run yang sama.
 

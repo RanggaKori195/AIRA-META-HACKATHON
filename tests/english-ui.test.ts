@@ -61,7 +61,7 @@ function lineOf(s: string, index: number): number {
 /** Literals and JSX text that contain an Indonesian word. `onlyLines` limits the scan to matching lines (+2). */
 export function indonesianHits(file: string, onlyLines?: RegExp): Hit[] {
   const raw = readFileSync(file, 'utf8').replace(/\r\n/g, '\n')
-  // Log messages are for developers, who search the log by exact text (see CLAUDE.md): not user-visible.
+  // Log messages are for developers, who search the log by exact text (see the project notes): not user-visible.
   let s = stripComments(raw)
     .split('\n')
     .map((l) => (/logger\(\)\.\w+\(/.test(l) ? '' : l))

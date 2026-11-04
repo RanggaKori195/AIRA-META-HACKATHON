@@ -6,7 +6,7 @@
 // paling mahal bila salah (urutan penanda → toast, hasil dibuang saat sesi berganti,
 // dua pemeriksaan berbarengan) diuji langsung, bukan dipercaya.
 // ⚠️ HANYA MEMBACA. Query dijalankan BERURUTAN lewat `deps.query` (= `salesQuery`,
-// pool `max: 1`) — tidak pernah serentak (CLAUDE.md, koneksi database).
+// pool `max: 1`) — tidak pernah serentak (the project notes, koneksi database).
 
 import type { AksiPemantau, KeadaanPemantau, PemicuId } from '../../shared/ipc'
 import {

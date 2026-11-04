@@ -66,7 +66,7 @@ const FLAG_VERSI = new Set(['--version', '-v', '-V', 'version', '--help', '-h', 
  */
 const RUNNER_DIKENAL = new Set([
   'node', 'npm', 'npx', 'pnpm', 'yarn', 'git', 'python', 'python3', 'pip', 'pip3',
-  'claude', 'codex', 'code', 'dotnet', 'java', 'go', 'rustc', 'cargo', 'docker',
+  'codex', 'code', 'dotnet', 'java', 'go', 'rustc', 'cargo', 'docker',
   'winget', 'choco', 'nvm', 'tsc', 'where', 'which', 'powershell', 'pwsh'
 ])
 

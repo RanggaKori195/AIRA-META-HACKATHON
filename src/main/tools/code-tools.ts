@@ -3,7 +3,7 @@ import * as path from 'path'
 import { resolveInBoundary } from './boundary'
 import { ToolError, type ToolDefinition } from './types'
 
-// Coding tools ala Claude Code: edit presisi (search & replace unik) + grep codebase.
+// Coding tools ala editor AI: edit presisi (search & replace unik) + grep codebase.
 
 const MAX_EDIT_FILE_BYTES = 2 * 1024 * 1024
 const MAX_SEARCH_RESULTS = 200

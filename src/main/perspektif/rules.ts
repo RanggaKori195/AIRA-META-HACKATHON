@@ -298,7 +298,7 @@ export interface AngkaTakDidukung {
  * dikumpulkan lebih dulu secara deterministik, jadi setiap angka di jawaban
  * seharusnya berasal dari sana. Yang tidak cocok berarti model mengarangnya
  * atau menghitung sendiri di kepala — dua-duanya dilarang untuk angka
- * manajemen (lihat CLAUDE.md: "angka yang salah lebih berbahaya daripada
+ * manajemen (lihat the project notes: "angka yang salah lebih berbahaya daripada
  * fitur yang belum ada").
  *
  * ⚠️ Angka hasil turunan yang WAJAR (persentase, selisih) memang tidak ada di

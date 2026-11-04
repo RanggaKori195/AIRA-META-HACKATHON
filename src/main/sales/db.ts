@@ -107,7 +107,7 @@ function getHeavyPool(): Pool {
  * Data" di layar Tanya Data Sales).
  *
  * ⚠️ Sengaja TIDAK membuka koneksi sendiri untuk "cek status": membuka koneksi
- * database bersamaan dari main process adalah akar tiga bug lama (lihat CLAUDE.md
+ * database bersamaan dari main process adalah akar tiga bug lama (lihat the project notes
  * "Jangan pernah membuka BEBERAPA koneksi database BERSAMAAN"). Yang dilaporkan
  * adalah apa yang terakhir TERJADI, lengkap dengan jamnya — bukan tebakan.
  * `statement_timeout` dihitung TERHUBUNG: servernya menjawab, query-nya yang berat.

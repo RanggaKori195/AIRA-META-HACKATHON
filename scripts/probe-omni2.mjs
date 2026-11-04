@@ -10,7 +10,7 @@ const env = Object.fromEntries(
 )
 const ENDPOINT = env.AIRA_ENDPOINT
 const H = { 'content-type': 'application/json', authorization: `Bearer ${env.AIRA_API_KEY}` }
-const OUT = 'C:/Users/Admin/AppData/Local/Temp/claude/omni'
+const OUT = (process.env.TEMP || '.') + '/aira-omni'
 mkdirSync(OUT, { recursive: true })
 
 const PROMPT = 'Ikon sederhana mikroskop, gaya flat, warna hijau tosca, latar putih'

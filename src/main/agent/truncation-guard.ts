@@ -83,7 +83,7 @@ export function buangKlaimPemotongan(teks: string): { hasil: string; dibuang: st
  * klaim-sudah-diuji (`verify-guard.ts`).
  *
  * ⚠️ Sengaja SATU definisi untuk dua guard. Aturan project yang sama sudah
- * dipakai untuk `memuatNilaiData` (CLAUDE.md 15): salinan kedua akan menyimpang
+ * dipakai untuk `memuatNilaiData` (the project notes 15): salinan kedua akan menyimpang
  * diam-diam, dan yang lebih longgar menang tanpa ada yang menyadarinya. Yang
  * berbeda antara kedua guard cuma predikatnya; perlakuan terhadap butir daftar,
  * baris yang habis dibuang, dan baris kosong bertumpuk harus identik.

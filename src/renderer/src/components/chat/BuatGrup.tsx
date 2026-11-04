@@ -103,7 +103,7 @@ export function BuatGrup({
               ⚠️ Kalimat ini WAJIB ada di titik orang membuat tempat bicara baru.
               Chat AIRA tidak terenkripsi seperti WhatsApp — tanpa keterangan ini,
               orang memindahkan percakapan rahasia ke sini dengan anggapan yang
-              salah (lihat CLAUDE.md aturan 62).
+              salah (lihat the project notes aturan 62).
             */}
             <p className="psn-catatan psn-catatan-waspada">
               AIRA chat is an internal work channel, not a confidential one. Do not send passwords

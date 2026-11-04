@@ -1,7 +1,7 @@
 import { spawn, execFile, type ChildProcess } from 'child_process'
 import { logger } from '../logger'
 
-// Manajemen proses background (dev server, watcher, script panjang) ala Claude Code.
+// Manajemen proses background (dev server, watcher, script panjang) ala editor AI.
 // Semua proses dimatikan saat aplikasi ditutup — tidak ada proses yatim.
 
 const MAX_OUTPUT_LINES = 500

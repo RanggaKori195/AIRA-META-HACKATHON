@@ -8,7 +8,7 @@ import { OCR_INCOMPLETE_NOTE, tandaiBilaTerpotong } from '../src/main/ocr'
 
 // Muse spends hidden reasoning tokens before the visible answer. A capped background call (OCR page 3000,
 // screenshot description, perspectives, memory extraction) can therefore come back empty or cut off while the
-// HTTP status is 200. Reporting that as a finished answer is the "silent limit" failure of CLAUDE.md.
+// HTTP status is 200. Reporting that as a finished answer is the "silent limit" failure of the project notes.
 
 const reply = (content: string | null, finish: string | null, reasoning?: number) => ({
   choices: [{ message: { content }, finish_reason: finish }],

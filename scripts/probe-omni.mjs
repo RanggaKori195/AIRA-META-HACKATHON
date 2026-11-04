@@ -20,7 +20,7 @@ const env = Object.fromEntries(
 const ENDPOINT = env.AIRA_ENDPOINT
 const KEY = env.AIRA_API_KEY
 const MODEL = process.argv[2] ?? 'old-image-model'
-const OUT = 'C:/Users/Admin/AppData/Local/Temp/claude/omni'
+const OUT = (process.env.TEMP || '.') + '/aira-omni'
 mkdirSync(OUT, { recursive: true })
 
 const H = { 'content-type': 'application/json', authorization: `Bearer ${KEY}` }

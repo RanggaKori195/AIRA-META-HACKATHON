@@ -4,7 +4,7 @@
 // Jalankan: npx tsx scripts/probe-inno-item.ts   (butuh jaringan internal the company)
 //
 // ⚠️ Server ini melayani aplikasi produksi Master Data. Semua query di sini
-// ber-LIMIT dan memakai SET SESSION max_statement_time — aturan 14 CLAUDE.md.
+// ber-LIMIT dan memakai SET SESSION max_statement_time — aturan 14 the project notes.
 
 import { readFileSync } from 'fs'
 import mysql from 'mysql2/promise'

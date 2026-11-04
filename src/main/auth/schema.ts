@@ -30,7 +30,7 @@ export type QueryRows = (sql: string, params?: unknown[]) => Promise<unknown[]>
 // menunjuk ke tempat lain ("Expected ; but found ...") sehingga tidak terbaca
 // sebagai masalah tanda kutip. Pakai petik ganda untuk mengutip nama tabel/kolom.
 // Terjadi nyata 8 Sep 2026 saat menambahkan tabel chat; jebakan yang sama sudah
-// tertulis untuk `pdf/style.ts` di CLAUDE.md §49 dan tetap tertabrak lagi di sini.
+// tertulis untuk `pdf/style.ts` di the project notes §49 dan tetap tertabrak lagi di sini.
 const DDL = `
 CREATE TABLE IF NOT EXISTS tb_login_aira (
   id            bigserial PRIMARY KEY,

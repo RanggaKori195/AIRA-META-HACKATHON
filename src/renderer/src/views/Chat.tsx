@@ -305,7 +305,7 @@ export default function Chat({
               Permintaan manajer IT 19 Agu 2026: untuk pembaca laporan — direksi
               dan manajer — untaian penalaran mentah lebih membingungkan daripada
               membantu, dan panjangnya mendorong jawaban yang sesungguhnya keluar
-              layar. Diganti penanda proses seperti Claude Desktop / Codex.
+              layar. Diganti penanda proses seperti aplikasi asisten AI desktop.
 
               Reasoning-nya TETAP disimpan di SQLite (`messages.reasoning`) — jadi
               kalau suatu saat perlu menelusuri kenapa model mengambil keputusan

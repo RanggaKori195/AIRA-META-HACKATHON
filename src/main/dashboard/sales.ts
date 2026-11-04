@@ -7,7 +7,7 @@
 // order (§4), dan cakupan ERP berlaku tanpa salinan SQL.
 //
 // ⚠️ BERURUTAN, tidak `Promise.all` — pool database `max: 1` dan membuka koneksi
-// serentak adalah akar tiga bug lama (CLAUDE.md, "Cara kerja yang terbukti").
+// serentak adalah akar tiga bug lama (the project notes, "Cara kerja yang terbukti").
 //
 // ⚠️ Panel yang gagal DISEBUT di `gagal`, bukan disembunyikan: dashboard yang
 // kehilangan satu panel tanpa keterangan terlihat seperti data yang memang kosong.

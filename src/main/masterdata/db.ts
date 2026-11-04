@@ -6,7 +6,7 @@ import { INNO_PG_TYPES, toPgPlaceholders } from './sql-dialect'
 
 // HACKATHON COPY: Master Data runs on the local dummy Postgres (schema `inno`), not MariaDB.
 // The rules below still hold: read-only, human-written queries, a server-side statement timeout,
-// one connection (same rule as every other pool — see CLAUDE.md on concurrent connections).
+// one connection (same rule as every other pool — see the project notes on concurrent connections).
 
 // Koneksi ke master data the lab (`inno_collection`, MariaDB 10.4 di 10.0.0.10).
 // Read-only: semua query di modul ini SELECT yang ditulis & diuji manusia.

@@ -4,7 +4,7 @@ import { perintahHanyaBaca } from '../src/main/tools/command-readonly'
 
 describe('perintah baca boleh lewat tanpa dialog', () => {
   const boleh = [
-    'claude --version',
+    'codex --version',
     'node --version',
     'npm --version',
     'git --version',
@@ -14,7 +14,7 @@ describe('perintah baca boleh lewat tanpa dialog', () => {
     'git log --oneline',
     'git diff',
     'winget list',
-    'winget search claude',
+    'winget search git',
     'pip list',
     'where node',
     'which git',
@@ -29,7 +29,7 @@ describe('perintah baca boleh lewat tanpa dialog', () => {
 
 describe('perintah yang MENGUBAH tetap minta izin', () => {
   const tanya = [
-    'npm install -g @anthropic-ai/claude-code',
+    'npm install -g typescript',
     'npm update',
     'npm uninstall express',
     'winget install Git.Git',

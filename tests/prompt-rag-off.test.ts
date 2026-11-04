@@ -19,7 +19,7 @@ Module._load = realLoad
 
 // Hackathon build: the document index is off, so tools `search_docs` / `index_folder` are not registered.
 // A New Task prompt that tells the model to call them makes it try a tool that does not exist (rule 17 of
-// CLAUDE.md: a missing tool needs an explicit pointer to the alternative, or the model answers from memory).
+// the project notes: a missing tool needs an explicit pointer to the alternative, or the model answers from memory).
 
 describe('New Task system prompt without the document index', () => {
   const off = systemPrompt([], 'C:\ruang-uji', true)

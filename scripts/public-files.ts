@@ -5,11 +5,9 @@ import { execFileSync } from 'child_process'
 
 export const PRIVATE_FILES: RegExp[] = [
   /^HANDOFF\.md(\.bak)?$/,
-  /^CLAUDE\.md$/,
   /^SOUL\.md$/,
   /^RANCANGAN-.*\.md$/,
   /^RENCANA-.*\.md$/,
-  /^\.claude\//,
   /^coba-pdf-tmp\.cjs$/,
   /^docs\/superpowers\//
 ]

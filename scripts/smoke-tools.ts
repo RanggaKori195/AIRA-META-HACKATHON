@@ -1,5 +1,5 @@
 // Smoke test: run EVERY Sales, TAT and Master Data tool once against the dummy database, inside the
-// Electron runtime (pools behave differently there than in plain Node — CLAUDE.md).
+// Electron runtime (pools behave differently there than in plain Node — the project notes).
 // Catches columns the seed forgot and SQL that Postgres rejects, before the demo does.
 //
 //   npm run smoke:tools

@@ -178,7 +178,7 @@ export interface RingkasanUji {
  * Kalimat yang menyatakan apa yang terjadi — TIDAK PERNAH string kosong.
  *
  * ⚠️ Aturan project: hasil tool tidak boleh diam soal kelengkapannya. Bendera
- * boolean sudah terbukti tidak cukup (§ CLAUDE.md) — model tetap mengarang
+ * boolean sudah terbukti tidak cukup (§ the project notes) — model tetap mengarang
  * cerita tentang apa yang hilang. Yang menahan adalah KALIMAT, ditutup larangan
  * harfiah.
  *
