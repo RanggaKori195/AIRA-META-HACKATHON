@@ -18,3 +18,12 @@ scripts/.*-bundle.cjs
 *.tsbuildinfo
 
 !.env.example
+
+# Demo video (sub-project H): dependencies, renders and generated audio
+video/node_modules/
+video/out/
+video/public/voice/
+video/public/music/
+video/rec/
+video/public/rec/
+video/rec-take.log

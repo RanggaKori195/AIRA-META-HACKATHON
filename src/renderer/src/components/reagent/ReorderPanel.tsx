@@ -1,12 +1,16 @@
 import type { JSX } from 'react'
 import { REORDER_STATUS_LABEL, type ReagentActionsResult, type ReorderStatus, type SourceRef } from '../../../../shared/reagent'
 import { fmtNum } from './bantu'
+import type { NumberCheck } from '../../../../shared/number-check'
+import { NumberMarks, numberCheckLine } from '../NumberMarks'
 
 // Presentational "Reorder & actions" tab (no hooks, no IPC). Every number comes from the reorder engine via IPC;
 // the only model text is the optional summary, which is labelled as a draft.
 
 export interface SummaryState {
   text?: string
+  /** Every number in `text` looked up in the facts the model was given. */
+  check?: NumberCheck
   error?: string
   loading: boolean
 }
@@ -53,7 +57,17 @@ export default function ReorderPanel(p: ReorderPanelProps): JSX.Element {
           <span className="rg-label-ai">AI draft — check before sharing</span>
           {p.summary.loading && <p className="rg-redup">Writing a draft…</p>}
           {p.summary.error && <p className="rg-galat">{p.summary.error}</p>}
-          {p.summary.text && <p>{p.summary.text}</p>}
+          {p.summary.text && !p.summary.check && <p>{p.summary.text}</p>}
+          {p.summary.text && p.summary.check && (
+            <>
+              <p>
+                <NumberMarks text={p.summary.text} check={p.summary.check} />
+              </p>
+              <p className={p.summary.check.unmatched ? 'num-line num-line-warn' : 'num-line'}>
+                Number check: {numberCheckLine(p.summary.check, 'reagent data')}
+              </p>
+            </>
+          )}
         </div>
       )}
 

@@ -82,6 +82,7 @@ import { kumpulkanDashboardInno } from '../dashboard/inno'
 import type { Dashboard } from '../../shared/dashboard'
 import { visualDariHasil } from '../visual/sales'
 import type { KartuVisual } from '../../shared/visual'
+import { numberCheckForRun } from './number-check-run'
 
 /** Kartu visual maksimal per jawaban — lebih dari itu layar jadi laporan, bukan jawaban. */
 const MAKS_KARTU = 4
@@ -145,6 +146,8 @@ interface RunState {
    * nama+argumen (panggilan identik yang diulang tidak menggandakan kartu).
    */
   visual?: Map<string, KartuVisual>
+  /** Reagent tool results of this turn — the facts the number check looks the answer's numbers up in. */
+  reagentFacts?: string[]
 }
 
 /** Opsi untuk pemanggil selain kotak chat (mis. penjadwal). */
@@ -1717,6 +1720,13 @@ async function runAgentLoop(
       emit({ type: 'visual', messageId, sessionId, visual: kartu })
     }
 
+    // Number check (Reagent Check): every number in the final answer looked up in this turn's reagent results.
+    const numberCheck = numberCheckForRun(mode, runState.reagentFacts ?? [], content)
+    if (numberCheck) {
+      db.setMessageNumberCheck(messageId, numberCheck)
+      emit({ type: 'number_check', messageId, sessionId, check: numberCheck })
+    }
+
     persist()
     emit({ type: 'done', messageId, sessionId, usage })
     db.audit('agent', 'run_done', `session=${sessionId} tools=${activities.length}`)
@@ -1883,6 +1893,8 @@ async function executeToolCall(
         runState.visual ??= new Map()
         runState.visual.set(`${call.name}:${call.arguments ?? ''}`, kartu)
       }
+      // Facts for the number check of the final answer (Reagent Check only).
+      if (call.name.startsWith('reagent_')) (runState.reagentFacts ??= []).push(`${call.name}: ${summary}`)
       // Dashboard Master Data: kode pelanggan yang SUDAH dipastikan tool, bukan nama dari model.
       if (call.name === 'inno_special_price') {
         try {

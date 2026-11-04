@@ -23,7 +23,10 @@ export const ConfigSchema = z.object({
   coderModelId: z.string().min(1).default(MUSE.agent),
   // Parser TIDAK mendukung tool calling — hanya untuk panggilan langsung (OCR).
   parserModelId: z.string().min(1).default(MUSE.vision),
-  modelChoice: z.enum(['auto', 'chat', 'agent', 'coder']).default('auto'),
+  // Muse Wonder answers by default; Auto (Spark for plain questions) is a choice, not the default.
+  modelChoice: z.enum(['auto', 'chat', 'agent', 'coder']).default('agent'),
+  /** Set once a saved `auto` from before the Wonder default has been moved (`migrateRawModels`). */
+  wonderDefault: z.boolean().default(true),
   embedModel: z.string().min(1).default('BAAI/bge-m3'),
   rerankModel: z.string().min(1).default('BAAI/bge-reranker-v2-m3'),
   // Folder yang boleh diakses agent (workspace). Kosong = agent tidak bisa menyentuh filesystem.
@@ -75,6 +78,8 @@ export const ConfigSchema = z.object({
   pemantauMati: z.record(z.string(), z.array(z.string().max(40)).max(10)).default({}),
   /** Reagent Check: the folder with the usage and stock-opname files, per username (lower case). */
   reagentFolders: z.record(z.string(), z.string().max(1000)).default({}),
+  /** Voice co-worker: the name AIRA calls each account ("Good morning, Rangga"), per username (lower case). */
+  callNames: z.record(z.string(), z.string().max(24)).default({}),
   /**
    * AIRA ikut menyala saat Windows login (tersembunyi di tray).
    *

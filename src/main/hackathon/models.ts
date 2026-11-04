@@ -50,5 +50,12 @@ export function migrateRawModels(raw: unknown): unknown {
     if (v === undefined) continue
     out[field] = migrateModelId(typeof v === 'string' ? v : undefined, role)
   }
+  // Muse Wonder is the default answer model. A config saved before that holds `auto` (which sends plain
+  // questions to Muse Spark) only because Auto used to be the default — it moves to Wonder ONCE; Auto picked
+  // again afterwards is kept (the flag is saved with it).
+  if (out.wonderDefault !== true) {
+    if (out.modelChoice === 'auto') out.modelChoice = 'agent'
+    out.wonderDefault = true
+  }
   return out
 }

@@ -8,6 +8,7 @@ import type {
   ReagentSummaryResult,
   RecountRow
 } from '../shared/reagent'
+import type { Briefing } from '../shared/ipc'
 import {
   IPC_CHANNELS,
   type AccessConfig,
@@ -29,6 +30,8 @@ import {
   type ChatStreamEvent,
   type FeedbackRow,
   type HasilTranskripIpc,
+  type HasilSuaraAira,
+  type AgentRouteResult,
   type KirimFeedbackInput,
   type LinimasaHasil,
   type LinimasaInput,
@@ -180,6 +183,12 @@ const api = {
     ipcRenderer.invoke(IPC_CHANNELS.reagentEvidence, input),
   reagentActions: (month?: string): Promise<ReagentActionsResult> => ipcRenderer.invoke(IPC_CHANNELS.reagentActions, month),
   reagentSummary: (month?: string): Promise<ReagentSummaryResult> => ipcRenderer.invoke(IPC_CHANNELS.reagentSummary, month),
+  briefingGet: (): Promise<Briefing> => ipcRenderer.invoke(IPC_CHANNELS.briefingGet),
+  agentNameGet: (): Promise<string | null> => ipcRenderer.invoke(IPC_CHANNELS.agentNameGet),
+  agentNameSet: (name: string | null): Promise<string | null> => ipcRenderer.invoke(IPC_CHANNELS.agentNameSet, name),
+  voiceTestMic: (): Promise<boolean> => ipcRenderer.invoke(IPC_CHANNELS.voiceTestMic),
+  agentRoute: (text: string, current: string): Promise<AgentRouteResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.agentRoute, text, current),
   /** The save path is chosen in a main-process dialog — the renderer never sends one. */
   reagentExport: (input: { month?: string; recount: RecountRow[] }): Promise<ReagentExportResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.reagentExport, input),
@@ -288,6 +297,7 @@ const api = {
   suaraTersedia: (): Promise<boolean> => ipcRenderer.invoke(IPC_CHANNELS.suaraTersedia),
   transkripsikanSuara: (wav: Uint8Array): Promise<HasilTranskripIpc> =>
     ipcRenderer.invoke(IPC_CHANNELS.suaraTranskrip, wav),
+  speechSynthesize: (text: string): Promise<HasilSuaraAira> => ipcRenderer.invoke(IPC_CHANNELS.speechSynthesize, text),
   // --- Chat antar pengguna ---------------------------------------------------
   // Tidak ada satu pun fungsi di sini yang menerima "siapa saya" — main process
   // mengambilnya dari sesi. Kalau kelak ada yang menambahkan parameter pengirim,

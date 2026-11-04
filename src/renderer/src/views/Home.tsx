@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react'
-import type { Attachment, BerkasTerbaru, ModelChoice, SessionMeta } from '@shared/ipc'
+import type { Attachment, BerkasTerbaru, Briefing, ModelChoice, SessionMeta } from '@shared/ipc'
 import AttachBar, { useDropHandlers } from '../components/AttachBar'
 import ModelPicker from '../components/ModelPicker'
 import { TombolDikte } from '../components/TombolDikte'
@@ -29,7 +29,10 @@ import {
   IconZap
 } from '../components/Icons'
 import logo from '../assets/mascot/hello.png'
-import { requestVoiceTurn } from '../components/mascot/voice'
+import { isMuted, requestVoiceTurn, setMascotUser, speakAgent, speakAnswer } from '../components/mascot/voice'
+import { runStartup, startupBriefing, startupGreeting, startupOnce } from '../components/agent/startup'
+import { autoBriefing, BriefingCard, briefingKey, shouldAutoPlay } from '../components/BriefingCard'
+import { onAgent, takePending } from '../components/agent/bus'
 
 // Beranda (Task Baru) — tata letak baru 29 Sep 2026 mengikuti mockup user:
 // hero + kotak tugas di tengah, "Mulai Cepat" & "Fitur Utama" di bawahnya, dan
@@ -51,6 +54,8 @@ interface Props {
   onPanduan: () => void
   sessions: SessionMeta[]
   onOpenSession: (s: SessionMeta) => void
+  /** Signed-in user: the morning briefing plays once a day per user. */
+  username: string
 }
 
 interface Kartu {
@@ -135,7 +140,8 @@ export default function Home({
   onSubmit,
   onPanduan,
   sessions,
-  onOpenSession
+  onOpenSession,
+  username
 }: Props): JSX.Element {
   const drop = useDropHandlers(onDropFiles)
   const [text, setText] = useState('')
@@ -159,6 +165,100 @@ export default function Home({
   useEffect(() => {
     void muatBerkas()
   }, [muatBerkas, sessions])
+
+  // Morning briefing: read aloud by itself once per user per day (unless muted); Brief me replays it any time.
+  const [briefing, setBriefing] = useState<Briefing | null>(null)
+  const [briefingLoading, setBriefingLoading] = useState(false)
+  const [briefingError, setBriefingError] = useState<string | null>(null)
+  const playBriefing = useCallback(async () => {
+    setBriefingLoading(true)
+    setBriefingError(null)
+    try {
+      const b = await window.aira.briefingGet()
+      setBriefing(b)
+      speakAnswer(b.text)
+    } catch (e) {
+      setBriefingError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setBriefingLoading(false)
+    }
+  }, [])
+  // Voice co-worker: "play my briefing" (sent while App was switching to Home, or while Home is open).
+  useEffect(() => {
+    if (takePending('brief')) void playBriefing()
+    return onAgent('brief', () => void playBriefing())
+  }, [playBriefing])
+  // Voice co-worker startup (spec §2): once per user per app start — greet by name, the briefing on the first start
+  // of the day, then listen. React dev mounts Home twice and the sequence runs in the first mount: what it shows goes
+  // through the shared stores, which the Home on screen subscribes to.
+  const [greeting, setGreeting] = useState<string | null>(null)
+  useEffect(() => startupGreeting.subscribe(setGreeting), [])
+  useEffect(() => {
+    let alive = true
+    const off = startupBriefing.subscribe((p) => {
+      setBriefingLoading(true)
+      p.then((b) => alive && setBriefing(b))
+        .catch((e) => alive && setBriefingError(e instanceof Error ? e.message : String(e)))
+        .finally(() => alive && setBriefingLoading(false))
+    })
+    return () => {
+      alive = false
+      off()
+    }
+  }, [])
+  useEffect(() => {
+    // Kept per signed-in user: one laptop, several users — never under an empty name.
+    if (!username) return
+    setMascotUser(username) // the mute setting is per user; Home's effect may run before the mascot's
+    const key = briefingKey(username)
+    const today = new Date().toLocaleDateString('en-CA')
+    const run = `${key}:${today}`
+    const fetchBriefing = (): Promise<Briefing> => autoBriefing(run, () => window.aira.briefingGet())
+    const begin = (): void => startupOnce(username, () =>
+      runStartup({
+        getName: () => window.aira.agentNameGet(),
+        setName: async (n) => void (await window.aira.agentNameSet(n)),
+        speak: speakAgent,
+        listenForName: () => requestVoiceTurn({ auto: true, purpose: 'name' }),
+        getBriefing: async () => {
+          const p = fetchBriefing()
+          startupBriefing.publish(p)
+          return p.then((b) => b.text).catch(() => null)
+        },
+        briefedToday: () => {
+          try {
+            return !shouldAutoPlay(localStorage.getItem(key), today, false)
+          } catch {
+            return false
+          }
+        },
+        markBriefed: () => {
+          try {
+            localStorage.setItem(key, today)
+          } catch {
+            /* a lost marker only means one more briefing */
+          }
+        },
+        muted: isMuted,
+        hour: () => new Date().getHours(),
+        listen: async () => void (await requestVoiceTurn({ auto: true, purpose: 'request' })),
+        showText: (t) => startupGreeting.publish(t)
+      })
+    )
+    // Started hidden in the tray (Windows autostart): no greeting and no open microphone nobody can see — the
+    // sequence waits until the window is shown.
+    if (document.visibilityState === 'visible') {
+      begin()
+      return
+    }
+    const onVisible = (): void => {
+      if (document.visibilityState !== 'visible') return
+      document.removeEventListener('visibilitychange', onVisible)
+      begin()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [username])
 
   // Ctrl+K memfokuskan kotak cari, seperti yang dijanjikan tulisannya.
   useEffect(() => {
@@ -251,13 +351,15 @@ export default function Home({
               answer your questions.
             </p>
           </div>
-          <button type="button" className="hero-maskot" onClick={requestVoiceTurn} title="Talk to AIRA">
+          <button type="button" className="hero-maskot" onClick={() => void requestVoiceTurn()} title="Talk to AIRA">
             <img className="hero-logo" src={logo} alt="AIRA" draggable={false} />
             <span className="hero-maskot-ajak">
               <IconMic size={14} /> Click me and ask by voice
             </span>
           </button>
         </section>
+
+        <BriefingCard briefing={briefing} greeting={greeting} loading={briefingLoading} error={briefingError} onBriefMe={() => void playBriefing()} />
 
         {workspaceCount === 0 && (
           <p className="beranda-peringatan">

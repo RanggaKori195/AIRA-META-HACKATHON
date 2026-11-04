@@ -76,7 +76,10 @@ describe('mascot wiring', () => {
     assert.match(send, /stopSpeaking\(\)/)
     const stop = app.slice(app.indexOf('const handleStop'), app.indexOf('const handleRetry'))
     assert.match(stop, /stopSpeaking\(\)/)
-    assert.match(src('src/renderer/src/components/mascot/voice.ts'), /speechSynthesis\.cancel\(\)/)
+    // Stop silences both voices: the ElevenLabs audio and the Windows fallback (behaviour in mascot-player.test.ts).
+    const voice = src('src/renderer/src/components/mascot/voice.ts')
+    assert.match(voice, /audio\?\.pause\(\)/)
+    assert.match(voice, /synth\(\)\?\.cancel\(\)/)
   })
 
   test('voice turn auto-sends after 2000 ms and Cancel clears the timer', () => {
@@ -124,7 +127,7 @@ describe('mascot run tracking and voice-turn safety', () => {
 
   test('click is refused unless a voice turn may start (no recording while thinking/busy)', () => {
     const m = mascot()
-    const click = m.slice(m.indexOf('const handleClick'), m.indexOf('const handleCancel'))
+    const click = m.slice(m.indexOf('const startTurn'), m.indexOf('const handleCancel'))
     assert.match(click, /canStartVoiceTurn\(/)
   })
 
@@ -160,9 +163,10 @@ describe('mascot on Home: one robot at rest, voice still one click away', () => 
 
   test('Mascot hides only at rest (idle, no message) and App hides it on Home', () => {
     const m = src('src/renderer/src/components/mascot/Mascot.tsx')
-    assert.match(m, /hidden=\{hideWhenIdle && mascot\.state === 'idle' && !message\}/)
+    // The fake-microphone warning keeps the mascot visible on Home too (test-mic-guard.test.ts).
+    assert.match(m, /hidden=\{hideWhenIdle && mascot\.state === 'idle' && !message && !testMic\}/)
     assert.match(m, /onVoiceTurnRequest\(/)
     assert.match(src('src/renderer/src/App.tsx'), /hideWhenIdle=\{isHome\}/)
-    assert.match(src('src/renderer/src/views/Home.tsx'), /onClick=\{requestVoiceTurn\}/)
+    assert.match(src('src/renderer/src/views/Home.tsx'), /onClick=\{\(\) => void requestVoiceTurn\(\)\}/)
   })
 })

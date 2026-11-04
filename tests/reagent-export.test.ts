@@ -2,7 +2,7 @@ import { test, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import ExcelJS from 'exceljs'
 import { buildActionsWorkbook } from '../src/main/reagent/export'
-import { draftSummary } from '../src/main/reagent/summary'
+import { draftSummary, summaryFacts } from '../src/main/reagent/summary'
 import type { ReagentActions, RecountRow } from '../src/shared/reagent'
 
 const ref = { file: 'Stock_Opname_2026-10.xlsx', sheet: 'Stock Opname', row: 8 }
@@ -97,5 +97,15 @@ describe('export recomputes the recount rows', () => {
     const rc = values(wb.getWorksheet('Recount')!)
     const egfr = rc.find((r) => r.includes('RGT-EGFR'))!
     assert.ok(egfr.includes(-24) && egfr.includes('Differs'), JSON.stringify(egfr))
+  })
+})
+
+describe('summary facts', () => {
+  test('the prompt carries exactly the facts the number check uses', async () => {
+    let prompt = ''
+    await draftSummary(A, async (p) => ((prompt = p), 'ok'))
+    const facts = summaryFacts(A)
+    assert.ok(facts.length >= 3)
+    for (const f of facts) assert.ok(prompt.includes(f), f)
   })
 })

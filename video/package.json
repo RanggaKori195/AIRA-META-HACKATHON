@@ -1,0 +1,26 @@
+{
+  "name": "aira-demo-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts AiraDemo out/AIRA-demo-90s.mp4 --codec h264",
+    "voices": "node --env-file=../.env.local --import tsx scripts/voices.ts",
+    "prepare_take": "node --env-file=../.env.local --import tsx scripts/prepare.ts"
+  },
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "2.75.0",
+    "@remotion/cli": "4.0.536",
+    "@remotion/media-utils": "4.0.536",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "remotion": "4.0.536"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.0",
+    "@types/react": "19.2.18",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3"
+  }
+}

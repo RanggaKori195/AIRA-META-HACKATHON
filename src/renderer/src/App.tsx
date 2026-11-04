@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import type {
+  AgentRouteResult,
   AksiPemantau,
   AuthSession,
+  MenuId,
   ChatMode,
   Attachment,
   ChatMessage,
@@ -30,7 +32,9 @@ import type { CredentialRequest } from './components/CredentialCard'
 import ConfirmDialog from './components/ConfirmDialog'
 import { ChatRekan } from './components/ChatRekan'
 import Mascot from './components/mascot/Mascot'
-import { emitMascot, speakAnswer, stopSpeaking } from './components/mascot/voice'
+import { emitMascot, speakAgent, speakAnswer, stopSpeaking } from './components/mascot/voice'
+import { emitAgent } from './components/agent/bus'
+import { DATA_MENUS, sayFor, type AgentAction, type DataMenu } from '@shared/agent-actions'
 import { routeChatEvent } from './components/mascot/route'
 import {
   IconArrowRight,
@@ -182,7 +186,7 @@ export default function App(): JSX.Element {
     if (layar !== 'settings') setFokusPemantau(false)
   }, [layar])
   const [attachments, setAttachments] = useState<Attachment[]>([])
-  const [modelChoice, setModelChoice] = useState<ModelChoice>('auto')
+  const [modelChoice, setModelChoice] = useState<ModelChoice>('agent')
   const [pendingCredential, setPendingCredential] = useState<CredentialRequest | null>(null)
 
   const handleCredential = useCallback(
@@ -360,6 +364,10 @@ export default function App(): JSX.Element {
               : m
           )
         )
+      } else if (event.type === 'number_check') {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === event.messageId ? { ...m, numberCheck: event.check } : m))
+        )
       } else if (event.type === 'visual') {
         setMessages((prev) =>
           prev.map((m) => (m.id === event.messageId ? { ...m, visual: event.visual } : m))
@@ -528,6 +536,60 @@ export default function App(): JSX.Element {
       void refreshSessions()
     },
     [activeSessionId, attachments, mode, refreshSessions]
+  )
+
+  /**
+   * Voice co-worker: a spoken request → ONE action from the closed list (Muse Spark picks in main, code validates).
+   * AIRA says what it will do (code-written), then does it the way the sidebar and buttons do. Typed questions
+   * never come here.
+   */
+  const handleVoiceRequest = useCallback(
+    async (text: string) => {
+      const current = (DATA_MENUS as readonly string[]).includes(mode) ? (mode as DataMenu) : 'general'
+      let r: AgentRouteResult
+      try {
+        r = await window.aira.agentRoute(text, current)
+      } catch {
+        const action: AgentAction = { action: 'ask', menu: current, question: text }
+        r = { action, say: sayFor(action), source: 'fallback' }
+      }
+      const a = r.action
+      // Checked again here: the screen must never open a menu this account may not see.
+      const menuPermitted = (m: string): boolean => !(DATA_MENUS as readonly string[]).includes(m) || !!session?.menu.includes(m as MenuId)
+      const target = a.action === 'open' ? a.screen : a.action === 'ask' ? a.menu : a.action === 'reagent' ? 'reagent' : null
+      if (a.action === 'none' || (target && !menuPermitted(target))) {
+        emitMascot({ t: 'runDone' })
+        void speakAgent(sayFor({ action: 'none' }))
+        return
+      }
+      if (a.action === 'ask') {
+        // What the user SAID is sent, never Muse's rewording: the basis rule and filters read the user's sentence,
+        // and the Cancel window showed this transcript. The confirmation first: sending stops any speech.
+        await speakAgent(sayFor({ ...a, question: text }))
+        // A follow-up in the open conversation of the same menu stays in it (context, period).
+        if (a.menu === mode && activeSessionId) {
+          void handleSend(text)
+          return
+        }
+        startMode(a.menu)
+        void handleSend(text, a.menu)
+        return
+      }
+      emitMascot({ t: 'runDone' })
+      void speakAgent(r.say)
+      if (a.action === 'open') {
+        if ((DATA_MENUS as readonly string[]).includes(a.screen)) startMode(a.screen as DataMenu)
+        else if (a.screen === 'home') startMode('general')
+        else setLayar(a.screen as Layar) // images, schedule, library, guide, feedback
+      } else if (a.action === 'reagent') {
+        startMode('reagent')
+        emitAgent({ kind: 'reagent', step: a.step })
+      } else if (a.action === 'brief') {
+        startMode('general')
+        emitAgent({ kind: 'brief' })
+      }
+    },
+    [mode, activeSessionId, session, startMode, handleSend]
   )
 
   const handleStop = useCallback(() => {
@@ -919,6 +981,7 @@ export default function App(): JSX.Element {
         />
       ) : activeSessionId === null ? (
         <Home
+          username={session?.username ?? ''}
           sessions={sessions}
           onOpenSession={(s) => void openSession(s)}
           modelChoice={modelChoice}
@@ -976,7 +1039,7 @@ export default function App(): JSX.Element {
         <Mascot
           username={session.username}
           busy={streamingId !== null}
-          onSend={(text) => void handleSend(text)}
+          onVoiceRequest={(text) => void handleVoiceRequest(text)}
           hideWhenIdle={isHome}
         />
       )}

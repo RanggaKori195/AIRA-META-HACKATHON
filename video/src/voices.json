@@ -1,0 +1,392 @@
+[
+  {
+    "id": "user-reagent",
+    "speaker": "user",
+    "file": "voice/9c03cce579cea417.mp3",
+    "duration": 2.23,
+    "words": [
+      {
+        "text": "Please",
+        "start": 0,
+        "end": 0.32
+      },
+      {
+        "text": "check",
+        "start": 0.4,
+        "end": 0.56
+      },
+      {
+        "text": "the",
+        "start": 0.6,
+        "end": 0.64
+      },
+      {
+        "text": "reagents",
+        "start": 0.76,
+        "end": 1.2
+      },
+      {
+        "text": "for",
+        "start": 1.28,
+        "end": 1.36
+      },
+      {
+        "text": "this",
+        "start": 1.44,
+        "end": 1.52
+      },
+      {
+        "text": "month.",
+        "start": 1.6,
+        "end": 2.08
+      }
+    ]
+  },
+  {
+    "id": "user-summary",
+    "speaker": "user",
+    "file": "voice/286055af9add4f0f.mp3",
+    "duration": 2.15,
+    "words": [
+      {
+        "text": "Summarize",
+        "start": 0,
+        "end": 0.64
+      },
+      {
+        "text": "the",
+        "start": 0.72,
+        "end": 0.76
+      },
+      {
+        "text": "reagent",
+        "start": 0.8,
+        "end": 1.28
+      },
+      {
+        "text": "check.",
+        "start": 1.36,
+        "end": 2
+      }
+    ]
+  },
+  {
+    "id": "user-sales",
+    "speaker": "user",
+    "file": "voice/fa3b358f5613a281.mp3",
+    "duration": 1.91,
+    "words": [
+      {
+        "text": "What",
+        "start": 0,
+        "end": 0.24
+      },
+      {
+        "text": "were",
+        "start": 0.32,
+        "end": 0.4
+      },
+      {
+        "text": "sales",
+        "start": 0.48,
+        "end": 0.8
+      },
+      {
+        "text": "last",
+        "start": 0.88,
+        "end": 1.12
+      },
+      {
+        "text": "month?",
+        "start": 1.2,
+        "end": 1.76
+      }
+    ]
+  },
+  {
+    "id": "narrator-intro",
+    "speaker": "narrator",
+    "file": "voice/d9d42c5ccfed38d2.mp3",
+    "duration": 12.47,
+    "words": [
+      {
+        "text": "Every",
+        "start": 0,
+        "end": 0.32
+      },
+      {
+        "text": "month,",
+        "start": 0.4,
+        "end": 0.88
+      },
+      {
+        "text": "a",
+        "start": 0.92,
+        "end": 0.96
+      },
+      {
+        "text": "lab",
+        "start": 1.04,
+        "end": 1.36
+      },
+      {
+        "text": "reconciles",
+        "start": 1.44,
+        "end": 2.08
+      },
+      {
+        "text": "reagent",
+        "start": 2.2,
+        "end": 2.64
+      },
+      {
+        "text": "usage",
+        "start": 2.72,
+        "end": 3.12
+      },
+      {
+        "text": "against",
+        "start": 3.2,
+        "end": 3.52
+      },
+      {
+        "text": "its",
+        "start": 3.6,
+        "end": 3.76
+      },
+      {
+        "text": "stock",
+        "start": 3.92,
+        "end": 4.08
+      },
+      {
+        "text": "count",
+        "start": 4.16,
+        "end": 4.4
+      },
+      {
+        "text": "by",
+        "start": 4.48,
+        "end": 4.56
+      },
+      {
+        "text": "hand.",
+        "start": 4.72,
+        "end": 5.36
+      },
+      {
+        "text": "It",
+        "start": 5.6,
+        "end": 5.68
+      },
+      {
+        "text": "takes",
+        "start": 5.76,
+        "end": 6
+      },
+      {
+        "text": "a",
+        "start": 6.053,
+        "end": 6.107
+      },
+      {
+        "text": "day,",
+        "start": 6.16,
+        "end": 6.72
+      },
+      {
+        "text": "and",
+        "start": 6.76,
+        "end": 6.8
+      },
+      {
+        "text": "the",
+        "start": 6.88,
+        "end": 6.92
+      },
+      {
+        "text": "numbers",
+        "start": 6.96,
+        "end": 7.36
+      },
+      {
+        "text": "rarely",
+        "start": 7.44,
+        "end": 7.76
+      },
+      {
+        "text": "match.",
+        "start": 7.84,
+        "end": 8.32
+      },
+      {
+        "text": "Meet",
+        "start": 8.88,
+        "end": 9.12
+      },
+      {
+        "text": "AIRA,",
+        "start": 9.28,
+        "end": 10
+      },
+      {
+        "text": "a",
+        "start": 10.08,
+        "end": 10.16
+      },
+      {
+        "text": "co-worker",
+        "start": 10.24,
+        "end": 10.72
+      },
+      {
+        "text": "you",
+        "start": 10.8,
+        "end": 10.88
+      },
+      {
+        "text": "can",
+        "start": 11,
+        "end": 11.12
+      },
+      {
+        "text": "simply",
+        "start": 11.2,
+        "end": 11.44
+      },
+      {
+        "text": "talk",
+        "start": 11.52,
+        "end": 11.76
+      },
+      {
+        "text": "to.",
+        "start": 11.88,
+        "end": 12.32
+      }
+    ]
+  },
+  {
+    "id": "narrator-outro",
+    "speaker": "narrator",
+    "file": "voice/7707369d7b8c72c5.mp3",
+    "duration": 11.27,
+    "words": [
+      {
+        "text": "AIRA",
+        "start": 0,
+        "end": 0.48
+      },
+      {
+        "text": "is",
+        "start": 0.56,
+        "end": 0.72
+      },
+      {
+        "text": "built",
+        "start": 0.84,
+        "end": 0.96
+      },
+      {
+        "text": "on",
+        "start": 1.04,
+        "end": 1.12
+      },
+      {
+        "text": "Meta",
+        "start": 1.2,
+        "end": 1.44
+      },
+      {
+        "text": "Muse.",
+        "start": 1.52,
+        "end": 2.2
+      },
+      {
+        "text": "Wonder",
+        "start": 2.48,
+        "end": 2.8
+      },
+      {
+        "text": "answers,",
+        "start": 2.88,
+        "end": 3.76
+      },
+      {
+        "text": "Spark",
+        "start": 3.84,
+        "end": 4.24
+      },
+      {
+        "text": "picks",
+        "start": 4.32,
+        "end": 4.56
+      },
+      {
+        "text": "the",
+        "start": 4.6,
+        "end": 4.64
+      },
+      {
+        "text": "action,",
+        "start": 4.72,
+        "end": 5.6
+      },
+      {
+        "text": "Voice",
+        "start": 5.68,
+        "end": 5.92
+      },
+      {
+        "text": "Transcribe",
+        "start": 6,
+        "end": 6.64
+      },
+      {
+        "text": "listens.",
+        "start": 6.8,
+        "end": 7.44
+      },
+      {
+        "text": "Every",
+        "start": 7.92,
+        "end": 8.16
+      },
+      {
+        "text": "number",
+        "start": 8.24,
+        "end": 8.56
+      },
+      {
+        "text": "comes",
+        "start": 8.64,
+        "end": 8.88
+      },
+      {
+        "text": "from",
+        "start": 8.96,
+        "end": 9.04
+      },
+      {
+        "text": "code,",
+        "start": 9.2,
+        "end": 9.84
+      },
+      {
+        "text": "with",
+        "start": 9.92,
+        "end": 10
+      },
+      {
+        "text": "its",
+        "start": 10.08,
+        "end": 10.16
+      },
+      {
+        "text": "evidence.",
+        "start": 10.24,
+        "end": 11.12
+      }
+    ]
+  }
+]

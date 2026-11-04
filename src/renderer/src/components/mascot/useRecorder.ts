@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { enkodeWav, gabungPotongan, turunkanSampel, WAV_SAMPLE_RATE } from '@shared/wav'
+import { rmsOf } from './silence'
 
 /*
  * Microphone → 16 kHz mono WAV, shared by the dictation button and the mascot (one recorder, not two
@@ -16,8 +17,16 @@ export interface Recorder {
   discard(): void
 }
 
-export function useRecorder(): Recorder {
+export interface RecorderOptions {
+  /** Level (RMS) of each audio block while recording — automatic turns use it to stop on silence. */
+  onLevel?: (rms: number, blockMs: number) => void
+}
+
+export function useRecorder(options: RecorderOptions = {}): Recorder {
   const [recording, setRecording] = useState(false)
+  // Read through a ref: the audio callback outlives renders and must call the latest handler.
+  const onLevelRef = useRef(options.onLevel)
+  onLevelRef.current = options.onLevel
   const ctxRef = useRef<AudioContext | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const procRef = useRef<ScriptProcessorNode | null>(null)
@@ -63,7 +72,9 @@ export function useRecorder(): Recorder {
       chunksRef.current = []
       proc.onaudioprocess = (e): void => {
         // Copied: Web Audio reuses the buffer for the next block.
-        chunksRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)))
+        const block = new Float32Array(e.inputBuffer.getChannelData(0))
+        chunksRef.current.push(block)
+        onLevelRef.current?.(rmsOf(block), (block.length / ctx.sampleRate) * 1000)
       }
       source.connect(proc)
       proc.connect(ctx.destination)

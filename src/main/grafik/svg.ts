@@ -17,9 +17,9 @@
 /** Palet the company — SAMA dengan `PALET_GRAFIK` di `ppt/tema.ts`. */
 export const PALET = ['#1F4E9C', '#2F7BE5', '#78909C', '#FFAB40', '#0097A7', '#1565C0']
 
-const WARNA_TEKS = '#1d3b24'
-const WARNA_REDUP = '#6b7a70'
-const WARNA_GARIS = '#dfe6e0'
+const WARNA_TEKS = '#1e2a3b'
+const WARNA_REDUP = '#5f6b7a'
+const WARNA_GARIS = '#dde4ee'
 const FONT = "'Segoe UI',system-ui,sans-serif"
 
 export type JenisGrafik = 'batang' | 'garis' | 'pai' | 'batang-tumpuk'

@@ -18,6 +18,36 @@ interface Props {
   onAksiPemantau: (aksi: AksiPemantau) => void
 }
 
+/** Voice co-worker: the name AIRA greets this account with ("Good morning, Rangga"). Stored in main, per account. */
+function CallNameCard(): JSX.Element {
+  const [name, setName] = useState('')
+  const [note, setNote] = useState<string | null>(null)
+  useEffect(() => {
+    void window.aira.agentNameGet().then((n) => setName(n ?? ''))
+  }, [])
+  const save = async (): Promise<void> => {
+    try {
+      const saved = await window.aira.agentNameSet(name.trim() || null)
+      setNote(saved ? `AIRA will call you ${saved}.` : 'AIRA will ask your name the next time it starts.')
+    } catch {
+      setNote('The name could not be saved (letters only, up to 24 characters).')
+    }
+  }
+  return (
+    <section className="card">
+      <h3>What should AIRA call you?</h3>
+      <p className="hint">Used when AIRA greets you on start. Leave it empty and AIRA asks again by voice.</p>
+      <label className="setel-baris">
+        <input value={name} maxLength={24} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+        <button type="button" className="btn-secondary" onClick={() => void save()}>
+          Save
+        </button>
+      </label>
+      {note && <p className="hint">{note}</p>}
+    </section>
+  )
+}
+
 /**
  * Settings sengaja dibuat minimal: seluruh kredensial (LLM, pencarian web, MCP)
  * sudah dibawa aplikasi dari build, jadi user tidak perlu mengatur apa pun.
@@ -96,6 +126,8 @@ export default function Settings({ onBack, sesi, fokusPemantau, onAksiPemantau }
             <IconBell size={15} /> Test Notification
           </button>
         </section>
+
+        <CallNameCard />
 
         {/* Hanya tampil bila user punya menu Sales atau TAT — disaring di main process. */}
         <PemantauPanel onAksi={onAksiPemantau} fokus={fokusPemantau} />

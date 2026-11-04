@@ -15,7 +15,8 @@ export const ID_WORDS = [
   'penjualan', 'harga', 'sampel', 'dokumen', 'laporan', 'tugas', 'pengaturan', 'jumlah', 'nama', 'tanggal',
   'waktu', 'terakhir', 'contoh', 'kategori', 'periode', 'sumber', 'tentang', 'bantuan', 'selesai', 'aktif',
   'nonaktif', 'diproses', 'ditolak', 'menunggu', 'kemarin', 'tahun', 'jam', 'detik', 'menit', 'ke', 'di',
-  'tahap', 'umur', 'pemeriksaan', 'perbandingan', 'naik', 'turun', 'tren', 'ringkasan', 'divisi', 'anggota'
+  'tahap', 'umur', 'pemeriksaan', 'perbandingan', 'naik', 'turun', 'tren', 'ringkasan', 'divisi', 'anggota',
+  'menyiapkan', 'asisten', 'sebentar', 'mohon', 'tunggu', 'selamat', 'pagi', 'siang', 'sore', 'malam'
 ]
 
 const WORD = new RegExp(`(?<![\\w-])(${ID_WORDS.join('|')})(?![\\w-])`, 'i')
@@ -115,7 +116,9 @@ const MAIN_SHOWN = [
   'src/main/agent/context-limit.ts',
   'src/main/agent/jawaban-kosong.ts',
   'src/main/gambar/omni.ts',
-  'src/main/gambar/rules.ts'
+  'src/main/gambar/rules.ts',
+  // Splash window shown while the app starts.
+  'src/main/splash.ts'
 ]
 
 /** Tool step labels shown in the chat and under the mascot. */
@@ -152,5 +155,15 @@ describe('English UI', () => {
 const m = 'Gambar tidak ditemukan'
 `)
     assert.deepEqual(indonesianHits(g).map((h) => h.line), [2])
+  })
+})
+
+describe('splash window', () => {
+  // The splash HTML lives in a template string the generic scan treats as code — so its visible text is checked here.
+  test('the text under the logo while AIRA starts is English', () => {
+    const html = readFileSync('src/main/splash.ts', 'utf8')
+    const texts = [...html.matchAll(/<p>([^<]*)<\/p>/g)].map((m) => m[1])
+    assert.ok(texts.length > 0)
+    for (const t of texts) assert.doesNotMatch(t, WORD, t)
   })
 })

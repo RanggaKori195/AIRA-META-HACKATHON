@@ -243,6 +243,11 @@ const MIGRATIONS: string[] = [
   `
   UPDATE sessions SET mode = 'masterdata' WHERE mode = '${['inno', 'master'].join('')}';
   UPDATE jadwal SET mode = 'masterdata' WHERE mode = '${['inno', 'master'].join('')}';
+  `,
+  // Number check of a Reagent Check answer (Nov 2026): JSON `NumberCheck` computed by code, kept with the message
+  // so it still shows when the conversation is reopened — never sent to the model.
+  `
+  ALTER TABLE messages ADD COLUMN number_check TEXT;
   `
 ]
 
@@ -418,6 +423,10 @@ export function updateMessage(
     .run(content, reasoning, toolLog ? JSON.stringify(toolLog) : null, id)
 }
 
+export function setMessageNumberCheck(id: string, check: unknown): void {
+  conn().prepare('UPDATE messages SET number_check = ? WHERE id = ?').run(JSON.stringify(check), id)
+}
+
 export function setMessageVisual(id: string, visual: unknown): void {
   conn().prepare('UPDATE messages SET visual = ? WHERE id = ?').run(JSON.stringify(visual), id)
 }
@@ -475,7 +484,7 @@ function bacaDashboard(teks: string | null | undefined): any {
 export function listMessages(sessionId: string): ChatMessage[] {
   return conn()
     .prepare(
-      'SELECT id, session_id, role, content, reasoning, tool_log, model_used, created_at, dashboard, visual FROM messages WHERE session_id = ? ORDER BY created_at ASC'
+      'SELECT id, session_id, role, content, reasoning, tool_log, model_used, created_at, dashboard, visual, number_check FROM messages WHERE session_id = ? ORDER BY created_at ASC'
     )
     .all(sessionId)
     .map((r: any) => ({
@@ -488,7 +497,8 @@ export function listMessages(sessionId: string): ChatMessage[] {
       modelUsed: r.model_used ?? null,
       createdAt: r.created_at,
       dashboard: bacaDashboard(r.dashboard),
-      visual: bacaDashboard(r.visual) as ChatMessage['visual']
+      visual: bacaDashboard(r.visual) as ChatMessage['visual'],
+      numberCheck: bacaDashboard(r.number_check) as ChatMessage['numberCheck']
     }))
 }
 

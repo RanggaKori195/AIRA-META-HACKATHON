@@ -1,0 +1,717 @@
+{
+ "duration": 145.978,
+ "clips": [
+  {
+   "who": "aira",
+   "file": "rec/aira-1.mp3",
+   "at": 26.62,
+   "duration": 30.851,
+   "words": [
+    {
+     "text": "Good",
+     "start": 0.1,
+     "end": 0.2
+    },
+    {
+     "text": "afternoon,",
+     "start": 0.28,
+     "end": 0.68
+    },
+    {
+     "text": "Ranga.",
+     "start": 0.76,
+     "end": 1.1
+    },
+    {
+     "text": "Order",
+     "start": 1.76,
+     "end": 1.94
+    },
+    {
+     "text": "now",
+     "start": 2.04,
+     "end": 2.38
+    },
+    {
+     "text": "two",
+     "start": 2.46,
+     "end": 2.6
+    },
+    {
+     "text": "boxes",
+     "start": 2.7,
+     "end": 3.22
+    },
+    {
+     "text": "of",
+     "start": 3.28,
+     "end": 3.46
+    },
+    {
+     "text": "Thin",
+     "start": 3.48,
+     "end": 3.66
+    },
+    {
+     "text": "Prep",
+     "start": 3.76,
+     "end": 3.98
+    },
+    {
+     "text": "PreserveSite",
+     "start": 4.04,
+     "end": 4.68
+    },
+    {
+     "text": "Vial",
+     "start": 4.76,
+     "end": 5.1
+    },
+    {
+     "text": "and",
+     "start": 5.3,
+     "end": 5.4
+    },
+    {
+     "text": "four",
+     "start": 5.56,
+     "end": 5.72
+    },
+    {
+     "text": "boxes",
+     "start": 5.82,
+     "end": 6.34
+    },
+    {
+     "text": "of",
+     "start": 6.4,
+     "end": 6.54
+    },
+    {
+     "text": "KRAS",
+     "start": 6.6,
+     "end": 7.52
+    },
+    {
+     "text": "Mutation",
+     "start": 7.6,
+     "end": 8.1
+    },
+    {
+     "text": "Kit.",
+     "start": 8.18,
+     "end": 8.44
+    },
+    {
+     "text": "Order",
+     "start": 9.1,
+     "end": 9.3
+    },
+    {
+     "text": "soon",
+     "start": 9.44,
+     "end": 9.76
+    },
+    {
+     "text": "one",
+     "start": 10.08,
+     "end": 10.26
+    },
+    {
+     "text": "box",
+     "start": 10.34,
+     "end": 10.64
+    },
+    {
+     "text": "of",
+     "start": 10.68,
+     "end": 10.76
+    },
+    {
+     "text": "DNA",
+     "start": 10.88,
+     "end": 11.26
+    },
+    {
+     "text": "Extraction",
+     "start": 11.3,
+     "end": 11.88
+    },
+    {
+     "text": "Kit,",
+     "start": 11.96,
+     "end": 12.18
+    },
+    {
+     "text": "one",
+     "start": 12.68,
+     "end": 12.8
+    },
+    {
+     "text": "box",
+     "start": 12.88,
+     "end": 13.18
+    },
+    {
+     "text": "of",
+     "start": 13.24,
+     "end": 13.32
+    },
+    {
+     "text": "EGFR",
+     "start": 13.48,
+     "end": 14.12
+    },
+    {
+     "text": "Mutation",
+     "start": 14.2,
+     "end": 14.68
+    },
+    {
+     "text": "Kit,",
+     "start": 14.76,
+     "end": 14.98
+    },
+    {
+     "text": "and",
+     "start": 15.4,
+     "end": 15.5
+    },
+    {
+     "text": "one",
+     "start": 15.62,
+     "end": 15.78
+    },
+    {
+     "text": "box",
+     "start": 15.86,
+     "end": 16.16
+    },
+    {
+     "text": "of",
+     "start": 16.219,
+     "end": 16.379
+    },
+    {
+     "text": "HPV",
+     "start": 16.58,
+     "end": 17.1
+    },
+    {
+     "text": "DNA",
+     "start": 17.24,
+     "end": 17.7
+    },
+    {
+     "text": "High",
+     "start": 17.82,
+     "end": 17.98
+    },
+    {
+     "text": "Risk",
+     "start": 18.1,
+     "end": 18.36
+    },
+    {
+     "text": "Kit.",
+     "start": 18.48,
+     "end": 18.74
+    },
+    {
+     "text": "The",
+     "start": 19.4,
+     "end": 19.48
+    },
+    {
+     "text": "2026-10",
+     "start": 19.64,
+     "end": 21.04
+    },
+    {
+     "text": "reagent",
+     "start": 21.1,
+     "end": 21.58
+    },
+    {
+     "text": "check",
+     "start": 21.62,
+     "end": 21.9
+    },
+    {
+     "text": "has",
+     "start": 21.96,
+     "end": 22.2
+    },
+    {
+     "text": "four",
+     "start": 22.28,
+     "end": 22.56
+    },
+    {
+     "text": "findings",
+     "start": 22.6,
+     "end": 23.02
+    },
+    {
+     "text": "to",
+     "start": 23.06,
+     "end": 23.14
+    },
+    {
+     "text": "investigate",
+     "start": 23.16,
+     "end": 23.8
+    },
+    {
+     "text": "and",
+     "start": 24.24,
+     "end": 24.34
+    },
+    {
+     "text": "forty-nine",
+     "start": 24.5,
+     "end": 25.02
+    },
+    {
+     "text": "samples",
+     "start": 25.14,
+     "end": 25.54
+    },
+    {
+     "text": "are",
+     "start": 25.58,
+     "end": 25.7
+    },
+    {
+     "text": "currently",
+     "start": 25.76,
+     "end": 26.16
+    },
+    {
+     "text": "late,",
+     "start": 26.22,
+     "end": 26.5
+    },
+    {
+     "text": "with",
+     "start": 26.8,
+     "end": 26.96
+    },
+    {
+     "text": "twenty-one",
+     "start": 27.04,
+     "end": 27.54
+    },
+    {
+     "text": "new",
+     "start": 27.68,
+     "end": 27.94
+    },
+    {
+     "text": "since",
+     "start": 28.04,
+     "end": 28.24
+    },
+    {
+     "text": "the",
+     "start": 28.28,
+     "end": 28.36
+    },
+    {
+     "text": "previous",
+     "start": 28.38,
+     "end": 28.8
+    },
+    {
+     "text": "check.",
+     "start": 28.84,
+     "end": 29.12
+    },
+    {
+     "text": "What",
+     "start": 29.74,
+     "end": 29.82
+    },
+    {
+     "text": "can",
+     "start": 29.86,
+     "end": 29.96
+    },
+    {
+     "text": "I",
+     "start": 30.04,
+     "end": 30.04
+    },
+    {
+     "text": "help",
+     "start": 30.08,
+     "end": 30.26
+    },
+    {
+     "text": "you",
+     "start": 30.3,
+     "end": 30.36
+    },
+    {
+     "text": "with?",
+     "start": 30.42,
+     "end": 30.66
+    }
+   ]
+  },
+  {
+   "who": "user",
+   "file": "voice/9c03cce579cea417.mp3",
+   "at": 57.915,
+   "duration": 2.23,
+   "words": [
+    {
+     "text": "Please",
+     "start": 0,
+     "end": 0.32
+    },
+    {
+     "text": "check",
+     "start": 0.4,
+     "end": 0.56
+    },
+    {
+     "text": "the",
+     "start": 0.6,
+     "end": 0.64
+    },
+    {
+     "text": "reagents",
+     "start": 0.76,
+     "end": 1.2
+    },
+    {
+     "text": "for",
+     "start": 1.28,
+     "end": 1.36
+    },
+    {
+     "text": "this",
+     "start": 1.44,
+     "end": 1.52
+    },
+    {
+     "text": "month.",
+     "start": 1.6,
+     "end": 2.08
+    }
+   ]
+  },
+  {
+   "who": "aira",
+   "file": "rec/aira-2.mp3",
+   "at": 73.041,
+   "duration": 3.474,
+   "words": [
+    {
+     "text": "Opening",
+     "start": 0.1,
+     "end": 0.44
+    },
+    {
+     "text": "reagent",
+     "start": 0.54,
+     "end": 0.96
+    },
+    {
+     "text": "check",
+     "start": 1.06,
+     "end": 1.38
+    },
+    {
+     "text": "and",
+     "start": 1.6,
+     "end": 1.8
+    },
+    {
+     "text": "running",
+     "start": 1.98,
+     "end": 2.3
+    },
+    {
+     "text": "this",
+     "start": 2.36,
+     "end": 2.54
+    },
+    {
+     "text": "month's",
+     "start": 2.58,
+     "end": 2.88
+    },
+    {
+     "text": "check",
+     "start": 2.94,
+     "end": 3.26
+    }
+   ]
+  },
+  {
+   "who": "user",
+   "file": "voice/286055af9add4f0f.mp3",
+   "at": 78.702,
+   "duration": 2.15,
+   "words": [
+    {
+     "text": "Summarize",
+     "start": 0,
+     "end": 0.64
+    },
+    {
+     "text": "the",
+     "start": 0.72,
+     "end": 0.76
+    },
+    {
+     "text": "reagent",
+     "start": 0.8,
+     "end": 1.28
+    },
+    {
+     "text": "check.",
+     "start": 1.36,
+     "end": 2
+    }
+   ]
+  },
+  {
+   "who": "aira",
+   "file": "rec/aira-3.mp3",
+   "at": 93.429,
+   "duration": 3.161,
+   "words": [
+    {
+     "text": "Opening",
+     "start": 0.1,
+     "end": 0.44
+    },
+    {
+     "text": "reagent",
+     "start": 0.54,
+     "end": 0.98
+    },
+    {
+     "text": "check",
+     "start": 1.08,
+     "end": 1.38
+    },
+    {
+     "text": "and",
+     "start": 1.58,
+     "end": 1.72
+    },
+    {
+     "text": "drafting",
+     "start": 1.82,
+     "end": 2.26
+    },
+    {
+     "text": "the",
+     "start": 2.3,
+     "end": 2.4
+    },
+    {
+     "text": "summary",
+     "start": 2.44,
+     "end": 2.9
+    }
+   ]
+  },
+  {
+   "who": "user",
+   "file": "voice/fa3b358f5613a281.mp3",
+   "at": 113.979,
+   "duration": 1.91,
+   "words": [
+    {
+     "text": "What",
+     "start": 0,
+     "end": 0.24
+    },
+    {
+     "text": "were",
+     "start": 0.32,
+     "end": 0.4
+    },
+    {
+     "text": "sales",
+     "start": 0.48,
+     "end": 0.8
+    },
+    {
+     "text": "last",
+     "start": 0.88,
+     "end": 1.12
+    },
+    {
+     "text": "month?",
+     "start": 1.2,
+     "end": 1.76
+    }
+   ]
+  },
+  {
+   "who": "aira",
+   "file": "rec/aira-4.mp3",
+   "at": 127.803,
+   "duration": 3.971,
+   "words": [
+    {
+     "text": "Asking",
+     "start": 0.18,
+     "end": 0.56
+    },
+    {
+     "text": "Ask",
+     "start": 0.72,
+     "end": 1
+    },
+    {
+     "text": "Sales",
+     "start": 1.08,
+     "end": 1.4
+    },
+    {
+     "text": "data",
+     "start": 1.46,
+     "end": 1.78
+    },
+    {
+     "text": "what",
+     "start": 2.44,
+     "end": 2.58
+    },
+    {
+     "text": "were",
+     "start": 2.6,
+     "end": 2.78
+    },
+    {
+     "text": "sales",
+     "start": 2.84,
+     "end": 3.16
+    },
+    {
+     "text": "last",
+     "start": 3.2,
+     "end": 3.42
+    },
+    {
+     "text": "month?",
+     "start": 3.48,
+     "end": 3.74
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "name": "mascot:idle",
+   "at": 0.593
+  },
+  {
+   "name": "home",
+   "at": 0.595
+  },
+  {
+   "name": "brief:shown",
+   "at": 20.682
+  },
+  {
+   "name": "mascot:speaking",
+   "at": 26.672
+  },
+  {
+   "name": "mascot:listening",
+   "at": 57.581
+  },
+  {
+   "name": "mascot:confirming",
+   "at": 63.716
+  },
+  {
+   "name": "heard:“Please check the reagents for this month.”",
+   "at": 63.716
+  },
+  {
+   "name": "mascot:thinking",
+   "at": 65.726
+  },
+  {
+   "name": "mascot:speaking",
+   "at": 73.009
+  },
+  {
+   "name": "reagent:findings",
+   "at": 73.013
+  },
+  {
+   "name": "mascot:idle",
+   "at": 76.592
+  },
+  {
+   "name": "mascot:listening",
+   "at": 78.366
+  },
+  {
+   "name": "mascot:confirming",
+   "at": 84.064
+  },
+  {
+   "name": "heard:“summarize the reagent check.”",
+   "at": 84.064
+  },
+  {
+   "name": "mascot:thinking",
+   "at": 86.078
+  },
+  {
+   "name": "mascot:speaking",
+   "at": 93.418
+  },
+  {
+   "name": "mascot:idle",
+   "at": 96.684
+  },
+  {
+   "name": "reorder:numbers-match",
+   "at": 111.985
+  },
+  {
+   "name": "mascot:listening",
+   "at": 113.642
+  },
+  {
+   "name": "mascot:confirming",
+   "at": 121.172
+  },
+  {
+   "name": "heard:“What were sales last month?”",
+   "at": 121.172
+  },
+  {
+   "name": "mascot:thinking",
+   "at": 123.188
+  },
+  {
+   "name": "mascot:speaking",
+   "at": 127.837
+  },
+  {
+   "name": "mascot:thinking",
+   "at": 131.945
+  },
+  {
+   "name": "mascot:idle",
+   "at": 142.272
+  },
+  {
+   "name": "sales:answer",
+   "at": 142.272
+  }
+ ]
+}

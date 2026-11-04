@@ -1,5 +1,7 @@
-import { ipcMain, BrowserWindow, clipboard, dialog, shell } from 'electron'
+import { app, ipcMain, BrowserWindow, clipboard, dialog, shell } from 'electron'
+import { fakeMicActive } from '../shared/test-mic'
 import type {
+  ReagentActions,
   ReagentActionsResult,
   ReagentEvidenceResult,
   ReagentExportResult,
@@ -9,7 +11,15 @@ import type {
 } from '../shared/reagent'
 import { actions, availableMonths, evidenceRows, runReconciliation } from './reagent/service'
 import { buildActionsWorkbook } from './reagent/export'
-import { draftSummary } from './reagent/summary'
+import { draftSummary, summaryFacts } from './reagent/summary'
+import { checkNumbers } from '../shared/number-check'
+import { buildBriefing, type Briefing } from './briefing/briefing'
+import { salesBriefFromTools, trendQuery, webTrendFromSearch, type SalesBrief, type WebInput } from './briefing/sales-brief'
+import { salesTools } from './tools/sales-tools'
+import { webTools } from './tools/web-tools'
+import { airaTts, explainTtsError, MAX_TTS_CHARS } from './suara/tts'
+import { routeRequest } from './agent-voice/route'
+import { DATA_MENUS } from '../shared/agent-actions'
 import { MUSE } from './hackathon/models'
 import { reagentFolderFor, setReagentFolder } from './reagent/folder'
 import { ReagentEvidenceInput, ReagentExportInput, ReagentMonth } from './reagent/ipc-schema'
@@ -37,6 +47,8 @@ import {
   type AuthUserRow,
   type FeedbackRow,
   type HasilTranskripIpc,
+  type HasilSuaraAira,
+  type AgentRouteResult,
   type PesanChatIpc,
   type RekanChat,
   type MemoriRow,
@@ -915,10 +927,97 @@ export function registerIpcHandlers(): void {
         if (d.finishReason === 'length') throw new Error('The summary was cut off — try again.')
         return d.text
       })
-      return { text }
+      // The number check runs in code on the same facts the model was given — the prompt alone does not hold it.
+      const check = checkNumbers(text, summaryFacts(a))
+      return { text, check }
     } catch (err) {
       return { error: err instanceof Error ? err.message : String(err) }
     }
+  })
+
+  // Morning briefing: facts from code (latest month's reagent actions, ringing monitor alerts), worded by Muse
+  // Wonder, number-checked in code — any number not in the facts and the code-written briefing is used.
+  // Voice co-worker: the name AIRA calls this account (kept per session username — the renderer never says whose).
+  ipcMain.handle(IPC_CHANNELS.agentNameGet, (): string | null => {
+    const sesi = wajibLogin()
+    return loadConfig().callNames[sesi.username.toLowerCase()] ?? null
+  })
+  ipcMain.handle(IPC_CHANNELS.agentNameSet, (_event, raw): string | null => {
+    const sesi = wajibLogin()
+    const name = z.string().trim().min(1).max(24).nullable().parse(raw ?? null)
+    const config = loadConfig()
+    const names = { ...config.callNames }
+    if (name) names[sesi.username.toLowerCase()] = name
+    else delete names[sesi.username.toLowerCase()]
+    saveConfig({ ...config, callNames: names })
+    return name
+  })
+  // One spoken request → one action from the closed list; Muse Spark picks, code validates against the menus this
+  // account may open, keywords and "ask in the current menu" catch the rest (src/main/agent-voice/route.ts).
+  ipcMain.handle(IPC_CHANNELS.agentRoute, async (_event, rawText, rawCurrent): Promise<AgentRouteResult> => {
+    const sesi = wajibLogin()
+    const text = z.string().trim().min(1).max(500).parse(rawText)
+    const current = z.enum([...DATA_MENUS, 'general']).catch('general').parse(rawCurrent)
+    const provider = buildProvider()
+    const r = await routeRequest(text, {
+      menu: sesi.menu,
+      current,
+      complete: async (prompt) => {
+        if (!provider) throw new Error('No API key is set up for the model.')
+        return (await provider.completeDetail([{ role: 'user', content: prompt }], MUSE.quick, 2000)).text
+      }
+    })
+    logger().info({ source: r.source, action: r.action.action }, 'voice co-worker: action picked')
+    return r
+  })
+
+  ipcMain.handle(IPC_CHANNELS.briefingGet, async (): Promise<Briefing> => {
+    const sesi = wajibLogin()
+    let reagent: ReagentActions | null = null
+    if (auth.bolehModeSekarang('reagent')) {
+      const st = reagentStatusFor(sesi.username)
+      if (st.folder && st.months.length) {
+        const a = await actions({ folder: st.folder, month: st.months[0] })
+        if (!('error' in a)) reagent = a
+      }
+    }
+    const monitor = pemantau.keadaanPemantau().pemicu
+    // Sales facts from the app's own sales tools — one after the other (the sales pool is max: 1), only for users
+    // who may open Ask Sales Data. A failure leaves sales out; the reagent and monitor parts still speak.
+    let sales: SalesBrief | null = null
+    if (auth.bolehModeSekarang('sales')) {
+      try {
+        const run = async (name: string, args: Record<string, unknown>): Promise<string> => {
+          const t = salesTools.find((x) => x.name === name)
+          if (!t) throw new Error(`${name} is not registered`)
+          return String(await t.execute(args, {} as never))
+        }
+        const compare = await run('sales_compare', { period: 'this_month', comparePeriod: 'last_month' })
+        const movers = await run('sales_movers', { period: 'this_month', comparePeriod: 'last_month', limit: 3 })
+        sales = salesBriefFromTools(compare, movers)
+      } catch (err) {
+        logger().warn({ err: err instanceof Error ? err.message : String(err) }, 'briefing: sales facts unavailable')
+      }
+    }
+    // Trend from the web: the app's web_search tool (You.com). The Meta Muse API itself cannot search the web.
+    let web: WebInput = null
+    if (sales) {
+      try {
+        const t = webTools.find((x) => x.name === 'web_search')
+        if (!t) throw new Error('web_search is not registered')
+        web = webTrendFromSearch(String(await t.execute({ query: trendQuery(new Date()), count: 5 }, {} as never)))
+      } catch (err) {
+        web = { error: err instanceof Error ? err.message : String(err) }
+      }
+    }
+    const provider = buildProvider()
+    return buildBriefing({ reagent, monitor, sales, web }, async (prompt) => {
+      if (!provider) throw new Error('No API key is set up for the model.')
+      // Sales + web results made the prompt longer and Muse's hidden reasoning used up 8000 (measured: cut off).
+      const d = await provider.completeDetail([{ role: 'user', content: prompt }], MUSE.agent, 16000)
+      if (d.finishReason === 'length') throw new Error('The briefing was cut off.')
+      return d.text
+    })
   })
 
   // Excel export: recomputed from the session's folder + the month asked for; the path comes from a save dialog.
@@ -1152,9 +1251,29 @@ export function registerIpcHandlers(): void {
   // Voice MASUK saja: hasilnya mendarat di kotak chat untuk DIKOREKSI user,
   // tidak pernah dikirim otomatis. Lihat HANDOFF §10 no. 8.
 
+  // True when AIRA was started with Chromium's fake-microphone switches (a test launch): the mascot warns.
+  ipcMain.handle(IPC_CHANNELS.voiceTestMic, (): boolean => fakeMicActive((s) => app.commandLine.hasSwitch(s)))
+
   ipcMain.handle(IPC_CHANNELS.suaraTersedia, (): boolean => {
     wajibLogin()
     return suaraTersedia()
+  })
+
+  // AIRA's voice (ElevenLabs). Only the sentence crosses IPC; the key stays in main. Any failure returns an
+  // error and the renderer falls back to the Windows voice, so the mascot never goes silent.
+  ipcMain.handle(IPC_CHANNELS.speechSynthesize, async (_event, raw): Promise<HasilSuaraAira> => {
+    wajibLogin()
+    const text = z.string().trim().min(1).max(MAX_TTS_CHARS).safeParse(raw)
+    if (!text.success) return { error: 'Nothing to say (or the text is too long).' }
+    const tts = airaTts()
+    if (!tts) return { error: 'No ElevenLabs key is set up (ELEVENLABS_API_KEY in .env.local).' }
+    try {
+      return { audio: await tts(text.data) }
+    } catch (err) {
+      const message = explainTtsError(err)
+      logger().warn({ message }, 'ElevenLabs speech failed — Windows voice used')
+      return { error: message }
+    }
   })
 
   ipcMain.handle(IPC_CHANNELS.suaraTranskrip, async (_event, raw): Promise<HasilTranskripIpc> => {

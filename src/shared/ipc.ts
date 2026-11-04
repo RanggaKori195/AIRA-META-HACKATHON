@@ -1,5 +1,7 @@
 import type { Dashboard } from './dashboard'
 import type { KartuVisual } from './visual'
+import type { NumberCheck } from './number-check'
+import type { AgentAction } from './agent-actions'
 // Kontrak IPC — satu-satunya sumber kebenaran untuk komunikasi renderer <-> main.
 // Dipakai oleh main (validasi), preload (expose), dan renderer (typing).
 
@@ -98,6 +100,14 @@ export const IPC_CHANNELS = {
   reagentActions: 'reagent:actions',
   reagentSummary: 'reagent:summary',
   reagentExport: 'reagent:export',
+  /** Morning briefing: code facts (reagent + monitor), worded by Muse Wonder, number-checked. */
+  briefingGet: 'briefing:get',
+  /** Voice co-worker: the name AIRA calls the signed-in user, and one spoken request → one in-app action. */
+  agentNameGet: 'agent:nameGet',
+  agentNameSet: 'agent:nameSet',
+  agentRoute: 'agent:route',
+  /** True when started with Chromium's fake-microphone switches (a test launch) — the mascot shows a warning. */
+  voiceTestMic: 'agent:voiceTestMic',
   /** Keadaan sambungan OneDrive + folder utama — TIDAK PERNAH membuka login browser. */
   driveStatus: 'drive:status',
   /** Menu Pustaka: semua berkas hasil AIRA milik user (riwayat chat + galeri), termasuk yang hilang. */
@@ -143,6 +153,8 @@ export const IPC_CHANNELS = {
   suaraTersedia: 'suara:tersedia',
   /** WAV 16 kHz mono -> teks. Hasilnya masuk kotak chat untuk DIKOREKSI, tidak dikirim. */
   suaraTranskrip: 'suara:transkrip',
+  /** AIRA's voice: text → ElevenLabs mp3, made in main (the key never reaches the renderer). */
+  speechSynthesize: 'suara:bicara',
   // --- Chat antar pengguna ---------------------------------------------------
   // ⚠️ Semua handler mengambil "siapa saya" dari SESI main process, tidak pernah
   // dari argumen renderer. Lihat main/chat/service.ts.
@@ -540,6 +552,27 @@ export interface StatusPemicu {
   tidakDipantau: string[]
 }
 
+/** Voice co-worker: the one action Muse Spark (or the keyword fallback) picked, and what AIRA says before it. */
+export interface AgentRouteResult {
+  action: AgentAction
+  say: string
+  source: 'muse' | 'keywords' | 'fallback'
+}
+
+/** Morning briefing (src/main/briefing/briefing.ts). */
+export interface Briefing {
+  text: string
+  /** 'muse' = Muse Wonder's wording passed the number check; 'code' = written by code. */
+  source: 'muse' | 'code'
+  check: NumberCheck
+  /** Why the Muse wording was not used, when it was not (or which sentence was left out). */
+  note?: string
+  /** Links of the web search behind the trend sentence (You.com), shown on the card. */
+  sources?: { title: string; url: string }[]
+  /** Said when the web trend could not be fetched — never silently missing. */
+  trendNote?: string
+}
+
 export interface ItemRiwayatPemantau {
   id: number
   pemicu: PemicuId
@@ -864,6 +897,8 @@ export interface ChatMessage {
   dashboard?: Dashboard | null
   /** Kartu visual per hasil tool data — disusun kode, tanpa query tambahan. */
   visual?: KartuVisual[] | null
+  /** Number check of a Reagent Check answer — every number looked up in the turn's reagent results. */
+  numberCheck?: NumberCheck | null
 }
 
 export type ModelChoice = 'auto' | 'chat' | 'agent' | 'coder'
@@ -968,6 +1003,8 @@ export type ChatStreamEvent =
   | { type: 'dashboard'; messageId: string; sessionId: string; dashboard: Dashboard }
   /** Kartu visual jawaban (sebelum `done`). */
   | { type: 'visual'; messageId: string; sessionId: string; visual: KartuVisual[] }
+  /** Number check of a Reagent Check answer (before `done`). */
+  | { type: 'number_check'; messageId: string; sessionId: string; check: NumberCheck }
 
 export interface ApproveInput {
   requestId: string
@@ -1013,6 +1050,9 @@ export interface McpAddResult {
  * tampil polos membuat orang mengira kalimatnya sudah pasti benar, lalu
  * mengirim pertanyaan yang salah dengar dan menerima angka yang salah.
  */
+/** AIRA's spoken voice (ElevenLabs mp3), or why it could not be made — the renderer then uses the Windows voice. */
+export type HasilSuaraAira = { audio: Uint8Array } | { error: string }
+
 export interface HasilTranskripIpc {
   teks: string
   catatan: string

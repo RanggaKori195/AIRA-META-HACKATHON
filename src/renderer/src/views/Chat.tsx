@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type JSX } from 'react'
 import type { Attachment, ChatMessage, ChatMode, ModelChoice, StatusKoneksiSales, ToolActivity } from '@shared/ipc'
 import { DashboardJawaban } from '../components/DashboardJawaban'
 import { KartuVisual } from '../components/KartuVisual'
+import { NumberCheckStrip } from '../components/NumberMarks'
 import type { PendingApproval } from '../App'
 import Markdown from '../components/Markdown'
 import AttachBar, { useDropHandlers } from '../components/AttachBar'
@@ -330,6 +331,7 @@ export default function Chat({
                 {m.id === streamingId && <span className="cursor" />}
               </div>
             )}
+            {m.numberCheck && <NumberCheckStrip check={m.numberCheck} />}
             {m.dashboard?.jenis === 'sales' && <DashboardJawaban d={m.dashboard} onTanya={kirimLanjutan} onIsi={isiKotak} />}
             {/* Dashboard TAT & Master Data: bentuk kartu visual yang sama, diberi pita "Dashboard". */}
             {m.dashboard && m.dashboard.jenis !== 'sales' && (

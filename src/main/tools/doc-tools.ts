@@ -171,7 +171,7 @@ export function rapikanSheet(ws: ExcelJS.Worksheet): void {
 
   const header = ws.getRow(1)
   header.font = { name: FONT_DOKUMEN, bold: true, color: { argb: 'FFFFFFFF' }, size: 11 }
-  header.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2F6F3E' } }
+  header.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F5BB8' } }
   header.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true }
   header.height = 22
 

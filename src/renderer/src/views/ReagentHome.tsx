@@ -13,6 +13,9 @@ import ReagentView, { type ReagentTab } from '../components/reagent/ReagentView'
 import type { SummaryState } from '../components/reagent/ReorderPanel'
 import type { RecountState, RowPatch } from '../components/reagent/RecountPanel'
 import { useRecorder } from '../components/mascot/useRecorder'
+import { speakAgent } from '../components/mascot/voice'
+import { onAgent, takePending } from '../components/agent/bus'
+import type { ReagentStep } from '../../../shared/agent-actions'
 
 /** Same as the recorder limit elsewhere: a clip stops by itself after this many seconds. */
 const MAX_CLIP_SECONDS = 60
@@ -50,9 +53,17 @@ export default function ReagentHome({ onSubmit }: Props): JSX.Element {
     setMonth((m) => (s && m && s.months.includes(m) ? m : (s?.months[0] ?? null)))
   }, [])
 
+  const [statusLoaded, setStatusLoaded] = useState(false)
   useEffect(() => {
-    void window.aira.reagentStatus().then(applyStatus)
+    void window.aira.reagentStatus().then((s) => {
+      applyStatus(s)
+      setStatusLoaded(true)
+    })
   }, [applyStatus])
+
+  // Voice co-worker: a command sent while App was still switching to this screen, or while it is open.
+  const [agentCmd, setAgentCmd] = useState<{ step: ReagentStep } | null>(() => takePending('reagent'))
+  useEffect(() => onAgent('reagent', (c) => setAgentCmd(c)), [])
 
   const run = useCallback(async () => {
     setRunning(true)
@@ -200,7 +211,7 @@ export default function ReagentHome({ onSubmit }: Props): JSX.Element {
     setSummary({ loading: true })
     try {
       const r = await window.aira.reagentSummary(shownMonth)
-      setSummary('error' in r ? { error: r.error, loading: false } : { text: r.text, loading: false })
+      setSummary('error' in r ? { error: r.error, loading: false } : { text: r.text, check: r.check, loading: false })
     } catch (e) {
       setSummary({ error: e instanceof Error ? e.message : String(e), loading: false })
     }
@@ -215,6 +226,23 @@ export default function ReagentHome({ onSubmit }: Props): JSX.Element {
       setExportNote(e instanceof Error ? e.message : String(e))
     }
   }, [shownMonth, recount.rows])
+
+  // Carried out once the folder status is known: the same buttons the user would press, in the same order.
+  useEffect(() => {
+    if (!agentCmd || !statusLoaded) return
+    const { step } = agentCmd
+    setAgentCmd(null)
+    void (async () => {
+      if (!status?.folder) {
+        await speakAgent('Choose the reagent folder first.')
+        return
+      }
+      if (step === 'run' || !result || 'error' in result) await run()
+      if (step === 'reorder' || step === 'summary') setTab('reorder')
+      if (step === 'recount') setTab('recount')
+      if (step === 'summary') void draftSummary()
+    })()
+  }, [agentCmd, statusLoaded, status, result, run, draftSummary])
 
   const ask = useCallback((f: Finding) => {
     // Fills the box only — the user sends it (same rule as the other screens' example cards).

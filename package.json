@@ -33,6 +33,7 @@
     "scrub:public": "tsx scripts/scrub-check.ts --public"
   },
   "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.75.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@vscode/tree-sitter-wasm": "^0.3.1",
     "better-sqlite3": "^12.2.0",

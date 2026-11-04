@@ -58,14 +58,14 @@ export function showSplash(): void {
   }
   img { width:230px; animation:rise .6s ease-out; }
   @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
-  .bar { width:190px; height:4px; border-radius:2px; background:#e6e3da; overflow:hidden; }
-  .bar i { display:block; width:40%; height:100%; border-radius:2px; background:linear-gradient(90deg,#7ac143,#1f3b34); animation:slide 1.15s ease-in-out infinite; }
+  .bar { width:190px; height:4px; border-radius:2px; background:#e3eaf4; overflow:hidden; }
+  .bar i { display:block; width:40%; height:100%; border-radius:2px; background:linear-gradient(90deg,#38b6f0,#1f5bb8); animation:slide 1.15s ease-in-out infinite; }
   @keyframes slide { 0% { transform:translateX(-110%); } 100% { transform:translateX(360%); } }
   p { font-size:12px; letter-spacing:.4px; color:#6d6a62; }
 </style></head><body>
   <img src="${logoDataUrl()}" alt="AIRA" />
   <div class="bar"><i></i></div>
-  <p>Menyiapkan asisten…</p>
+  <p>Getting AIRA ready…</p>
 </body></html>`
 
   void splash.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`)

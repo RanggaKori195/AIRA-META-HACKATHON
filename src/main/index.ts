@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, Menu, shell } from 'electron'
 import { join } from 'path'
+import { fakeMicActive } from '../shared/test-mic'
 import { initDb, jumlahSesiTanpaPemilik } from './db'
 import { registerIpcHandlers } from './ipc'
 import { triggerAutoIndex } from './rag/auto'
@@ -204,6 +205,8 @@ function applyBundledCredentials(): void {
 app.setAppUserModelId('ai.aira.hackathon')
 
 app.whenReady().then(() => {
+  // A test launch left running hears a recording instead of the user — say so in the log (the mascot shows it too).
+  if (fakeMicActive((s) => app.commandLine.hasSwitch(s))) logger().warn('fake microphone switch is on — voice turns hear a test recording')
   // Hackathon build: refuse to run at all if ANY database variable points off this machine —
   // before a pool, a migration or a window exists (pools also check, but only when first used).
   const nonLocal = checkLocalDbs({

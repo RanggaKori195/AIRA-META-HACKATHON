@@ -1,4 +1,5 @@
 // Reagent Check types shared by main (engine, tools, IPC) and renderer (screen).
+import type { NumberCheck } from './number-check'
 
 export type FindingType =
   | 'wrong_item_code'
@@ -205,7 +206,8 @@ export interface ReagentActions {
   recount: RecountItem[]
 }
 export type ReagentActionsResult = ReagentActions | { error: string }
-export type ReagentSummaryResult = { text: string } | { error: string }
+/** `check`: every number in the draft looked up in the facts the model was given (src/shared/number-check.ts). */
+export type ReagentSummaryResult = { text: string; check: NumberCheck } | { error: string }
 export type ReagentExportResult = { path: string } | { cancelled: true } | { error: string }
 
 export interface ReagentStatus {

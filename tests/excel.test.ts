@@ -24,11 +24,11 @@ describe('header', () => {
     ['RS Brawijaya', 890_123]
   ])
 
-  test('tebal, putih, berlatar hijau the lab', () => {
+  test('tebal, putih, berlatar biru tema aplikasi', () => {
     const h = ws.getRow(1)
     assert.equal(h.font?.bold, true)
     assert.equal((h.font?.color as { argb?: string })?.argb, 'FFFFFFFF')
-    assert.equal((h.fill as ExcelJS.FillPattern)?.fgColor?.argb, 'FF2F6F3E')
+    assert.equal((h.fill as ExcelJS.FillPattern)?.fgColor?.argb, 'FF1F5BB8')
   })
 
   test('dibekukan supaya tetap terlihat saat digulir', () => {

@@ -7,9 +7,9 @@ interface Props {
 }
 
 const OPTIONS: Array<{ value: ModelChoice; label: string; title: string }> = [
-  { value: 'auto', label: 'Auto', title: 'Picks the model for each request automatically' },
+  { value: 'agent', label: 'Smart (Muse Wonder)', title: 'Deep reasoning for multi-step tasks (default)' },
+  { value: 'auto', label: 'Auto', title: 'Muse Spark for plain questions, Muse Wonder when work is needed' },
   { value: 'chat', label: 'Fast (Muse Spark)', title: 'Quick answers for everyday questions' },
-  { value: 'agent', label: 'Smart (Muse Wonder)', title: 'Deep reasoning for multi-step tasks' },
   { value: 'coder', label: 'Coding (Muse Wonder)', title: 'Writing and editing code' }
 ]
 

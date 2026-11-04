@@ -5,8 +5,8 @@
 // terbaca di kertas: kontras cukup, tabel bergaris tipis, dan yang paling
 // menentukan — TIDAK ADA baris atau judul yang terpotong di pergantian halaman.
 
-/** Hijau the lab, sama dengan tema aplikasi. */
-const AKSEN = '#2f6f3e'
+/** Biru tema aplikasi (`--accent` di tampilan.css). */
+const AKSEN = '#1f5bb8'
 
 export interface OpsiGaya {
   /** Judul dokumen; tampil di halaman pertama. */

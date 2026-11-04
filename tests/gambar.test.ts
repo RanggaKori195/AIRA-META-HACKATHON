@@ -169,6 +169,7 @@ describe('merek: yang dilihat user selalu "AIRA", tidak pernah nama model', () =
     const { join } = await import('path')
     for (const f of [
       '../src/renderer/src/views/Gambar.tsx',
+      '../src/renderer/src/views/gambar-gaya.ts',
       '../src/renderer/src/App.tsx',
       '../src/main/tools/gambar-tools.ts',
       '../src/main/tools/doc-tools.ts',

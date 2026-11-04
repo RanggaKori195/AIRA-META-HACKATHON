@@ -3,7 +3,8 @@
 // a stub in the tests).
 import { REORDER_STATUS_LABEL, type ReagentActions } from '../../shared/reagent'
 
-export async function draftSummary(a: ReagentActions, complete: (prompt: string) => Promise<string>): Promise<string> {
+/** The facts the model is given — the number check (`checkNumbers`) looks every number up in the same list. */
+export function summaryFacts(a: ReagentActions): string[] {
   const facts: string[] = []
   for (const i of a.investigation) facts.push(`- Finding: ${i.headline}.`)
   for (const l of a.reorder.filter((x) => x.status === 'order_now' || x.status === 'order_soon')) {
@@ -15,6 +16,11 @@ export async function draftSummary(a: ReagentActions, complete: (prompt: string)
   }
   for (const e of a.excluded) facts.push(`- Not computed — ${e.itemName}: ${e.reason}.`)
   if (facts.length === 0) facts.push('- No findings and nothing to order this month.')
+  return facts
+}
+
+export async function draftSummary(a: ReagentActions, complete: (prompt: string) => Promise<string>): Promise<string> {
+  const facts = summaryFacts(a)
   const prompt =
     `You are AIRA, an AI lab assistant. Write at most 5 short sentences in plain English for the lab team, ` +
     `summarising the reagent check for ${a.month}: what looks wrong, what to order now, and what to investigate first.\n` +

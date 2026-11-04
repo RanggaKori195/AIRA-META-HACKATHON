@@ -1,7 +1,7 @@
 import { test, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'fs'
-import { MUSE, META_ENDPOINT, migrateModelId } from '../src/main/hackathon/models'
+import { MUSE, META_ENDPOINT, migrateModelId, migrateRawModels } from '../src/main/hackathon/models'
 import { ConfigSchema } from '../src/main/config'
 
 const src = (p: string): string => readFileSync(p, 'utf8')
@@ -61,5 +61,41 @@ describe('Muse model ids by role', () => {
     for (const label of ["'Auto'", "'Fast (Muse Spark)'", "'Smart (Muse Wonder)'", "'Coding (Muse Wonder)'"]) {
       assert.ok(s.includes(`label: ${label}`), label)
     }
+  })
+})
+
+describe('Muse Wonder is the default model', () => {
+  test('a fresh config answers with Muse Wonder, not Auto', () => {
+    const c = ConfigSchema.parse({})
+    assert.equal(c.modelChoice, 'agent')
+    assert.equal(c.modelId, MUSE.agent)
+  })
+
+  test('a saved Auto from before this change moves to Muse Wonder once', () => {
+    const out = migrateRawModels({ modelChoice: 'auto' }) as Record<string, unknown>
+    assert.equal(out.modelChoice, 'agent')
+    assert.equal(out.wonderDefault, true)
+    // The flag survives the schema, so the move happens once.
+    assert.equal(ConfigSchema.parse(out).wonderDefault, true)
+  })
+
+  test('Auto chosen after the move is kept', () => {
+    const out = migrateRawModels({ modelChoice: 'auto', wonderDefault: true }) as Record<string, unknown>
+    assert.equal(out.modelChoice, 'auto')
+  })
+
+  test('an explicit Fast or Coding choice is never overwritten', () => {
+    for (const choice of ['chat', 'coder']) {
+      assert.equal((migrateRawModels({ modelChoice: choice }) as Record<string, unknown>).modelChoice, choice)
+    }
+  })
+
+  test('the screen starts on Muse Wonder before the saved choice loads', () => {
+    assert.match(src('src/renderer/src/App.tsx'), /useState<ModelChoice>\('agent'\)/)
+  })
+
+  test('the picker lists Muse Wonder first', () => {
+    const picker = src('src/renderer/src/components/ModelPicker.tsx')
+    assert.ok(picker.indexOf("value: 'agent'") < picker.indexOf("value: 'auto'"), 'Wonder is not the first option')
   })
 })

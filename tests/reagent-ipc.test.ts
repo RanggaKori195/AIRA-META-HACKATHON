@@ -96,3 +96,11 @@ describe('AI draft summary budget', () => {
     assert.ok(Number(m![1]) >= 8000, `budget ${m![1]}`)
   })
 })
+
+describe('AI draft summary number check', () => {
+  test('the summary is checked in code against the same facts the model was given', () => {
+    const h = handler(src('src/main/ipc.ts'), 'reagentSummary')
+    assert.match(h, /checkNumbers\(\s*text,\s*summaryFacts\(a\)\s*\)/)
+    assert.match(h, /return \{ text, check \}/)
+  })
+})

@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import ReagentView, { type ReagentViewProps } from '../src/renderer/src/components/reagent/ReagentView'
 import { TYPE_LABEL, fmtRatio } from '../src/renderer/src/components/reagent/bantu'
 import { FINDING_TYPES, type Finding, type Summary } from '../src/shared/reagent'
+import { checkNumbers } from '../src/shared/number-check'
 
 ;(globalThis as { React?: unknown }).React = React
 const src = (p: string): string => readFileSync(p, 'utf8')
@@ -230,5 +231,25 @@ describe('recorder is released when the month or folder changes', () => {
     assert.match(reset, /clearTimeout\(clipTimer\.current\)/)
     assert.match(h.slice(h.indexOf('const chooseFolder')), /resetRecount\(\)/)
     assert.match(h.slice(h.indexOf('onMonth=')), /resetRecount\(\)/)
+  })
+})
+
+describe('number check on the AI draft summary', () => {
+  const actions = { month: '2026-10', reorder: [], excluded: [], investigation: [], recount: [] }
+  test('matched numbers point at their fact, an invented one is marked, the text stays whole', () => {
+    const text = 'Order 4 boxes of KRAS now and 12 boxes of LBC.'
+    const check = checkNumbers(text, ['- Order now — KRAS Mutation Kit: order 4 box.'])
+    const html = view({ tab: 'reorder', actions, summary: { text, check, loading: false } })
+    assert.match(html, /class="num-ok"[^>]*title="From the data: - Order now — KRAS Mutation Kit: order 4 box\."[^>]*>4</)
+    assert.match(html, /class="num-warn"[^>]*title="Not in the reagent data"[^>]*>⚠ ?12</)
+    assert.match(html, /1 of 2 numbers match the reagent data/)
+    assert.match(html, /boxes of LBC\./)
+  })
+
+  test('a summary with every number matched says so', () => {
+    const text = 'Order 4 boxes.'
+    const html = view({ tab: 'reorder', actions, summary: { text, check: checkNumbers(text, ['order 4 box']), loading: false } })
+    assert.match(html, /All 1 number matches the reagent data/)
+    assert.doesNotMatch(html, /num-warn/)
   })
 })
