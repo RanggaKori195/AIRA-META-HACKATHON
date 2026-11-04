@@ -5,7 +5,7 @@
   "scripts": {
     "test": "tsx --test tests/*.test.ts",
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts AiraDemo out/AIRA-demo-90s.mp4 --codec h264",
+    "render": "remotion render src/index.ts AiraTutorial out/AIRA-tutorial-3min.mp4 --codec h264",
     "voices": "node --env-file=../.env.local --import tsx scripts/voices.ts",
     "prepare_take": "node --env-file=../.env.local --import tsx scripts/prepare.ts"
   },

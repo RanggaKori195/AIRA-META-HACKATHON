@@ -4,6 +4,7 @@
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js'
 import { MODEL, wordsFromCharacters, writeTimeline, type ScriptLine, type VoiceClient } from '../src/voice-core'
 import { NARRATION, USER_TURNS } from '../src/lines'
+import { TUTORIAL_LINES } from '../src/tutorial-lines'
 
 const reason = (e: unknown): string => {
   const x = e as { statusCode?: number; message?: string }
@@ -32,7 +33,8 @@ async function main(): Promise<void> {
   }
   const lines: ScriptLine[] = [
     ...USER_TURNS.map((u) => ({ id: `user-${u.id}`, speaker: 'user' as const, text: u.text })),
-    ...NARRATION.map((n) => ({ id: `narrator-${n.id}`, speaker: 'narrator' as const, text: n.text }))
+    ...NARRATION.map((n) => ({ id: `narrator-${n.id}`, speaker: 'narrator' as const, text: n.text })),
+    ...TUTORIAL_LINES.map((n) => ({ id: n.id, speaker: 'narrator' as const, text: n.text }))
   ]
   const out = await writeTimeline(lines, client, 'public', 'src/voices.json', { force: process.argv.includes('--force') })
   for (const l of out) console.log(`${l.id.padEnd(18)} ${l.duration.toFixed(2)} s  ${l.words.length} words`)

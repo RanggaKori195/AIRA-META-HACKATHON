@@ -5,13 +5,17 @@
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js'
 import { execFileSync } from 'child_process'
 import { createHash } from 'crypto'
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { concatList } from '../src/concat'
 import { clipWords, takeProblems, trimClips } from '../src/harness-queue'
 import type { Clip, Take } from '../src/take'
 
-const TAKE = 'rec/take'
+// TAKE_NAME=tour prepares rec/tour → public/rec/tour.mp4 + src/tour.json (the voice take is the default).
+const NAME = process.env.TAKE_NAME ?? 'take'
+const TAKE = `rec/${NAME}`
+const MP4 = NAME === 'take' ? 'public/rec/demo.mp4' : `public/rec/${NAME}.mp4`
+const JSON_OUT = `src/${NAME}.json`
 const BIN = 'node_modules/@remotion/compositor-win32-x64-msvc'
 type Ev = { t: number; kind: string; name?: string; id?: number | string; file?: string }
 
@@ -29,8 +33,12 @@ async function main(): Promise<void> {
 
   // 1. Frames → constant 30 fps H.264.
   writeFileSync(join(TAKE, 'frames', 'list.txt'), concatList(frames, endedAt))
-  execFileSync(join(BIN, 'ffmpeg.exe'), ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', join(TAKE, 'frames', 'list.txt'), '-fps_mode', 'cfr', '-r', '30', '-pix_fmt', 'yuv420p', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium', '-bf', '0', '-g', '30', '-movflags', '+faststart', 'public/rec/demo.mp4'])
-  console.log(`demo.mp4: ${probe('public/rec/demo.mp4').toFixed(2)} s (take ${((endedAt - t0) / 1000).toFixed(2)} s, ${frames.length} frames)`)
+  execFileSync(join(BIN, 'ffmpeg.exe'), ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', join(TAKE, 'frames', 'list.txt'), '-fps_mode', 'cfr', '-r', '30', '-pix_fmt', 'yuv420p', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium', '-bf', '0', '-g', '30', '-movflags', '+faststart', `${MP4}.tmp.mp4`])
+  // A second, plain transcode gives evenly spaced timestamps: Remotion's frame lookup failed ("No frame found at
+  // position …") on the concat-built file during a full render, and stills alone did not show it.
+  execFileSync(join(BIN, 'ffmpeg.exe'), ['-v', 'error', '-y', '-i', `${MP4}.tmp.mp4`, '-an', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-r', '30', '-bf', '0', '-g', '15', '-video_track_timescale', '30000', '-movflags', '+faststart', MP4])
+  rmSync(`${MP4}.tmp.mp4`)
+  console.log(`${MP4}: ${probe(MP4).toFixed(2)} s (take ${((endedAt - t0) / 1000).toFixed(2)} s, ${frames.length} frames)`)
 
   // 2. AIRA's audio exactly as the app played it, trimmed where the app stopped it; words from speech-to-text.
   const el = new ElevenLabsClient()
@@ -77,8 +85,8 @@ async function main(): Promise<void> {
     clips: [...aira, ...user].sort((a, b) => a.at - b.at),
     events: events.filter((e) => e.kind === 'event').map((e) => ({ name: e.name!, at: Math.max(0, sec(e.t)) }))
   }
-  writeFileSync('src/take.json', JSON.stringify(take, null, 1))
-  console.log(`take.json: ${take.duration.toFixed(1)} s, ${take.clips.length} clips, ${take.events.length} events (recording started ${((t0 - startedAt) / 1000).toFixed(2)} s after the take began)`)
+  writeFileSync(JSON_OUT, JSON.stringify(take, null, 1))
+  console.log(`${JSON_OUT}: ${take.duration.toFixed(1)} s, ${take.clips.length} clips, ${take.events.length} events (recording started ${((t0 - startedAt) / 1000).toFixed(2)} s after the take began)`)
 }
 
 main().catch((e) => {

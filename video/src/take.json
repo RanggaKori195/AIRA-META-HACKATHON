@@ -1,368 +1,348 @@
 {
- "duration": 145.978,
+ "duration": 266.788,
  "clips": [
   {
    "who": "aira",
    "file": "rec/aira-1.mp3",
-   "at": 26.62,
-   "duration": 30.851,
+   "at": 108.64,
+   "duration": 34.821,
    "words": [
     {
      "text": "Good",
-     "start": 0.1,
+     "start": 0.08,
      "end": 0.2
     },
     {
-     "text": "afternoon,",
-     "start": 0.28,
-     "end": 0.68
+     "text": "evening,",
+     "start": 0.26,
+     "end": 0.52
     },
     {
      "text": "Ranga.",
-     "start": 0.76,
-     "end": 1.1
+     "start": 0.6,
+     "end": 0.96
     },
     {
-     "text": "Order",
-     "start": 1.76,
-     "end": 1.94
-    },
-    {
-     "text": "now",
-     "start": 2.04,
-     "end": 2.38
-    },
-    {
-     "text": "two",
-     "start": 2.46,
-     "end": 2.6
-    },
-    {
-     "text": "boxes",
-     "start": 2.7,
-     "end": 3.22
-    },
-    {
-     "text": "of",
-     "start": 3.28,
-     "end": 3.46
-    },
-    {
-     "text": "Thin",
-     "start": 3.48,
-     "end": 3.66
-    },
-    {
-     "text": "Prep",
-     "start": 3.76,
-     "end": 3.98
-    },
-    {
-     "text": "PreserveSite",
-     "start": 4.04,
-     "end": 4.68
-    },
-    {
-     "text": "Vial",
-     "start": 4.76,
-     "end": 5.1
-    },
-    {
-     "text": "and",
-     "start": 5.3,
-     "end": 5.4
-    },
-    {
-     "text": "four",
-     "start": 5.56,
-     "end": 5.72
-    },
-    {
-     "text": "boxes",
-     "start": 5.82,
-     "end": 6.34
-    },
-    {
-     "text": "of",
-     "start": 6.4,
-     "end": 6.54
-    },
-    {
-     "text": "KRAS",
-     "start": 6.6,
-     "end": 7.52
-    },
-    {
-     "text": "Mutation",
-     "start": 7.6,
-     "end": 8.1
-    },
-    {
-     "text": "Kit.",
-     "start": 8.18,
-     "end": 8.44
-    },
-    {
-     "text": "Order",
-     "start": 9.1,
-     "end": 9.3
-    },
-    {
-     "text": "soon",
-     "start": 9.44,
-     "end": 9.76
-    },
-    {
-     "text": "one",
-     "start": 10.08,
-     "end": 10.26
-    },
-    {
-     "text": "box",
-     "start": 10.34,
-     "end": 10.64
-    },
-    {
-     "text": "of",
-     "start": 10.68,
-     "end": 10.76
-    },
-    {
-     "text": "DNA",
-     "start": 10.88,
-     "end": 11.26
-    },
-    {
-     "text": "Extraction",
-     "start": 11.3,
-     "end": 11.88
-    },
-    {
-     "text": "Kit,",
-     "start": 11.96,
-     "end": 12.18
-    },
-    {
-     "text": "one",
-     "start": 12.68,
-     "end": 12.8
-    },
-    {
-     "text": "box",
-     "start": 12.88,
-     "end": 13.18
-    },
-    {
-     "text": "of",
-     "start": 13.24,
-     "end": 13.32
-    },
-    {
-     "text": "EGFR",
-     "start": 13.48,
-     "end": 14.12
-    },
-    {
-     "text": "Mutation",
-     "start": 14.2,
-     "end": 14.68
-    },
-    {
-     "text": "Kit,",
-     "start": 14.76,
-     "end": 14.98
-    },
-    {
-     "text": "and",
-     "start": 15.4,
-     "end": 15.5
-    },
-    {
-     "text": "one",
-     "start": 15.62,
-     "end": 15.78
-    },
-    {
-     "text": "box",
-     "start": 15.86,
-     "end": 16.16
-    },
-    {
-     "text": "of",
-     "start": 16.219,
-     "end": 16.379
-    },
-    {
-     "text": "HPV",
-     "start": 16.58,
-     "end": 17.1
-    },
-    {
-     "text": "DNA",
-     "start": 17.24,
-     "end": 17.7
-    },
-    {
-     "text": "High",
-     "start": 17.82,
-     "end": 17.98
-    },
-    {
-     "text": "Risk",
-     "start": 18.1,
-     "end": 18.36
-    },
-    {
-     "text": "Kit.",
-     "start": 18.48,
-     "end": 18.74
-    },
-    {
-     "text": "The",
-     "start": 19.4,
-     "end": 19.48
-    },
-    {
-     "text": "2026-10",
-     "start": 19.64,
-     "end": 21.04
-    },
-    {
-     "text": "reagent",
-     "start": 21.1,
-     "end": 21.58
-    },
-    {
-     "text": "check",
-     "start": 21.62,
-     "end": 21.9
-    },
-    {
-     "text": "has",
-     "start": 21.96,
-     "end": 22.2
-    },
-    {
-     "text": "four",
-     "start": 22.28,
-     "end": 22.56
-    },
-    {
-     "text": "findings",
-     "start": 22.6,
-     "end": 23.02
-    },
-    {
-     "text": "to",
-     "start": 23.06,
-     "end": 23.14
-    },
-    {
-     "text": "investigate",
-     "start": 23.16,
-     "end": 23.8
-    },
-    {
-     "text": "and",
-     "start": 24.24,
-     "end": 24.34
-    },
-    {
-     "text": "forty-nine",
-     "start": 24.5,
-     "end": 25.02
-    },
-    {
-     "text": "samples",
-     "start": 25.14,
-     "end": 25.54
+     "text": "Sales",
+     "start": 1.58,
+     "end": 1.84
     },
     {
      "text": "are",
-     "start": 25.58,
-     "end": 25.7
+     "start": 1.88,
+     "end": 1.98
     },
     {
-     "text": "currently",
-     "start": 25.76,
-     "end": 26.16
+     "text": "down",
+     "start": 2.02,
+     "end": 2.26
     },
     {
-     "text": "late,",
-     "start": 26.22,
-     "end": 26.5
+     "text": "seventeen",
+     "start": 2.44,
+     "end": 2.9
+    },
+    {
+     "text": "point",
+     "start": 3,
+     "end": 3.26
+    },
+    {
+     "text": "two",
+     "start": 3.34,
+     "end": 3.46
+    },
+    {
+     "text": "percent",
+     "start": 3.56,
+     "end": 4.04
     },
     {
      "text": "with",
-     "start": 26.8,
-     "end": 26.96
+     "start": 4.24,
+     "end": 4.38
     },
     {
-     "text": "twenty-one",
-     "start": 27.04,
-     "end": 27.54
+     "text": "four",
+     "start": 4.44,
+     "end": 4.6
     },
     {
-     "text": "new",
-     "start": 27.68,
-     "end": 27.94
+     "text": "hundred",
+     "start": 4.64,
+     "end": 4.88
     },
     {
-     "text": "since",
-     "start": 28.04,
-     "end": 28.24
+     "text": "fifty-three",
+     "start": 4.98,
+     "end": 5.72
     },
     {
-     "text": "the",
-     "start": 28.28,
-     "end": 28.36
+     "text": "versus",
+     "start": 5.9,
+     "end": 6.22
     },
     {
-     "text": "previous",
-     "start": 28.38,
-     "end": 28.8
+     "text": "five",
+     "start": 6.34,
+     "end": 6.56
     },
     {
-     "text": "check.",
-     "start": 28.84,
-     "end": 29.12
+     "text": "hundred",
+     "start": 6.58,
+     "end": 6.78
     },
     {
-     "text": "What",
-     "start": 29.74,
-     "end": 29.82
+     "text": "twenty-three",
+     "start": 6.92,
+     "end": 7.42
     },
     {
-     "text": "can",
-     "start": 29.86,
-     "end": 29.96
+     "text": "orders.",
+     "start": 7.56,
+     "end": 7.98
     },
     {
-     "text": "I",
-     "start": 30.04,
-     "end": 30.04
+     "text": "JAK2",
+     "start": 8.62,
+     "end": 9.66
     },
     {
-     "text": "help",
-     "start": 30.08,
-     "end": 30.26
+     "text": "V617,",
+     "start": 9.72,
+     "end": 10.86
     },
     {
-     "text": "you",
-     "start": 30.3,
-     "end": 30.36
+     "text": "F",
+     "start": 11.22,
+     "end": 11.36
     },
     {
-     "text": "with?",
-     "start": 30.42,
-     "end": 30.66
+     "text": "and",
+     "start": 11.48,
+     "end": 11.58
+    },
+    {
+     "text": "NGS",
+     "start": 11.76,
+     "end": 12.24
+    },
+    {
+     "text": "solid",
+     "start": 12.32,
+     "end": 12.64
+    },
+    {
+     "text": "tumor",
+     "start": 12.7,
+     "end": 12.92
+    },
+    {
+     "text": "panel",
+     "start": 13.02,
+     "end": 13.28
+    },
+    {
+     "text": "rising,",
+     "start": 13.4,
+     "end": 13.86
+    },
+    {
+     "text": "Nutrigenomics",
+     "start": 14.36,
+     "end": 15.12
+    },
+    {
+     "text": "panel",
+     "start": 15.2,
+     "end": 15.5
+    },
+    {
+     "text": "and",
+     "start": 15.7,
+     "end": 15.8
+    },
+    {
+     "text": "KRAS",
+     "start": 15.92,
+     "end": 16.66
+    },
+    {
+     "text": "mutation",
+     "start": 16.7,
+     "end": 17.3
+    },
+    {
+     "text": "falling.",
+     "start": 17.48,
+     "end": 17.92
+    },
+    {
+     "text": "Order",
+     "start": 18.52,
+     "end": 18.72
+    },
+    {
+     "text": "now",
+     "start": 18.82,
+     "end": 19.22
+    },
+    {
+     "text": "two",
+     "start": 19.3,
+     "end": 19.42
+    },
+    {
+     "text": "boxes",
+     "start": 19.52,
+     "end": 19.96
+    },
+    {
+     "text": "Thin",
+     "start": 20.1,
+     "end": 20.26
+    },
+    {
+     "text": "Prep",
+     "start": 20.36,
+     "end": 20.52
+    },
+    {
+     "text": "PreserveSite",
+     "start": 20.64,
+     "end": 21.28
+    },
+    {
+     "text": "Vial",
+     "start": 21.36,
+     "end": 21.68
+    },
+    {
+     "text": "and",
+     "start": 21.86,
+     "end": 21.98
+    },
+    {
+     "text": "four",
+     "start": 22.14,
+     "end": 22.3
+    },
+    {
+     "text": "boxes",
+     "start": 22.38,
+     "end": 22.84
+    },
+    {
+     "text": "KRAS",
+     "start": 22.96,
+     "end": 23.68
+    },
+    {
+     "text": "Mutation",
+     "start": 23.76,
+     "end": 24.24
+    },
+    {
+     "text": "Kit.",
+     "start": 24.34,
+     "end": 24.58
+    },
+    {
+     "text": "Order",
+     "start": 25.14,
+     "end": 25.36
+    },
+    {
+     "text": "soon",
+     "start": 25.52,
+     "end": 25.82
+    },
+    {
+     "text": "one",
+     "start": 26.14,
+     "end": 26.26
+    },
+    {
+     "text": "box",
+     "start": 26.34,
+     "end": 26.64
+    },
+    {
+     "text": "DNA",
+     "start": 26.76,
+     "end": 27.12
+    },
+    {
+     "text": "Extraction,",
+     "start": 27.18,
+     "end": 27.84
+    },
+    {
+     "text": "EGFR",
+     "start": 28.12,
+     "end": 28.7
+    },
+    {
+     "text": "Mutation,",
+     "start": 28.78,
+     "end": 29.34
+    },
+    {
+     "text": "HPV",
+     "start": 29.92,
+     "end": 30.38
+    },
+    {
+     "text": "DNA",
+     "start": 30.5,
+     "end": 30.92
+    },
+    {
+     "text": "High",
+     "start": 31.04,
+     "end": 31.2
+    },
+    {
+     "text": "Risk",
+     "start": 31.3,
+     "end": 31.5
+    },
+    {
+     "text": "Kits,",
+     "start": 31.6,
+     "end": 31.9
+    },
+    {
+     "text": "and",
+     "start": 32.28,
+     "end": 32.38
+    },
+    {
+     "text": "investigate",
+     "start": 32.439,
+     "end": 33.06
+    },
+    {
+     "text": "four",
+     "start": 33.22,
+     "end": 33.42
+    },
+    {
+     "text": "reagent",
+     "start": 33.54,
+     "end": 33.96
+    },
+    {
+     "text": "findings.",
+     "start": 34.06,
+     "end": 34.58
     }
    ]
   },
   {
    "who": "user",
    "file": "voice/9c03cce579cea417.mp3",
-   "at": 57.915,
+   "at": 143.882,
    "duration": 2.23,
    "words": [
     {
@@ -405,55 +385,55 @@
   {
    "who": "aira",
    "file": "rec/aira-2.mp3",
-   "at": 73.041,
-   "duration": 3.474,
+   "at": 160.876,
+   "duration": 3.318,
    "words": [
     {
      "text": "Opening",
-     "start": 0.1,
-     "end": 0.44
+     "start": 0.08,
+     "end": 0.4
     },
     {
      "text": "reagent",
-     "start": 0.54,
-     "end": 0.96
+     "start": 0.5,
+     "end": 0.9
     },
     {
      "text": "check",
-     "start": 1.06,
-     "end": 1.38
+     "start": 1,
+     "end": 1.3
     },
     {
      "text": "and",
-     "start": 1.6,
-     "end": 1.8
+     "start": 1.52,
+     "end": 1.72
     },
     {
      "text": "running",
-     "start": 1.98,
-     "end": 2.3
+     "start": 1.86,
+     "end": 2.14
     },
     {
      "text": "this",
-     "start": 2.36,
-     "end": 2.54
+     "start": 2.2,
+     "end": 2.38
     },
     {
      "text": "month's",
-     "start": 2.58,
-     "end": 2.88
+     "start": 2.42,
+     "end": 2.74
     },
     {
      "text": "check",
-     "start": 2.94,
-     "end": 3.26
+     "start": 2.78,
+     "end": 3.12
     }
    ]
   },
   {
    "who": "user",
    "file": "voice/286055af9add4f0f.mp3",
-   "at": 78.702,
+   "at": 166.572,
    "duration": 2.15,
    "words": [
     {
@@ -481,32 +461,32 @@
   {
    "who": "aira",
    "file": "rec/aira-3.mp3",
-   "at": 93.429,
+   "at": 182.266,
    "duration": 3.161,
    "words": [
     {
      "text": "Opening",
-     "start": 0.1,
-     "end": 0.44
+     "start": 0.08,
+     "end": 0.42
     },
     {
      "text": "reagent",
-     "start": 0.54,
-     "end": 0.98
+     "start": 0.52,
+     "end": 1
     },
     {
      "text": "check",
-     "start": 1.08,
+     "start": 1.06,
      "end": 1.38
     },
     {
      "text": "and",
      "start": 1.58,
-     "end": 1.72
+     "end": 1.7
     },
     {
      "text": "drafting",
-     "start": 1.82,
+     "start": 1.8,
      "end": 2.26
     },
     {
@@ -516,15 +496,15 @@
     },
     {
      "text": "summary",
-     "start": 2.44,
-     "end": 2.9
+     "start": 2.46,
+     "end": 2.92
     }
    ]
   },
   {
    "who": "user",
    "file": "voice/fa3b358f5613a281.mp3",
-   "at": 113.979,
+   "at": 198.221,
    "duration": 1.91,
    "words": [
     {
@@ -557,53 +537,326 @@
   {
    "who": "aira",
    "file": "rec/aira-4.mp3",
-   "at": 127.803,
+   "at": 212.215,
    "duration": 3.971,
    "words": [
     {
      "text": "Asking",
-     "start": 0.18,
-     "end": 0.56
+     "start": 0.1,
+     "end": 0.48
     },
     {
      "text": "Ask",
      "start": 0.72,
-     "end": 1
+     "end": 0.96
     },
     {
      "text": "Sales",
-     "start": 1.08,
-     "end": 1.4
+     "start": 1.04,
+     "end": 1.36
     },
     {
-     "text": "data",
-     "start": 1.46,
+     "text": "data,",
+     "start": 1.44,
      "end": 1.78
     },
     {
      "text": "what",
-     "start": 2.44,
-     "end": 2.58
+     "start": 2.38,
+     "end": 2.5
     },
     {
      "text": "were",
-     "start": 2.6,
-     "end": 2.78
+     "start": 2.54,
+     "end": 2.7
     },
     {
      "text": "sales",
-     "start": 2.84,
-     "end": 3.16
+     "start": 2.76,
+     "end": 3.06
     },
     {
      "text": "last",
-     "start": 3.2,
-     "end": 3.42
+     "start": 3.1,
+     "end": 3.3
     },
     {
      "text": "month?",
-     "start": 3.48,
-     "end": 3.74
+     "start": 3.38,
+     "end": 3.66
+    }
+   ]
+  },
+  {
+   "who": "aira",
+   "file": "rec/aira-5.mp3",
+   "at": 235.557,
+   "duration": 27.011,
+   "words": [
+    {
+     "text": "Got",
+     "start": 0.1,
+     "end": 0.28
+    },
+    {
+     "text": "it.",
+     "start": 0.34,
+     "end": 0.5
+    },
+    {
+     "text": "I'll",
+     "start": 0.98,
+     "end": 1.1
+    },
+    {
+     "text": "pull",
+     "start": 1.14,
+     "end": 1.34
+    },
+    {
+     "text": "last",
+     "start": 1.4,
+     "end": 1.7
+    },
+    {
+     "text": "month's",
+     "start": 1.74,
+     "end": 2.02
+    },
+    {
+     "text": "recognized",
+     "start": 2.06,
+     "end": 2.6
+    },
+    {
+     "text": "sales,",
+     "start": 2.68,
+     "end": 3.14
+    },
+    {
+     "text": "invoice",
+     "start": 3.44,
+     "end": 3.78
+    },
+    {
+     "text": "basis,",
+     "start": 3.86,
+     "end": 4.26
+    },
+    {
+     "text": "with",
+     "start": 4.66,
+     "end": 4.76
+    },
+    {
+     "text": "the",
+     "start": 4.8,
+     "end": 4.9
+    },
+    {
+     "text": "previous",
+     "start": 4.96,
+     "end": 5.4
+    },
+    {
+     "text": "month",
+     "start": 5.46,
+     "end": 5.64
+    },
+    {
+     "text": "comparison",
+     "start": 5.68,
+     "end": 6.42
+    },
+    {
+     "text": "and",
+     "start": 6.46,
+     "end": 6.58
+    },
+    {
+     "text": "top",
+     "start": 6.64,
+     "end": 6.84
+    },
+    {
+     "text": "contributors.",
+     "start": 6.88,
+     "end": 7.62
+    },
+    {
+     "text": "Hello.",
+     "start": 8.2,
+     "end": 8.54
+    },
+    {
+     "text": "Last",
+     "start": 9.12,
+     "end": 9.38
+    },
+    {
+     "text": "month's",
+     "start": 9.46,
+     "end": 9.68
+    },
+    {
+     "text": "sales",
+     "start": 9.74,
+     "end": 10.14
+    },
+    {
+     "text": "were",
+     "start": 10.18,
+     "end": 10.42
+    },
+    {
+     "text": "IDR",
+     "start": 10.56,
+     "end": 11.18
+    },
+    {
+     "text": "five",
+     "start": 11.48,
+     "end": 11.72
+    },
+    {
+     "text": "billion",
+     "start": 11.82,
+     "end": 12.18
+    },
+    {
+     "text": "sixty-six",
+     "start": 12.42,
+     "end": 13.02
+    },
+    {
+     "text": "million",
+     "start": 13.06,
+     "end": 13.42
+    },
+    {
+     "text": "four",
+     "start": 13.62,
+     "end": 13.82
+    },
+    {
+     "text": "hundred",
+     "start": 13.86,
+     "end": 14.12
+    },
+    {
+     "text": "ninety-one",
+     "start": 14.2,
+     "end": 14.62
+    },
+    {
+     "text": "thousand",
+     "start": 14.72,
+     "end": 15.08
+    },
+    {
+     "text": "five",
+     "start": 15.22,
+     "end": 15.46
+    },
+    {
+     "text": "hundred",
+     "start": 15.5,
+     "end": 15.86
+    },
+    {
+     "text": "net.",
+     "start": 16.079,
+     "end": 16.379
+    },
+    {
+     "text": "Based",
+     "start": 16.98,
+     "end": 17.24
+    },
+    {
+     "text": "on",
+     "start": 17.32,
+     "end": 17.48
+    },
+    {
+     "text": "invoice",
+     "start": 17.56,
+     "end": 18.08
+    },
+    {
+     "text": "date_result,",
+     "start": 18.46,
+     "end": 19.86
+    },
+    {
+     "text": "scope",
+     "start": 20.4,
+     "end": 20.76
+    },
+    {
+     "text": "all,",
+     "start": 21.24,
+     "end": 21.5
+    },
+    {
+     "text": "all",
+     "start": 22,
+     "end": 22.18
+    },
+    {
+     "text": "lab",
+     "start": 22.24,
+     "end": 22.48
+    },
+    {
+     "text": "database",
+     "start": 22.52,
+     "end": 22.96
+    },
+    {
+     "text": "transactions,",
+     "start": 23,
+     "end": 23.72
+    },
+    {
+     "text": "including",
+     "start": 24.08,
+     "end": 24.52
+    },
+    {
+     "text": "those",
+     "start": 24.56,
+     "end": 24.86
+    },
+    {
+     "text": "not",
+     "start": 24.92,
+     "end": 25.14
+    },
+    {
+     "text": "yet",
+     "start": 25.18,
+     "end": 25.4
+    },
+    {
+     "text": "bridged",
+     "start": 25.44,
+     "end": 25.84
+    },
+    {
+     "text": "to",
+     "start": 25.88,
+     "end": 25.96
+    },
+    {
+     "text": "the",
+     "start": 26.02,
+     "end": 26.1
+    },
+    {
+     "text": "ERP",
+     "start": 26.18,
+     "end": 26.76
     }
    ]
   }
@@ -611,107 +864,123 @@
  "events": [
   {
    "name": "mascot:idle",
-   "at": 0.593
+   "at": 0.574
   },
   {
    "name": "home",
-   "at": 0.595
+   "at": 0.575
   },
   {
    "name": "brief:shown",
-   "at": 20.682
+   "at": 98.46
   },
   {
    "name": "mascot:speaking",
-   "at": 26.672
+   "at": 108.455
   },
   {
    "name": "mascot:listening",
-   "at": 57.581
+   "at": 143.526
   },
   {
    "name": "mascot:confirming",
-   "at": 63.716
+   "at": 149.786
   },
   {
    "name": "heard:“Please check the reagents for this month.”",
-   "at": 63.716
+   "at": 149.786
   },
   {
    "name": "mascot:thinking",
-   "at": 65.726
+   "at": 151.804
   },
   {
-   "name": "mascot:speaking",
-   "at": 73.009
+   "name": "mascot:idle",
+   "at": 159.601
   },
   {
    "name": "reagent:findings",
-   "at": 73.013
-  },
-  {
-   "name": "mascot:idle",
-   "at": 76.592
-  },
-  {
-   "name": "mascot:listening",
-   "at": 78.366
-  },
-  {
-   "name": "mascot:confirming",
-   "at": 84.064
-  },
-  {
-   "name": "heard:“summarize the reagent check.”",
-   "at": 84.064
-  },
-  {
-   "name": "mascot:thinking",
-   "at": 86.078
+   "at": 159.687
   },
   {
    "name": "mascot:speaking",
-   "at": 93.418
+   "at": 160.916
   },
   {
    "name": "mascot:idle",
-   "at": 96.684
+   "at": 164.446
+  },
+  {
+   "name": "mascot:listening",
+   "at": 166.24
+  },
+  {
+   "name": "mascot:confirming",
+   "at": 172.147
+  },
+  {
+   "name": "heard:“summarize summarize the reagent check.”",
+   "at": 172.148
+  },
+  {
+   "name": "mascot:thinking",
+   "at": 174.147
+  },
+  {
+   "name": "mascot:idle",
+   "at": 181.167
+  },
+  {
+   "name": "mascot:speaking",
+   "at": 182.296
+  },
+  {
+   "name": "mascot:idle",
+   "at": 185.662
   },
   {
    "name": "reorder:numbers-match",
-   "at": 111.985
+   "at": 196.088
   },
   {
    "name": "mascot:listening",
-   "at": 113.642
+   "at": 197.893
   },
   {
    "name": "mascot:confirming",
-   "at": 121.172
+   "at": 203.225
   },
   {
    "name": "heard:“What were sales last month?”",
-   "at": 121.172
+   "at": 203.225
   },
   {
    "name": "mascot:thinking",
-   "at": 123.188
+   "at": 205.225
   },
   {
    "name": "mascot:speaking",
-   "at": 127.837
+   "at": 212.241
   },
   {
    "name": "mascot:thinking",
-   "at": 131.945
+   "at": 216.508
   },
   {
    "name": "mascot:idle",
-   "at": 142.272
+   "at": 229.71
   },
   {
    "name": "sales:answer",
-   "at": 142.272
+   "at": 229.71
+  },
+  {
+   "name": "mascot:speaking",
+   "at": 235.351
+  },
+  {
+   "name": "mascot:idle",
+   "at": 262.981
   }
  ]
 }

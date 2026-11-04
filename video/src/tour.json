@@ -1,0 +1,26 @@
+{
+ "duration": 22.872,
+ "clips": [],
+ "events": [
+  {
+   "name": "tour:findings",
+   "at": 1.608
+  },
+  {
+   "name": "tour:evidence",
+   "at": 5.332
+  },
+  {
+   "name": "tour:recount",
+   "at": 11.864
+  },
+  {
+   "name": "tour:compared",
+   "at": 15.63
+  },
+  {
+   "name": "tour:differs",
+   "at": 18.351
+  }
+ ]
+}

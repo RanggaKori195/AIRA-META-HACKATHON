@@ -153,7 +153,7 @@ try {
   await send('Page.reload', { ignoreCache: false })
 
   // 1. Greeting + briefing, then the mic opens by itself and hears the first request.
-  await until('the greeting (AIRA audio)', () => has((e) => e.kind === 'aira-audio'), 60000)
+  await until('the greeting (AIRA audio)', () => has((e) => e.kind === 'aira-audio'), 150000)
   await until('the first request to be heard', () => has((e) => e.kind === 'user-clip' && e.id === 'user-reagent'), 120000)
   await until('Reagent Check findings on screen', () => afterClip(events, 'user-reagent', 'reagent:findings'), 120000)
   await quiet('the reagent check')
